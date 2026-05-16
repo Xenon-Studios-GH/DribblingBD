@@ -8,141 +8,63 @@
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="page-transition">
-  <!-- Navbar -->
   <nav class="navbar">
     <div class="container mx-auto px-6">
       <div class="flex items-center justify-between">
-        <a href="index.html" class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center"><span class="text-2xl font-bold text-primary-bg font-display">D</span></div>
-          <span class="text-2xl font-bold font-display tracking-wide">DRIDDLING<span class="text-accent-neon">BD</span></span>
-        </a>
+        <a href="index.html" class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-soft-accent flex items-center justify-center"><span class="text-lg font-bold text-white">D</span></div><span class="text-xl font-bold">DRIDDLING<span class="text-accent">BD</span></span></a>
         <div class="hidden lg:flex items-center gap-8">
           <a href="index.html" class="nav-link">Home</a>
-          <a href="shop.html" class="nav-link">Shop</a>
-          <a href="about.html" class="nav-link">About</a>
           <a href="contact.html" class="nav-link active">Contact</a>
         </div>
-        <div class="flex items-center gap-4">
-          <a href="cart.html" class="p-3 rounded-xl bg-glass border border-glass-border relative">
-            <span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-accent-neon text-primary-bg text-xs font-bold rounded-full flex items-center justify-center" style="display: none;">0</span>
-          </a>
-          <button class="mobile-menu-btn lg:hidden"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <div class="flex items-center gap-3">
+          <a href="cart.html" class="p-2.5 rounded-xl relative"><span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs font-medium rounded-full flex items-center justify-center">0</span></a>
         </div>
       </div>
     </div>
   </nav>
-  <div class="nav-menu">
-    <button class="nav-menu-close">&times;</button>
-    <div class="flex flex-col gap-6">
-      <a href="index.html" class="nav-link text-2xl">Home</a>
-      <a href="contact.html" class="nav-link text-2xl active">Contact</a>
-    </div>
-  </div>
 
-  <!-- Hero -->
-  <section class="pt-32 pb-16 bg-secondary">
+  <section class="pt-28 pb-12 bg-secondary-bg">
     <div class="container mx-auto px-6">
-      <div class="text-center reveal">
-        <h1 class="text-5xl font-display mb-4">GET IN <span class="gradient-text">TOUCH</span></h1>
-        <p class="text-gray-400">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
-      </div>
+      <h1 class="text-4xl font-bold text-center">GET IN <span class="gradient-text">TOUCH</span></h1>
     </div>
   </section>
 
-  <!-- Contact Cards -->
   <section class="section-padding">
     <div class="container mx-auto px-6">
-      <div class="grid md:grid-cols-3 gap-8 mb-16">
-        <div class="contact-card reveal">
-          <div class="contact-icon">📍</div>
-          <h4 class="font-semibold mb-2">Visit Us</h4>
-          <p class="text-gray-400">Dhaka, Bangladesh</p>
-        </div>
-        <div class="contact-card reveal" style="transition-delay: 0.1s;">
-          <div class="contact-icon">📞</div>
-          <h4 class="font-semibold mb-2">Call Us</h4>
-          <p class="text-gray-400">+880 1234 567890</p>
-        </div>
-        <div class="contact-card reveal" style="transition-delay: 0.2s;">
-          <div class="contact-icon">✉️</div>
-          <h4 class="font-semibold mb-2">Email Us</h4>
-          <p class="text-gray-400">info@driddlingbd.com</p>
-        </div>
+      <div class="grid md:grid-cols-3 gap-6 mb-12">
+        <div class="contact-card"><div class="contact-icon">📍</div><h4 class="font-semibold">Visit Us</h4><p class="text-secondary">Dhaka, Bangladesh</p></div>
+        <div class="contact-card"><div class="contact-icon">📞</div><h4 class="font-semibold">Call Us</h4><p class="text-secondary">+880 1234 567890</p></div>
+        <div class="contact-card"><div class="contact-icon">✉️</div><h4 class="font-semibold">Email Us</h4><p class="text-secondary">info@driddlingbd.com</p></div>
       </div>
 
-      <!-- Contact Form -->
       <div class="grid lg:grid-cols-2 gap-12">
-        <div class="reveal">
-          <form class="contact-form space-y-6">
-            <div class="grid md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-gray-400 mb-2">Name</label>
-                <input type="text" class="input-field" placeholder="Your name" required>
-              </div>
-              <div>
-                <label class="block text-gray-400 mb-2">Email</label>
-                <input type="email" class="input-field" placeholder="Your email" required>
-              </div>
-            </div>
-            <div>
-              <label class="block text-gray-400 mb-2">Phone</label>
-              <input type="tel" class="input-field" placeholder="Your phone number">
-            </div>
-            <div>
-              <label class="block text-gray-400 mb-2">Subject</label>
-              <select class="input-field">
-                <option>General Inquiry</option>
-                <option>Custom Order Quote</option>
-                <option>Bulk Order</option>
-                <option>Partnership</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-gray-400 mb-2">Message</label>
-              <textarea class="input-field" rows="6" placeholder="Your message" required></textarea>
-            </div>
-            <button type="submit" class="btn-primary">
-              <span>Send Message</span>
-              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            </button>
-          </form>
-        </div>
-        <div class="reveal" style="transition-delay: 0.2s;">
-          <div class="glass-card p-8 h-full">
-            <h3 class="text-2xl font-semibold mb-6">Business Hours</h3>
-            <div class="space-y-4 text-gray-400">
-              <p>Monday - Friday: 9:00 AM - 8:00 PM</p>
-              <p>Saturday: 10:00 AM - 6:00 PM</p>
-              <p>Sunday: Closed</p>
-            </div>
-            <h3 class="text-2xl font-semibold mt-8 mb-6">Follow Us</h3>
-            <div class="flex gap-4">
-              <a href="#" class="footer-social">🐦</a>
-              <a href="#" class="footer-social">📸</a>
-              <a href="#" class="footer-social">📘</a>
-              <a href="#" class="footer-social">📱</a>
-            </div>
-            <div class="mt-8 p-6 bg-accent-neon/10 rounded-xl">
-              <h4 class="font-semibold mb-2">WhatsApp Us</h4>
-              <p class="text-gray-400 text-sm mb-4">Quick responses on WhatsApp</p>
-              <a href="https://wa.me/8801234567890" class="btn-primary text-sm">💬 Start Chat</a>
-            </div>
+        <form class="contact-form space-y-6">
+          <div class="grid md:grid-cols-2 gap-4">
+            <input type="text" class="input-field" placeholder="Your Name" required>
+            <input type="email" class="input-field" placeholder="Your Email" required>
           </div>
+          <input type="tel" class="input-field" placeholder="Phone Number">
+          <textarea class="input-field" rows="5" placeholder="Your Message" required></textarea>
+          <button type="submit" class="btn-primary">Send Message</button>
+        </form>
+        <div class="card p-8">
+          <h3 class="font-semibold text-lg mb-4">Business Hours</h3>
+          <p class="text-secondary mb-2">Mon - Fri: 9:00 AM - 8:00 PM</p>
+          <p class="text-secondary mb-4">Sat: 10:00 AM - 6:00 PM</p>
+          <a href="https://wa.me/8801234567890" class="btn-primary inline-flex">💬 WhatsApp</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container mx-auto px-6">
-      <div class="border-t border-border-color pt-8 pb-8 text-center">
-        <p class="text-gray-400 text-sm">© 2024 DriddlingBD. All rights reserved.</p>
-      </div>
+      <div class="border-t border-border-color py-6 text-center"><p class="text-secondary text-sm">© 2024 DriddlingBD. All rights reserved.</p></div>
     </div>
   </footer>
+
   <a href="https://wa.me/8801234567890" class="whatsapp-float">💬</a>
+
   <script src="assets/js/main.js"></script>
 </body>
 </html>

@@ -13,25 +13,21 @@
     <div class="container mx-auto px-6">
       <div class="flex items-center justify-between">
         <a href="index.html" class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center">
-            <span class="text-2xl font-bold text-primary-bg font-display">D</span>
-          </div>
-          <span class="text-2xl font-bold font-display tracking-wide">DRIDDLING<span class="text-accent-neon">BD</span></span>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-soft-accent flex items-center justify-center"><span class="text-lg font-bold text-white">D</span></div>
+          <span class="text-xl font-bold">DRIDDLING<span class="text-accent">BD</span></span>
         </a>
         <div class="hidden lg:flex items-center gap-8">
           <a href="index.html" class="nav-link">Home</a>
           <a href="shop.html" class="nav-link">Shop</a>
           <a href="custom-jersey.html" class="nav-link active">Custom Jersey</a>
-          <a href="corporate.html" class="nav-link">Corporate</a>
           <a href="about.html" class="nav-link">About</a>
           <a href="contact.html" class="nav-link">Contact</a>
         </div>
-        <div class="flex items-center gap-4">
-          <a href="cart.html" class="p-3 rounded-xl bg-glass border border-glass-border hover:border-accent-neon transition-all relative">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-            <span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-accent-neon text-primary-bg text-xs font-bold rounded-full flex items-center justify-center" style="display: none;">0</span>
+        <div class="flex items-center gap-3">
+          <a href="cart.html" class="p-2.5 rounded-xl relative">
+            <span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs font-medium rounded-full flex items-center justify-center">0</span>
           </a>
-          <button class="mobile-menu-btn lg:hidden"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <button class="mobile-menu-btn lg:hidden"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         </div>
       </div>
     </div>
@@ -39,23 +35,18 @@
 
   <div class="nav-menu">
     <button class="nav-menu-close">&times;</button>
-    <div class="flex flex-col gap-6">
-      <a href="index.html" class="nav-link text-2xl">Home</a>
-      <a href="shop.html" class="nav-link text-2xl">Shop</a>
-      <a href="custom-jersey.html" class="nav-link text-2xl active">Custom Jersey</a>
-      <a href="corporate.html" class="nav-link text-2xl">Corporate</a>
-      <a href="about.html" class="nav-link text-2xl">About</a>
-      <a href="contact.html" class="nav-link text-2xl">Contact</a>
+    <div class="flex flex-col gap-5">
+      <a href="index.html" class="nav-link text-lg">Home</a>
+      <a href="custom-jersey.html" class="nav-link text-lg active">Custom Jersey</a>
+      <a href="contact.html" class="nav-link text-lg">Contact</a>
     </div>
   </div>
 
   <!-- Page Header -->
-  <section class="pt-32 pb-16 bg-secondary">
+  <section class="pt-28 pb-12 bg-secondary-bg">
     <div class="container mx-auto px-6">
-      <div class="text-center reveal">
-        <h1 class="text-5xl font-display mb-4">CUSTOM <span class="gradient-text">JERSEY</span></h1>
-        <p class="text-gray-400">Design your own premium custom jersey with our easy-to-use configurator</p>
-      </div>
+      <h1 class="text-4xl font-bold text-center">CUSTOM <span class="gradient-text">JERSEY</span></h1>
+      <p class="text-secondary text-center mt-3">Design your own premium custom jersey</p>
     </div>
   </section>
 
@@ -66,160 +57,67 @@
         <!-- Preview -->
         <div class="reveal">
           <div class="configurator-panel">
-            <h3 class="text-xl font-semibold mb-6 text-center">LIVE PREVIEW</h3>
-            <div class="config-preview relative">
-              <svg viewBox="0 0 200 280" class="w-full h-full">
-                <!-- Jersey Shape -->
-                <path id="jersey-body" d="M50 40 L70 30 L100 25 L130 30 L150 40 L150 120 L140 250 L60 250 L50 120 Z" fill="#1E3A5F" stroke="#00E5A8" stroke-width="2"/>
-                <!-- Collar -->
-                <path d="M85 25 Q100 35 115 25" fill="none" stroke="#00E5A8" stroke-width="3"/>
-                <!-- Sleeves -->
-                <path d="M50 40 L20 80 L35 90 L50 60" fill="#1E3A5F" stroke="#00E5A8" stroke-width="2"/>
-                <path d="M150 40 L180 80 L165 90 L150 60" fill="#1E3A5F" stroke="#00E5A8" stroke-width="2"/>
-                <!-- Pattern overlay -->
-                <g id="pattern-overlay" opacity="0.3">
-                  <circle cx="70" cy="80" r="15" fill="#00E5A8"/>
-                  <circle cx="130" cy="80" r="15" fill="#00E5A8"/>
-                  <circle cx="100" cy="150" r="25" fill="#00E5A8"/>
-                </g>
-                <!-- Player Name -->
-                <text id="preview-name" x="100" y="130" text-anchor="middle" fill="#FFFFFF" font-size="12" font-weight="bold">YOUR NAME</text>
-                <!-- Player Number -->
-                <text id="preview-number" x="100" y="190" text-anchor="middle" fill="#FFFFFF" font-size="36" font-weight="bold">10</text>
-              </svg>
+            <h3 class="font-semibold mb-4 text-center">LIVE PREVIEW</h3>
+            <div class="config-preview">
+              <div class="text-center">
+                <p class="text-6xl font-bold opacity-20">10</p>
+                <p class="text-xl mt-2">YOUR NAME</p>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Controls -->
         <div class="reveal" style="transition-delay: 0.2s;">
-          <div class="configurator-panel">
+          <div class="configurator-panel space-y-6">
             <!-- Jersey Type -->
-            <div class="mb-8">
-              <h4 class="font-semibold mb-4">Jersey Type</h4>
-              <div class="grid grid-cols-2 gap-4">
-                <button class="filter-btn active p-4 text-center" data-type="cricket">🏏 Cricket</button>
-                <button class="filter-btn p-4 text-center" data-type="football">⚽ Football</button>
-                <button class="filter-btn p-4 text-center" data-type="basketball">🏀 Basketball</button>
-                <button class="filter-btn p-4 text-center" data-type="esports">🎮 Esports</button>
+            <div>
+              <h4 class="font-semibold mb-3">Jersey Type</h4>
+              <div class="grid grid-cols-2 gap-3">
+                <button class="filter-btn active p-3 text-center text-sm" data-type="cricket">🏏 Cricket</button>
+                <button class="filter-btn p-3 text-center text-sm" data-type="football">⚽ Football</button>
               </div>
             </div>
 
             <!-- Base Color -->
-            <div class="mb-8">
-              <h4 class="font-semibold mb-4">Base Color</h4>
+            <div>
+              <h4 class="font-semibold mb-3">Base Color</h4>
               <div class="color-picker-grid">
-                <button class="color-swatch selected" style="background-color: #1E3A5F" data-color="#1E3A5F"></button>
-                <button class="color-swatch" style="background-color: #FF6B00" data-color="#FF6B00"></button>
-                <button class="color-swatch" style="background-color: #3B82F6" data-color="#3B82F6"></button>
-                <button class="color-swatch" style="background-color: #00E5A8" data-color="#00E5A8"></button>
-                <button class="color-swatch" style="background-color: #FF3366" data-color="#FF3366"></button>
-                <button class="color-swatch" style="background-color: #FFD700" data-color="#FFD700"></button>
-                <button class="color-swatch" style="background-color: #8B5CF6" data-color="#8B5CF6"></button>
-                <button class="color-swatch" style="background-color: #000000" data-color="#000000"></button>
-                <button class="color-swatch" style="background-color: #FFFFFF" data-color="#FFFFFF"></button>
-                <button class="color-swatch" style="background-color: #FF0000" data-color="#FF0000"></button>
-                <button class="color-swatch" style="background-color: #00FF00" data-color="#00FF00"></button>
-                <button class="color-swatch" style="background-color: #FF00FF" data-color="#FF00FF"></button>
-              </div>
-            </div>
-
-            <!-- Pattern -->
-            <div class="mb-8">
-              <h4 class="font-semibold mb-4">Pattern</h4>
-              <div class="grid grid-cols-4 gap-3">
-                <button class="pattern-option p-3 border border-border-color rounded-lg text-center hover:border-accent-neon" data-pattern="none">
-                  <div class="w-12 h-12 mx-auto rounded bg-secondary mb-2"></div>
-                  <span class="text-xs">Solid</span>
-                </button>
-                <button class="pattern-option p-3 border border-border-color rounded-lg text-center hover:border-accent-neon" data-pattern="stripes">
-                  <div class="w-12 h-12 mx-auto rounded bg-gradient-to-r from-secondary to-accent-neon mb-2"></div>
-                  <span class="text-xs">Stripes</span>
-                </button>
-                <button class="pattern-option p-3 border border-border-color rounded-lg text-center hover:border-accent-neon" data-pattern="check">
-                  <div class="w-12 h-12 mx-auto rounded bg-checkered mb-2" style="background-image: repeating-linear-gradient(45deg, #1E3A5F 0, #1E3A5F 5px, #00E5A8 5px, #00E5A8 10px)"></div>
-                  <span class="text-xs">Check</span>
-                </button>
-                <button class="pattern-option p-3 border border-border-color rounded-lg text-center hover:border-accent-neon" data-pattern="gradient">
-                  <div class="w-12 h-12 mx-auto rounded bg-gradient-to-br from-secondary to-accent-neon mb-2"></div>
-                  <span class="text-xs">Gradient</span>
-                </button>
+                <button class="color-swatch selected" style="background-color: #1E3A5F"></button>
+                <button class="color-swatch" style="background-color: #2563EB"></button>
+                <button class="color-swatch" style="background-color: #EF4444"></button>
+                <button class="color-swatch" style="background-color: #10B981"></button>
+                <button class="color-swatch" style="background-color: #F59E0B"></button>
+                <button class="color-swatch" style="background-color: #7C3AED"></button>
               </div>
             </div>
 
             <!-- Player Details -->
-            <div class="mb-8">
-              <h4 class="font-semibold mb-4">Player Details</h4>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm text-gray-400 mb-2">Player Name</label>
-                  <input type="text" class="player-name input-field" placeholder="Enter player name" maxlength="15">
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-400 mb-2">Player Number</label>
-                  <input type="text" class="player-number input-field" placeholder="Enter number" maxlength="3">
-                </div>
-              </div>
-            </div>
-
-            <!-- Logo Upload -->
-            <div class="mb-8">
-              <h4 class="font-semibold mb-4">Team Logo (Optional)</h4>
-              <div class="border-2 border-dashed border-border-color rounded-xl p-8 text-center hover:border-accent-neon transition-colors cursor-pointer">
-                <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                <p class="text-gray-400">Click to upload or drag and drop</p>
-                <p class="text-gray-500 text-sm mt-2">PNG, JPG up to 5MB</p>
+            <div>
+              <h4 class="font-semibold mb-3">Player Details</h4>
+              <div class="space-y-3">
+                <input type="text" class="input-field" placeholder="Player Name" maxlength="15">
+                <input type="text" class="input-field" placeholder="Player Number" maxlength="3">
               </div>
             </div>
 
             <!-- Quantity -->
-            <div class="mb-8">
-              <h4 class="font-semibold mb-4">Quantity</h4>
+            <div>
+              <h4 class="font-semibold mb-3">Quantity</h4>
               <div class="flex items-center gap-4">
                 <div class="quantity-control">
-                  <button class="quantity-btn" onclick="let q=document.getElementById('custom-qty');q.value=Math.max(1,parseInt(q.value)-1)">−</button>
-                  <input type="number" id="custom-qty" class="quantity-input w-20 text-center bg-secondary border border-border-color rounded-lg py-2 mx-2" value="10" min="10">
-                  <button class="quantity-btn" onclick="let q=document.getElementById('custom-qty');q.value=parseInt(q.value)+1">+</button>
+                  <button class="quantity-btn">−</button>
+                  <span class="quantity-value px-3">10</span>
+                  <button class="quantity-btn">+</button>
                 </div>
-                <span class="text-gray-400 text-sm">Min. order: 10 pieces</span>
+                <span class="text-secondary text-sm">Min. order: 10 pieces</span>
               </div>
             </div>
 
-            <!-- Submit -->
-            <button class="btn-primary w-full justify-center" onclick="submitCustomOrder()">
-              <span>Get Quote</span>
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <button class="btn-primary w-full justify-center" onclick="window.DriddlingBD.showToast('Quote request submitted!', 'success')">
+              Get Quote
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Process Steps -->
-  <section class="section-padding bg-secondary">
-    <div class="container mx-auto px-6">
-      <h2 class="section-title text-center mb-12">HOW IT <span class="gradient-text">WORKS</span></h2>
-      <div class="grid md:grid-cols-4 gap-8">
-        <div class="text-center reveal">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center text-3xl font-bold">1</div>
-          <h4 class="font-semibold mb-2">Choose Template</h4>
-          <p class="text-gray-400 text-sm">Select your jersey type and base design</p>
-        </div>
-        <div class="text-center reveal" style="transition-delay: 0.1s;">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center text-3xl font-bold">2</div>
-          <h4 class="font-semibold mb-2">Customize</h4>
-          <p class="text-gray-400 text-sm">Add colors, name, number & logo</p>
-        </div>
-        <div class="text-center reveal" style="transition-delay: 0.2s;">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center text-3xl font-bold">3</div>
-          <h4 class="font-semibold mb-2">Preview</h4>
-          <p class="text-gray-400 text-sm">Review your design in real-time</p>
-        </div>
-        <div class="text-center reveal" style="transition-delay: 0.3s;">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center text-3xl font-bold">4</div>
-          <h4 class="font-semibold mb-2">Order</h4>
-          <p class="text-gray-400 text-sm">Place order and receive in 7-14 days</p>
         </div>
       </div>
     </div>
@@ -228,54 +126,14 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="container mx-auto px-6">
-      <div class="grid md:grid-cols-4 gap-12 mb-16">
-        <div>
-          <a href="index.html" class="flex items-center gap-3 mb-6">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center"><span class="text-2xl font-bold text-primary-bg font-display">D</span></div>
-            <span class="text-2xl font-bold font-display">DRIDDLING<span class="text-accent-neon">BD</span></span>
-          </a>
-          <p class="text-gray-400">Premium sports jerseys and corporate apparel manufacturer.</p>
-        </div>
-        <div><h4 class="text-lg font-semibold mb-6">Quick Links</h4><div class="flex flex-col gap-3"><a href="shop.html" class="footer-link">Shop</a><a href="custom-jersey.html" class="footer-link">Custom Jersey</a><a href="about.html" class="footer-link">About Us</a></div></div>
-        <div><h4 class="text-lg font-semibold mb-6">Service</h4><div class="flex flex-col gap-3"><a href="contact.html" class="footer-link">Contact Us</a><a href="#" class="footer-link">Shipping</a></div></div>
-        <div><h4 class="text-lg font-semibold mb-6">Contact</h4><p class="text-gray-400">📍 Dhaka, Bangladesh</p><p class="text-gray-400">📞 +880 1234 567890</p></div>
+      <div class="border-t border-border-color py-6 text-center">
+        <p class="text-secondary text-sm">© 2024 DriddlingBD. All rights reserved.</p>
       </div>
-      <div class="border-t border-border-color pt-8 pb-8 text-center"><p class="text-gray-400 text-sm">© 2024 DriddlingBD. All rights reserved.</p></div>
     </div>
   </footer>
 
   <a href="https://wa.me/8801234567890" class="whatsapp-float">💬</a>
 
   <script src="assets/js/main.js"></script>
-  <script>
-    // Configurator functionality
-    document.querySelectorAll('.color-swatch').forEach(swatch => {
-      swatch.addEventListener('click', () => {
-        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-        swatch.classList.add('selected');
-        const color = swatch.dataset.color;
-        document.getElementById('jersey-body').setAttribute('fill', color);
-      });
-    });
-
-    document.querySelectorAll('.pattern-option').forEach(opt => {
-      opt.addEventListener('click', () => {
-        document.querySelectorAll('.pattern-option').forEach(o => o.classList.remove('active'));
-        opt.classList.add('active');
-      });
-    });
-
-    document.querySelector('.player-name').addEventListener('input', (e) => {
-      document.getElementById('preview-name').textContent = e.target.value.toUpperCase() || 'YOUR NAME';
-    });
-
-    document.querySelector('.player-number').addEventListener('input', (e) => {
-      document.getElementById('preview-number').textContent = e.target.value || '10';
-    });
-
-    function submitCustomOrder() {
-      window.DriddlingBD.showToast('Quote request submitted! We will contact you soon.', 'success');
-    }
-  </script>
 </body>
 </html>
