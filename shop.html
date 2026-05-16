@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop | DriddlingBD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="shop-page page-transition">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container mx-auto px-6">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center">
+            <span class="text-2xl font-bold text-primary-bg font-display">D</span>
+          </div>
+          <span class="text-2xl font-bold font-display tracking-wide">DRIDDLING<span class="text-accent-neon">BD</span></span>
+        </a>
+
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="shop.html" class="nav-link active">Shop</a>
+          <a href="custom-jersey.html" class="nav-link">Custom Jersey</a>
+          <a href="corporate.html" class="nav-link">Corporate</a>
+          <a href="about.html" class="nav-link">About</a>
+          <a href="blog.html" class="nav-link">Blog</a>
+          <a href="contact.html" class="nav-link">Contact</a>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button class="p-3 rounded-xl bg-glass border border-glass-border hover:border-accent-neon transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </button>
+          <a href="cart.html" class="p-3 rounded-xl bg-glass border border-glass-border hover:border-accent-neon transition-all relative">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-accent-neon text-primary-bg text-xs font-bold rounded-full flex items-center justify-center" style="display: none;">0</span>
+          </a>
+          <a href="login.html" class="hidden md:flex btn-primary">Login</a>
+          <button class="mobile-menu-btn lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="nav-menu">
+    <button class="nav-menu-close">&times;</button>
+    <div class="flex flex-col gap-6">
+      <a href="index.html" class="nav-link text-2xl">Home</a>
+      <a href="shop.html" class="nav-link text-2xl active">Shop</a>
+      <a href="custom-jersey.html" class="nav-link text-2xl">Custom Jersey</a>
+      <a href="corporate.html" class="nav-link text-2xl">Corporate</a>
+      <a href="about.html" class="nav-link text-2xl">About</a>
+      <a href="blog.html" class="nav-link text-2xl">Blog</a>
+      <a href="contact.html" class="nav-link text-2xl">Contact</a>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <section class="pt-32 pb-16 bg-secondary">
+    <div class="container mx-auto px-6">
+      <div class="text-center reveal">
+        <h1 class="text-5xl font-display mb-4">OUR <span class="gradient-text">PRODUCTS</span></h1>
+        <p class="text-gray-400">Explore our premium collection of sports jerseys and corporate apparel</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shop Section -->
+  <section class="section-padding">
+    <div class="container mx-auto px-6">
+      <!-- Filters -->
+      <div class="flex flex-col lg:flex-row gap-8 mb-12">
+        <!-- Sidebar Filters -->
+        <div class="lg:w-1/4">
+          <div class="glass-card p-6 sticky top-24">
+            <h3 class="text-xl font-semibold mb-6">Filters</h3>
+            
+            <!-- Categories -->
+            <div class="mb-8">
+              <h4 class="font-semibold mb-4 text-gray-400 text-sm uppercase tracking-wider">Categories</h4>
+              <div class="space-y-3">
+                <button class="filter-btn filter-category w-full text-left active" data-category="all">All Products</button>
+                <button class="filter-btn filter-category w-full text-left" data-category="cricket">Cricket Jersey</button>
+                <button class="filter-btn filter-category w-full text-left" data-category="football">Football Jersey</button>
+                <button class="filter-btn filter-category w-full text-left" data-category="esports">Esports Jersey</button>
+                <button class="filter-btn filter-category w-full text-left" data-category="basketball">Basketball Jersey</button>
+                <button class="filter-btn filter-category w-full text-left" data-category="corporate">Corporate Polo</button>
+                <button class="filter-btn filter-category w-full text-left" data-category="team">Team Uniform</button>
+                <button class="filter-btn filter-category w-full text-left" data-category="gym">Gym Wear</button>
+                <button class="filter-btn filter-category w-full text-left" data-category="school">School Uniform</button>
+              </div>
+            </div>
+
+            <!-- Price Range -->
+            <div class="mb-8">
+              <h4 class="font-semibold mb-4 text-gray-400 text-sm uppercase tracking-wider">Price Range</h4>
+              <div class="space-y-3">
+                <button class="filter-btn filter-price w-full text-left active" data-range="all">All Prices</button>
+                <button class="filter-btn filter-price w-full text-left" data-range="0-1500">Under ₹1,500</button>
+                <button class="filter-btn filter-price w-full text-left" data-range="1500-2500">₹1,500 - ₹2,500</button>
+                <button class="filter-btn filter-price w-full text-left" data-range="2500-5000">₹2,500 - ₹5,000</button>
+                <button class="filter-btn filter-price w-full text-left" data-range="5000-999999">Above ₹5,000</button>
+              </div>
+            </div>
+
+            <!-- Search -->
+            <div>
+              <h4 class="font-semibold mb-4 text-gray-400 text-sm uppercase tracking-wider">Search</h4>
+              <input type="text" class="search-input input-field" placeholder="Search products...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="lg:w-3/4">
+          <!-- Sort & Results -->
+          <div class="flex flex-col sm:flex-row justify-between items-center mb-8">
+            <p class="text-gray-400"><span class="text-primary-text font-semibold">8</span> products found</p>
+            <select class="sort-select input-field w-auto mt-4 sm:mt-0">
+              <option value="popular">Sort by: Popular</option>
+              <option value="newest">Sort by: Newest</option>
+              <option value="price-low">Sort by: Price (Low to High)</option>
+              <option value="price-high">Sort by: Price (High to Low)</option>
+            </select>
+          </div>
+
+          <!-- Products -->
+          <div class="product-grid">
+            <!-- Products rendered by JS -->
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination">
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div>
+          <a href="index.html" class="flex items-center gap-3 mb-6">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center">
+              <span class="text-2xl font-bold text-primary-bg font-display">D</span>
+            </div>
+            <span class="text-2xl font-bold font-display tracking-wide">DRIDDLING<span class="text-accent-neon">BD</span></span>
+          </a>
+          <p class="text-gray-400 mb-6">Premium sports jerseys and corporate apparel manufacturer.</p>
+          <div class="flex gap-4">
+            <a href="#" class="footer-social">🐦</a>
+            <a href="#" class="footer-social">📸</a>
+            <a href="#" class="footer-social">📘</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-6">Quick Links</h4>
+          <div class="flex flex-col gap-3">
+            <a href="shop.html" class="footer-link">Shop</a>
+            <a href="custom-jersey.html" class="footer-link">Custom Jersey</a>
+            <a href="corporate.html" class="footer-link">Corporate</a>
+            <a href="about.html" class="footer-link">About Us</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-6">Service</h4>
+          <div class="flex flex-col gap-3">
+            <a href="contact.html" class="footer-link">Contact Us</a>
+            <a href="#" class="footer-link">Shipping Policy</a>
+            <a href="#" class="footer-link">Returns</a>
+            <a href="#" class="footer-link">Size Guide</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-6">Contact</h4>
+          <p class="text-gray-400">📍 Dhaka, Bangladesh</p>
+          <p class="text-gray-400">📞 +880 1234 567890</p>
+          <p class="text-gray-400">✉️ info@driddlingbd.com</p>
+        </div>
+      </div>
+      <div class="border-t border-border-color pt-8 pb-8 text-center">
+        <p class="text-gray-400 text-sm">© 2024 DriddlingBD. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/8801234567890" class="whatsapp-float">💬</a>
+
+  <div class="mobile-nav">
+    <a href="index.html" class="mobile-nav-item"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Home</span></a>
+    <a href="shop.html" class="mobile-nav-item active"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg><span>Shop</span></a>
+    <a href="custom-jersey.html" class="mobile-nav-item"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg><span>Custom</span></a>
+    <a href="cart.html" class="mobile-nav-item"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Cart</span></a>
+    <a href="contact.html" class="mobile-nav-item"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg><span>Contact</span></a>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

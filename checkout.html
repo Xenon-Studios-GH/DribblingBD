@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | DriddlingBD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="page-transition">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container mx-auto px-6">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center"><span class="text-2xl font-bold text-primary-bg font-display">D</span></div>
+          <span class="text-2xl font-bold font-display tracking-wide">DRIDDLING<span class="text-accent-neon">BD</span></span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <section class="pt-28 pb-8 bg-secondary">
+    <div class="container mx-auto px-6">
+      <h1 class="text-4xl font-display text-center">SECURE <span class="gradient-text">CHECKOUT</span></h1>
+    </div>
+  </section>
+
+  <!-- Checkout Section -->
+  <section class="section-padding pt-8">
+    <div class="container mx-auto px-6">
+      <form class="checkout-form">
+        <div class="grid lg:grid-cols-3 gap-12">
+          <!-- Form Columns -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- Billing Info -->
+            <div class="glass-card p-8">
+              <h3 class="text-xl font-semibold mb-6">Billing Information</h3>
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-gray-400 mb-2">First Name *</label>
+                  <input type="text" class="input-field" required>
+                </div>
+                <div>
+                  <label class="block text-gray-400 mb-2">Last Name *</label>
+                  <input type="text" class="input-field" required>
+                </div>
+              </div>
+              <div class="mt-6">
+                <label class="block text-gray-400 mb-2">Company Name</label>
+                <input type="text" class="input-field">
+              </div>
+              <div class="mt-6">
+                <label class="block text-gray-400 mb-2">Email Address *</label>
+                <input type="email" class="input-field" required>
+              </div>
+              <div class="mt-6">
+                <label class="block text-gray-400 mb-2">Phone Number *</label>
+                <input type="tel" class="input-field" required>
+              </div>
+              <div class="mt-6">
+                <label class="block text-gray-400 mb-2">Address *</label>
+                <input type="text" class="input-field" required>
+              </div>
+              <div class="grid md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <label class="block text-gray-400 mb-2">City *</label>
+                  <input type="text" class="input-field" required>
+                </div>
+                <div>
+                  <label class="block text-gray-400 mb-2">Postal Code *</label>
+                  <input type="text" class="input-field" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="glass-card p-8">
+              <h3 class="text-xl font-semibold mb-6">Payment Method</h3>
+              <div class="space-y-4">
+                <label class="flex items-center p-4 border border-border-color rounded-xl cursor-pointer hover:border-accent-neon">
+                  <input type="radio" name="payment" class="mr-4" checked>
+                  <div class="flex-1">
+                    <p class="font-semibold">Cash on Delivery</p>
+                    <p class="text-gray-400 text-sm">Pay when you receive your order</p>
+                  </div>
+                  <span class="text-2xl">💵</span>
+                </label>
+                <label class="flex items-center p-4 border border-border-color rounded-xl cursor-pointer hover:border-accent-neon">
+                  <input type="radio" name="payment" class="mr-4">
+                  <div class="flex-1">
+                    <p class="font-semibold">Mobile Banking</p>
+                    <p class="text-gray-400 text-sm">bKash, Nagad, Rocket</p>
+                  </div>
+                  <span class="text-2xl">📱</span>
+                </label>
+                <label class="flex items-center p-4 border border-border-color rounded-xl cursor-pointer hover:border-accent-neon">
+                  <input type="radio" name="payment" class="mr-4">
+                  <div class="flex-1">
+                    <p class="font-semibold">Bank Transfer</p>
+                    <p class="text-gray-400 text-sm">Direct bank transfer</p>
+                  </div>
+                  <span class="text-2xl">🏦</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Summary Sidebar -->
+          <div class="lg:col-span-1">
+            <div class="glass-card p-8 sticky top-24">
+              <h3 class="text-xl font-semibold mb-6">Your Order</h3>
+              
+              <div class="space-y-4 mb-6" id="checkout-items">
+                <!-- Rendered by JS -->
+              </div>
+
+              <div class="border-t border-border-color pt-4 space-y-2">
+                <div class="flex justify-between text-gray-400">
+                  <span>Subtotal</span>
+                  <span class="cart-subtotal">₹0</span>
+                </div>
+                <div class="flex justify-between text-gray-400">
+                  <span>Shipping</span>
+                  <span class="text-accent-neon">Free</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold pt-4">
+                  <span>Total</span>
+                  <span class="cart-total text-accent-neon">₹0</span>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-primary w-full justify-center mt-8">
+                Place Order
+              </button>
+
+              <p class="text-gray-500 text-xs text-center mt-4">By placing this order, you agree to our Terms & Conditions</p>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer mt-16">
+    <div class="container mx-auto px-6">
+      <div class="border-t border-border-color pt-8 pb-8 text-center">
+        <p class="text-gray-400 text-sm">© 2024 DriddlingBD. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  <a href="https://wa.me/8801234567890" class="whatsapp-float">💬</a>
+  <script src="assets/js/main.js"></script>
+  <script>
+    // Render checkout items
+    const cart = JSON.parse(localStorage.getItem('driddling_cart')) || [];
+    const checkoutItems = document.getElementById('checkout-items');
+    if (checkoutItems) {
+      checkoutItems.innerHTML = cart.map(item => `
+        <div class="flex gap-4">
+          <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover">
+          <div class="flex-1">
+            <p class="font-semibold text-sm">${item.name}</p>
+            <p class="text-gray-400 text-sm">Qty: ${item.quantity}</p>
+          </div>
+          <p class="font-semibold">₹${(item.price * item.quantity).toLocaleString()}</p>
+        </div>
+      `).join('') || '<p class="text-gray-400">Your cart is empty</p>';
+    }
+  </script>
+</body>
+</html>

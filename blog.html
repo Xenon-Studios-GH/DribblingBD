@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog | DriddlingBD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="page-transition">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container mx-auto px-6">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center"><span class="text-2xl font-bold text-primary-bg font-display">D</span></div>
+          <span class="text-2xl font-bold font-display tracking-wide">DRIDDLING<span class="text-accent-neon">BD</span></span>
+        </a>
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="shop.html" class="nav-link">Shop</a>
+          <a href="blog.html" class="nav-link active">Blog</a>
+          <a href="contact.html" class="nav-link">Contact</a>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="cart.html" class="p-3 rounded-xl bg-glass border border-glass-border relative">
+            <span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-accent-neon text-primary-bg text-xs font-bold rounded-full flex items-center justify-center" style="display: none;">0</span>
+          </a>
+          <button class="mobile-menu-btn lg:hidden"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-menu">
+    <button class="nav-menu-close">&times;</button>
+    <div class="flex flex-col gap-6">
+      <a href="index.html" class="nav-link text-2xl">Home</a>
+      <a href="blog.html" class="nav-link text-2xl active">Blog</a>
+      <a href="contact.html" class="nav-link text-2xl">Contact</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="pt-32 pb-16 bg-secondary">
+    <div class="container mx-auto px-6">
+      <div class="text-center reveal">
+        <h1 class="text-5xl font-display mb-4">OUR <span class="gradient-text">BLOG</span></h1>
+        <p class="text-gray-400">Latest articles on sportswear trends, printing tips, and industry insights</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Posts -->
+  <section class="section-padding">
+    <div class="container mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Post 1 -->
+        <article class="blog-card reveal">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&h=400&fit=crop" alt="Blog">
+          </div>
+          <div class="p-6">
+            <span class="text-accent-neon text-sm">Technology</span>
+            <h3 class="text-xl font-semibold mt-2 mb-3">The Evolution of Sports Jersey Technology</h3>
+            <p class="text-gray-400 text-sm mb-4">Discover how modern fabric technology is revolutionizing athletic performance.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-500 text-sm">May 15, 2024</span>
+              <a href="#" class="text-accent-neon hover:underline">Read More →</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Post 2 -->
+        <article class="blog-card reveal" style="transition-delay: 0.1s;">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1522778119026-d647f0565c6a?w=600&h=400&fit=crop" alt="Blog">
+          </div>
+          <div class="p-6">
+            <span class="text-accent-neon text-sm">Business</span>
+            <h3 class="text-xl font-semibold mt-2 mb-3">Custom Team Jerseys: Making Your Brand Stand Out</h3>
+            <p class="text-gray-400 text-sm mb-4">Learn how custom jerseys can boost team identity and professionalism.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-500 text-sm">May 12, 2024</span>
+              <a href="#" class="text-accent-neon hover:underline">Read More →</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Post 3 -->
+        <article class="blog-card reveal" style="transition-delay: 0.2s;">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=600&h=400&fit=crop" alt="Blog">
+          </div>
+          <div class="p-6">
+            <span class="text-accent-neon text-sm">Corporate</span>
+            <h3 class="text-xl font-semibold mt-2 mb-3">Corporate Apparel: The Key to Brand Consistency</h3>
+            <p class="text-gray-400 text-sm mb-4">Why investing in quality corporate wear matters for your business image.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-500 text-sm">May 10, 2024</span>
+              <a href="#" class="text-accent-neon hover:underline">Read More →</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Post 4 -->
+        <article class="blog-card reveal">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&h=400&fit=crop" alt="Blog">
+          </div>
+          <div class="p-6">
+            <span class="text-accent-neon text-sm">Printing</span>
+            <h3 class="text-xl font-semibold mt-2 mb-3">Sublimation Printing: Endless Design Possibilities</h3>
+            <p class="text-gray-400 text-sm mb-4">Explore the benefits of sublimation printing for vibrant, long-lasting designs.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-500 text-sm">May 8, 2024</span>
+              <a href="#" class="text-accent-neon hover:underline">Read More →</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Post 5 -->
+        <article class="blog-card reveal" style="transition-delay: 0.1s;">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop" alt="Blog">
+          </div>
+          <div class="p-6">
+            <span class="text-accent-neon text-sm">Fitness</span>
+            <h3 class="text-xl font-semibold mt-2 mb-3">Choosing the Right Gym Wear for Your Workout</h3>
+            <p class="text-gray-400 text-sm mb-4">Tips on selecting comfortable and functional gym apparel.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-500 text-sm">May 5, 2024</span>
+              <a href="#" class="text-accent-neon hover:underline">Read More →</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Post 6 -->
+        <article class="blog-card reveal" style="transition-delay: 0.2s;">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=600&h=400&fit=crop" alt="Blog">
+          </div>
+          <div class="p-6">
+            <span class="text-accent-neon text-sm">Guide</span>
+            <h3 class="text-xl font-semibold mt-2 mb-3">Complete Guide to Team Uniform Selection</h3>
+            <p class="text-gray-400 text-sm mb-4">Everything you need to know about choosing the perfect team uniforms.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-500 text-sm">May 3, 2024</span>
+              <a href="#" class="text-accent-neon hover:underline">Read More →</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container mx-auto px-6">
+      <div class="border-t border-border-color pt-8 pb-8 text-center">
+        <p class="text-gray-400 text-sm">© 2024 DriddlingBD. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  <a href="https://wa.me/8801234567890" class="whatsapp-float">💬</a>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Register | DriddlingBD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="page-transition">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container mx-auto px-6">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon to-electric-blue flex items-center justify-center"><span class="text-2xl font-bold text-primary-bg font-display">D</span></div>
+          <span class="text-2xl font-bold font-display tracking-wide">DRIDDLING<span class="text-accent-neon">BD</span></span>
+        </a>
+        <a href="index.html" class="nav-link">Back to Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Auth Section -->
+  <section class="min-h-screen pt-20">
+    <div class="auth-container">
+      <!-- Visual Side -->
+      <div class="auth-visual relative overflow-hidden">
+        <div class="absolute inset-0 bg-grid"></div>
+        <div class="relative z-10 p-12 text-center">
+          <h2 class="text-5xl font-display mb-6">WELCOME TO <span class="text-primary-bg">DRIDDLINGBD</span></h2>
+          <p class="text-xl text-primary-bg/80 mb-8">Join thousands of satisfied customers</p>
+          <div class="grid grid-cols-3 gap-6 max-w-md mx-auto">
+            <div class="glass-card p-4 text-center">
+              <p class="text-3xl font-bold text-primary-bg">5K+</p>
+              <p class="text-primary-bg/70 text-sm">Customers</p>
+            </div>
+            <div class="glass-card p-4 text-center">
+              <p class="text-3xl font-bold text-primary-bg">150+</p>
+              <p class="text-primary-bg/70 text-sm">Teams</p>
+            </div>
+            <div class="glass-card p-4 text-center">
+              <p class="text-3xl font-bold text-primary-bg">98%</p>
+              <p class="text-primary-bg/70 text-sm">Satisfaction</p>
+            </div>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary-bg to-transparent"></div>
+      </div>
+
+      <!-- Form Side -->
+      <div class="auth-form-section">
+        <div class="w-full max-w-md">
+          <!-- Tabs -->
+          <div class="flex mb-8 border-b border-border-color">
+            <button class="tab-btn active flex-1 pb-4 text-center font-semibold" data-tab="login">Login</button>
+            <button class="tab-btn flex-1 pb-4 text-center font-semibold" data-tab="register">Register</button>
+          </div>
+
+          <!-- Login Form -->
+          <div class="tab-content active" id="login">
+            <form class="login-form space-y-6">
+              <div>
+                <label class="block text-gray-400 mb-2">Email Address</label>
+                <input type="email" class="input-field" placeholder="your@email.com" required>
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-2">Password</label>
+                <input type="password" class="input-field" placeholder="••••••••" required>
+              </div>
+              <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2 text-gray-400 text-sm">
+                  <input type="checkbox" class="w-4 h-4 rounded border-border-color bg-secondary">
+                  Remember me
+                </label>
+                <a href="#" class="text-accent-neon text-sm hover:underline">Forgot Password?</a>
+              </div>
+              <button type="submit" class="btn-primary w-full justify-center">
+                Login
+              </button>
+            </form>
+            <div class="mt-8 text-center">
+              <p class="text-gray-400">Or continue with</p>
+              <div class="flex gap-4 mt-4 justify-center">
+                <button class="btn-secondary px-6">Google</button>
+                <button class="btn-secondary px-6">Facebook</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Register Form -->
+          <div class="tab-content hidden" id="register">
+            <form class="register-form space-y-6">
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-gray-400 mb-2">First Name</label>
+                  <input type="text" class="input-field" required>
+                </div>
+                <div>
+                  <label class="block text-gray-400 mb-2">Last Name</label>
+                  <input type="text" class="input-field" required>
+                </div>
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-2">Email Address</label>
+                <input type="email" class="input-field" required>
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-2">Phone Number</label>
+                <input type="tel" class="input-field" required>
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-2">Password</label>
+                <input type="password" class="input-field" placeholder="Min. 8 characters" required>
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-2">Confirm Password</label>
+                <input type="password" class="input-field" required>
+              </div>
+              <label class="flex items-center gap-2 text-gray-400 text-sm">
+                <input type="checkbox" class="w-4 h-4 rounded border-border-color bg-secondary" required>
+                I agree to the <a href="#" class="text-accent-neon">Terms & Conditions</a>
+              </label>
+              <button type="submit" class="btn-primary w-full justify-center">
+                Create Account
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <a href="https://wa.me/8801234567890" class="whatsapp-float">💬</a>
+
+  <script>
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
