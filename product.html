@@ -1,117 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Details | DriddlingBD</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <title>DriddlingBD</title>
 </head>
-<body class="product-detail-page page-transition">
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="container mx-auto px-6">
-      <div class="flex items-center justify-between">
-        <a href="index.html" class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-soft-accent flex items-center justify-center"><span class="text-lg font-bold text-white">D</span></div>
-          <span class="text-xl font-bold">DRIDDLING<span class="text-accent">BD</span></span>
-        </a>
-        <div class="hidden lg:flex items-center gap-8">
-          <a href="index.html" class="nav-link">Home</a>
-          <a href="shop.html" class="nav-link active">Shop</a>
-          <a href="contact.html" class="nav-link">Contact</a>
-        </div>
-        <div class="flex items-center gap-3">
-          <a href="cart.html" class="p-2.5 rounded-xl relative">
-            <span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs font-medium rounded-full flex items-center justify-center">0</span>
-          </a>
-          <button class="mobile-menu-btn lg:hidden"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-        </div>
-      </div>
-    </div>
-  </nav>
 
-  <!-- Product Detail -->
-  <section class="pt-24 pb-16">
-    <div class="container mx-auto px-6">
-      <div class="grid lg:grid-cols-2 gap-12">
-        <!-- Gallery -->
-        <div class="reveal">
-          <div class="aspect-square rounded-2xl overflow-hidden bg-secondary-bg mb-4">
-            <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&h=600&fit=crop" alt="Product" class="product-main-image w-full h-full object-cover">
-          </div>
-        </div>
-
-        <!-- Info -->
-        <div class="reveal" style="transition-delay: 0.2s;">
-          <span class="text-secondary text-sm product-category">Cricket</span>
-          <h1 class="text-3xl font-bold mt-2 mb-4 product-title">Pro Cricket Jersey 2024</h1>
-          
-          <div class="product-rating flex items-center gap-2 mb-4">
-            <span class="font-semibold">4.8</span>
-            <span class="text-secondary">(124 reviews)</span>
-          </div>
-
-          <p class="text-3xl font-bold text-accent mb-6 product-price">₹2,499</p>
-
-          <p class="text-secondary mb-8 product-description">Premium quality cricket jersey with advanced moisture-wicking technology. Features breathable fabric and ergonomic design.</p>
-
-          <!-- Color -->
-          <div class="mb-6">
-            <h4 class="font-semibold mb-3">Color:</h4>
-            <div class="color-options"></div>
-          </div>
-
-          <!-- Size -->
-          <div class="mb-8">
-            <div class="flex justify-between items-center mb-3">
-              <h4 class="font-semibold">Size:</h4>
-              <button class="text-accent text-sm">Size Guide</button>
-            </div>
-            <div class="size-options"></div>
-          </div>
-
-          <!-- Quantity & Add to Cart -->
-          <div class="flex gap-4 mb-8">
-            <div class="quantity-control">
-              <button class="quantity-btn" onclick="let i=document.querySelector('.quantity-input');i.value=Math.max(1,parseInt(i.value)-1)">−</button>
-              <input type="number" class="quantity-input w-12 text-center bg-transparent font-semibold" value="1" min="1">
-              <button class="quantity-btn" onclick="let i=document.querySelector('.quantity-input');i.value=parseInt(i.value)+1">+</button>
-            </div>
-            <button class="add-to-cart-detail btn-primary flex-1 justify-center">Add to Cart</button>
-          </div>
-
-          <!-- Delivery Info -->
-          <div class="bg-secondary-bg p-4 rounded-xl">
-            <div class="flex items-center gap-3 text-sm">
-              <span>🚚</span>
-              <span class="text-secondary">Free delivery on orders above ₹2,000</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Related Products -->
-  <section class="section-padding bg-secondary-bg">
-    <div class="container mx-auto px-6">
-      <h2 class="section-title text-center mb-10">RELATED <span class="gradient-text">PRODUCTS</span></h2>
-      <div class="product-grid"></div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container mx-auto px-6">
-      <div class="border-t border-border-color py-6 text-center">
-        <p class="text-secondary text-sm">© 2024 DriddlingBD. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
-
-  <a href="https://wa.me/8801234567890" class="whatsapp-float">💬</a>
-
-  <script src="assets/js/main.js"></script>
+<body>
 </body>
+
 </html>

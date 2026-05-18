@@ -1,119 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shop | DriddlingBD</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <title>DriddlingBD</title>
 </head>
-<body class="shop-page page-transition">
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="container mx-auto px-6">
-      <div class="flex items-center justify-between">
-        <a href="index.html" class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-soft-accent flex items-center justify-center"><span class="text-lg font-bold text-white">D</span></div>
-          <span class="text-xl font-bold">DRIDDLING<span class="text-accent">BD</span></span>
-        </a>
-        <div class="hidden lg:flex items-center gap-8">
-          <a href="index.html" class="nav-link">Home</a>
-          <a href="shop.html" class="nav-link active">Shop</a>
-          <a href="custom-jersey.html" class="nav-link">Custom Jersey</a>
-          <a href="corporate.html" class="nav-link">Corporate</a>
-          <a href="about.html" class="nav-link">About</a>
-          <a href="contact.html" class="nav-link">Contact</a>
-        </div>
-        <div class="flex items-center gap-3">
-          <a href="cart.html" class="p-2.5 rounded-xl hover:bg-secondary-bg relative">
-            <span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs font-medium rounded-full flex items-center justify-center">0</span>
-          </a>
-          <button class="mobile-menu-btn lg:hidden"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-        </div>
-      </div>
-    </div>
-  </nav>
 
-  <div class="nav-menu">
-    <button class="nav-menu-close">&times;</button>
-    <div class="flex flex-col gap-5">
-      <a href="index.html" class="nav-link text-lg">Home</a>
-      <a href="shop.html" class="nav-link text-lg active">Shop</a>
-      <a href="custom-jersey.html" class="nav-link text-lg">Custom Jersey</a>
-      <a href="about.html" class="nav-link text-lg">About</a>
-      <a href="contact.html" class="nav-link text-lg">Contact</a>
-    </div>
-  </div>
-
-  <!-- Page Header -->
-  <section class="pt-28 pb-12 bg-secondary-bg">
-    <div class="container mx-auto px-6">
-      <h1 class="text-4xl font-bold text-center">OUR <span class="gradient-text">PRODUCTS</span></h1>
-    </div>
-  </section>
-
-  <!-- Shop Section -->
-  <section class="section-padding">
-    <div class="container mx-auto px-6">
-      <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Sidebar -->
-        <div class="lg:w-1/4">
-          <div class="card p-6 sticky-top">
-            <h3 class="font-semibold mb-4">Categories</h3>
-            <div class="space-y-2 mb-6">
-              <button class="filter-btn filter-category w-full text-left text-sm active" data-category="all">All Products</button>
-              <button class="filter-btn filter-category w-full text-left text-sm" data-category="cricket">Cricket Jersey</button>
-              <button class="filter-btn filter-category w-full text-left text-sm" data-category="football">Football Jersey</button>
-              <button class="filter-btn filter-category w-full text-left text-sm" data-category="esports">Esports Jersey</button>
-              <button class="filter-btn filter-category w-full text-left text-sm" data-category="corporate">Corporate Polo</button>
-              <button class="filter-btn filter-category w-full text-left text-sm" data-category="gym">Gym Wear</button>
-            </div>
-            <h3 class="font-semibold mb-4">Price Range</h3>
-            <div class="space-y-2">
-              <button class="filter-btn filter-price w-full text-left text-sm active" data-range="all">All Prices</button>
-              <button class="filter-btn filter-price w-full text-left text-sm" data-range="0-1500">Under ₹1,500</button>
-              <button class="filter-btn filter-price w-full text-left text-sm" data-range="1500-2500">₹1,500 - ₹2,500</button>
-              <button class="filter-btn filter-price w-full text-left text-sm" data-range="2500-999999">Above ₹2,500</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Products -->
-        <div class="lg:w-3/4">
-          <div class="flex justify-between items-center mb-6">
-            <p class="text-secondary text-sm"><span class="font-semibold text-primary">8</span> products</p>
-            <select class="sort-select input-field w-auto py-2 px-3 text-sm">
-              <option value="popular">Sort: Popular</option>
-              <option value="newest">Sort: Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
-          </div>
-
-          <div class="product-grid"></div>
-
-          <div class="pagination">
-            <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">3</button>
-            <button class="page-btn">→</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container mx-auto px-6">
-      <div class="border-t border-border-color py-6 text-center">
-        <p class="text-secondary text-sm">© 2024 DriddlingBD. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
-
-  <a href="https://wa.me/8801234567890" class="whatsapp-float">💬</a>
-
-  <script src="assets/js/main.js"></script>
+<body>
 </body>
+
 </html>
