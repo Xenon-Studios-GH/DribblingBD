@@ -1,4 +1,3 @@
-﻿
     tailwind.config = {
       theme: {
         extend: {
@@ -7,14 +6,6 @@
       }
     }
   
- tag:                 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js">
-
-    // ================================================================
-    // CONFIGURATION — SUPABASE + GOOGLE APPS SCRIPT (MAIL ONLY)
-    // ================================================================
-    // Replace these 3 values with your Supabase project credentials.
-    // Get them from: https://supabase.com → Your Project → Settings → API
     //
     const SUPABASE_URL = 'https://xldjecdcljjgthecpsmh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsZGplY2RjbGpqZ3RoZWNwc21oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjQ2NjAsImV4cCI6MjA5MzI0MDY2MH0.qbXM3lPQZHpXG7D60FBltNBZM_rg_FRHU3nP7Jl-3wI';          // anon public key (safe for frontend)
@@ -255,14 +246,12 @@
     let selectedSize = '';
     let activeCoupon = null;
     let currentBannerIdx = 0;
-    let adminLoggedIn = false;
     let flashSales = [];
     let activeFlashSale = null;
     let flashCountdownInterval = null;
-    let currentAdminView = 'dashboard';
     let backendConnected = false;
     let deliveryZone = 'outside';
-    let storeSettings = { storeName: 'DribblingBD', adminEmail: '', whatsappNumber: '8801577078101', freeShippingThreshold: 3000, dhakaCharge: 80, outsideCharge: 120 };
+    let storeSettings = { storeName: 'DribblingBD', whatsappNumber: '8801577078101', freeShippingThreshold: 3000, dhakaCharge: 80, outsideCharge: 120 };
     let CATEGORY_IMAGES = {};
     let quickAddSelectedSize = {};
     let currentZoomObserver = null;
@@ -555,8 +544,7 @@
       const path = window.location.pathname.replace(/\/+$/, '');
       const segments = path.split('/').filter(Boolean);
       const urlParams = new URLSearchParams(window.location.search);
-      if (window.location.hostname === 'admin.dribblingbd.com') { openAdmin(); return; }
-      if (urlParams.get('admin') === 'true') { openAdmin(); }
+      
       if (segments[0] === 'product' && segments[1]) {
         const p = getProductBySlug(segments[1]);
         if (p) {
@@ -644,15 +632,6 @@
       document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
       document.getElementById('view-' + view).classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      // Bottom nav management
-      const abn = document.getElementById('adminBottomNav');
-      if (view === 'admin') {
-        showBottomNav(false);
-        if (abn && window.innerWidth < 1024) abn.classList.add('active');
-      } else {
-        showBottomNav(true);
-        if (abn) abn.classList.remove('active');
-      }
       // Update bottom nav active state
       if (view === 'home') bnSetActive('home');
       else if (view === 'wishlist') bnSetActive('wishlist');
@@ -961,7 +940,7 @@
           .eq('active', true)
           .single();
 
-        // Coupon was deleted or deactivated by admin
+        // Coupon was deleted or deactivated
         if (error || !coupon) {
           addToast('Invalid coupon', 'error');
           activeCoupon = null;
@@ -1107,7 +1086,6 @@
             storeSettings.dhakaCharge = Number(s.dhakaCharge) || 80;
             storeSettings.outsideCharge = Number(s.outsideCharge) || 120;
             storeSettings.storeName = s.storeName || 'DribblingBD';
-            storeSettings.adminEmail = s.adminEmail || '';
             storeSettings.whatsappNumber = s.whatsappNumber || '8801577078101';
           }
           // Load mail script URL from Supabase settings
@@ -1951,7 +1929,6 @@
     });
 
     window.onload = async function () {
-      if (window.location.hostname === 'admin.dribblingbd.com') { openAdmin(); }
       const pmImgInput = document.getElementById('pmImg');
       const pmTextarea = document.getElementById('pmImages');
       if (pmImgInput) pmImgInput.addEventListener('input', () => renderProductModalGallery());

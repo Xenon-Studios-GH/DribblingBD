@@ -1,4 +1,4 @@
-﻿
+
     body {
       font-family: 'Inter', sans-serif;
     }
@@ -376,9 +376,7 @@
       transform: scale(0.88);
     }
 
-    .admin-bn-item:active .abn-icon {
-      transform: scale(0.88);
-    }
+
 
     /* 2. Focus-visible indicators for keyboard accessibility */
     *:focus-visible {
