@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class StockFilterController extends Controller
+{
+    public function __invoke(Request $request)
+    {
+        $subQuery = '(SELECT COALESCE(SUM(quantity), 0) FROM stocks WHERE product_id = products.id)';
+
+        $query = Product::select('products.*')
+            ->selectRaw("{$subQuery} as total_stock")
+            ->with('stocks');
+
+        $filter = $request->get('filter');
+        $queryText = $request->get('q');
+
+        if ($queryText) {
+            $query->where(function ($q) use ($queryText) {
+                $q->where('product_code', 'like', "%{$queryText}%")
+                  ->orWhere('product_name', 'like', "%{$queryText}%");
+            });
+        }
+
+        if ($filter === 'out_of_stock') {
+            $query->whereRaw("{$subQuery} = 0");
+        }
+
+        $sort = match ($filter) {
+            'stock_low' => 'stock_low',
+            'stock_high' => 'stock_high',
+            default => 'newest',
+        };
+
+        $query = match ($sort) {
+            'stock_low' => $query->orderBy(DB::raw($subQuery)),
+            'stock_high' => $query->orderByDesc(DB::raw($subQuery)),
+            default => $query->latest('updated_at'),
+        };
+
+        $products = $query->paginate(20);
+        $html = view('stock-management._table', compact('products'))->render();
+
+        return response()->json(['html' => $html]);
+    }
+}
