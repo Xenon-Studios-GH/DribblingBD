@@ -52,7 +52,7 @@ class WorkerController extends Controller
             "Worker {$user->name} ({$user->email}) was created"
         );
 
-        return redirect()->route('workers.index')
+        return redirect(admin_route('workers.index'))
             ->with('success', 'Worker created successfully.');
     }
 
@@ -64,7 +64,7 @@ class WorkerController extends Controller
     public function update(Request $request, User $worker)
     {
         if ($worker->id === auth()->id() && $request->role !== $worker->role) {
-            return redirect()->route('workers.index')->with('error', 'You cannot change your own role.');
+            return redirect(admin_route('workers.index'))->with('error', 'You cannot change your own role.');
         }
 
         $validated = $request->validate([
@@ -90,13 +90,13 @@ class WorkerController extends Controller
             "Worker {$worker->name} ({$worker->email}) was updated"
         );
 
-        return redirect()->route('workers.index')->with('success', 'Worker updated successfully.');
+        return redirect(admin_route('workers.index'))->with('success', 'Worker updated successfully.');
     }
 
     public function toggleStatus(User $worker)
     {
         if ($worker->id === auth()->id()) {
-            return redirect()->route('workers.index')->with('error', 'You cannot deactivate your own account.');
+            return redirect(admin_route('workers.index'))->with('error', 'You cannot deactivate your own account.');
         }
 
         $newStatus = !$worker->status;
@@ -110,6 +110,6 @@ class WorkerController extends Controller
             "Worker {$worker->name} ({$worker->email}) was {$action}"
         );
 
-        return redirect()->route('workers.index')->with('success', "Worker {$action} successfully.");
+        return redirect(admin_route('workers.index'))->with('success', "Worker {$action} successfully.");
     }
 }

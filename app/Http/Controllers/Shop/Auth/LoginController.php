@@ -13,7 +13,7 @@ class LoginController extends Controller
     {
         if (Auth::check()) {
             $role = Auth::user()->role;
-            return redirect($role === 'customer' ? '/' : '/dashboard');
+            return redirect($role === 'customer' ? '/' : admin_route('dashboard'));
         }
         return view('shop.auth.login');
     }
@@ -39,7 +39,7 @@ class LoginController extends Controller
             }
             $request->session()->regenerate();
             $role = Auth::user()->role;
-            return redirect()->intended($role === 'customer' ? '/' : '/dashboard');
+            return redirect()->intended($role === 'customer' ? '/' : admin_route('dashboard'));
         }
 
         return back()->withErrors([

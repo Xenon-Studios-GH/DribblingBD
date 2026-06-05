@@ -109,7 +109,7 @@
                                 Profile
                             </a>
                         @else
-                            <a href="{{ route('dashboard') }}" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors">
+                            <a href="{{ admin_route('dashboard') }}" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors">
                                 <i class="fas fa-th w-4 h-4"></i>
                                 Dashboard
                             </a>
@@ -176,7 +176,7 @@
                     @if (Auth::user()->client)
                         <a href="{{ route('shop.profile.index', Auth::user()->client->usercode) }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-white bg-[#E85D2C] hover:bg-[#d14d1f]">Profile</a>
                     @else
-                        <a href="{{ route('dashboard') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-gray-800">Dashboard</a>
+                        <a href="{{ admin_route('dashboard') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-gray-800">Dashboard</a>
                     @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf

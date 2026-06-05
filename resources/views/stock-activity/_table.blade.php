@@ -30,7 +30,7 @@
                     </td>
                     <td class="whitespace-nowrap px-6 py-4">
                         @if ($product)
-                        <a href="{{ route('stock.management.show', $product) }}" class="font-medium text-[#E6EDF3] hover:text-[#3B82F6]">{{ $product->product_name }}</a>
+                        <a href="{{ admin_route('stock.management.show', $product) }}" class="font-medium text-[#E6EDF3] hover:text-[#3B82F6]">{{ $product->product_name }}</a>
                         <p class="text-xs text-[#94A3B8] font-mono">{{ $product->product_code }}</p>
                         @else
                         <span class="text-[#94A3B8]">Deleted Product</span>
@@ -84,7 +84,7 @@
         </div>
         @if ($product)
         <div>
-            <a href="{{ route('stock.management.show', $product) }}" class="text-sm font-medium text-[#E6EDF3] hover:text-[#3B82F6]">{{ $product->product_name }}</a>
+            <a href="{{ admin_route('stock.management.show', $product) }}" class="text-sm font-medium text-[#E6EDF3] hover:text-[#3B82F6]">{{ $product->product_name }}</a>
             <p class="text-xs text-[#94A3B8] font-mono">{{ $product->product_code }}</p>
         </div>
         @else

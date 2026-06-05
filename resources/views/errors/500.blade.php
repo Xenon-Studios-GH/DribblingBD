@@ -13,7 +13,7 @@
         <h1 class="text-5xl md:text-6xl font-bold text-[#EF4444]">500</h1>
         <p class="mt-4 text-lg text-[#94A3B8]">Server Error.</p>
         <p class="mt-2 text-sm text-[#94A3B8]">Something went wrong. Please try again later.</p>
-        <a href="{{ auth()->check() && auth()->user()->role === 'customer' ? '/' : route('dashboard') }}" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#3B82F6] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
+        <a href="{{ auth()->check() && auth()->user()->role === 'customer' ? '/' : admin_route('dashboard') }}" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#3B82F6] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
             {{ auth()->check() && auth()->user()->role === 'customer' ? 'Back to Home' : 'Back to Dashboard' }}
         </a>
     </div>

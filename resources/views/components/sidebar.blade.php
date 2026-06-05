@@ -16,7 +16,7 @@
     <!-- Navigation -->
     <nav class="flex-1 space-y-1 overflow-y-auto px-2 py-4 lg:px-3" aria-label="Main navigation">
         @if (Auth::user()->role !== 'staff')
-        <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')" icon="dashboard">
+        <x-nav-link href="{{ admin_route('dashboard') }}" :active="request()->routeIs('dashboard')" icon="dashboard">
             Dashboard
         </x-nav-link>
         @endif
@@ -25,13 +25,13 @@
         <div class="my-3 border-t border-[#232A36]"></div>
         <p class="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Administration</p>
 
-        <x-nav-link href="{{ route('workers.index') }}" :active="request()->routeIs('workers.*')" icon="users">
+        <x-nav-link href="{{ admin_route('workers.index') }}" :active="request()->routeIs('workers.*')" icon="users">
             Workers
         </x-nav-link>
-        <x-nav-link href="{{ route('login-logs.index') }}" :active="request()->routeIs('login-logs.*')" icon="login">
+        <x-nav-link href="{{ admin_route('login-logs.index') }}" :active="request()->routeIs('login-logs.*')" icon="login">
             Login Logs
         </x-nav-link>
-        <x-nav-link href="{{ route('work-logs.index') }}" :active="request()->routeIs('work-logs.*')" icon="activity">
+        <x-nav-link href="{{ admin_route('work-logs.index') }}" :active="request()->routeIs('work-logs.*')" icon="activity">
             Work Logs
         </x-nav-link>
         @endif
@@ -39,23 +39,23 @@
         <div class="my-3 border-t border-[#232A36]"></div>
         <p class="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Stock</p>
 
-        <x-nav-link href="{{ route('stock.management') }}" :active="request()->routeIs('stock.management')" icon="stock">
+        <x-nav-link href="{{ admin_route('stock.management') }}" :active="request()->routeIs('stock.management')" icon="stock">
             Stock Management
         </x-nav-link>
         @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
-        <x-nav-link href="{{ route('products.create') }}" :active="request()->routeIs('products.create')" icon="plus">
+        <x-nav-link href="{{ admin_route('products.create') }}" :active="request()->routeIs('products.create')" icon="plus">
             Add Product
         </x-nav-link>
         @endif
         @if (Auth::user()->role !== 'staff')
-        <x-nav-link href="{{ route('stock.activity') }}" :active="request()->routeIs('stock.activity')" icon="activity">
+        <x-nav-link href="{{ admin_route('stock.activity') }}" :active="request()->routeIs('stock.activity')" icon="activity">
             Recent Activity
         </x-nav-link>
         @endif
-        <x-nav-link href="{{ route('stock.in') }}" :active="request()->routeIs('stock.in')" icon="stockin">
+        <x-nav-link href="{{ admin_route('stock.in') }}" :active="request()->routeIs('stock.in')" icon="stockin">
             Stock In
         </x-nav-link>
-        <x-nav-link href="{{ route('stock.out') }}" :active="request()->routeIs('stock.out')" icon="stockout">
+        <x-nav-link href="{{ admin_route('stock.out') }}" :active="request()->routeIs('stock.out')" icon="stockout">
             Stock Out
         </x-nav-link>
     </nav>

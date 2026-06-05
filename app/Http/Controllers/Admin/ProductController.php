@@ -53,7 +53,7 @@ class ProductController extends Controller
             ]);
         }
 
-        return redirect()->route('stock.management')
+        return redirect(admin_route('stock.management'))
             ->with('success', "Product {$product->product_name} created successfully.");
     }
 

@@ -50,7 +50,7 @@ class LoginController extends Controller
             $this->loginLogService->recordLogin($request->email, true, Auth::id());
             $this->workLogService->log('Login', 'system', Auth::id(), 'User logged in');
 
-            $redirect = Auth::user()->role === 'customer' ? '/' : route('dashboard');
+            $redirect = Auth::user()->role === 'customer' ? '/' : admin_route('dashboard');
             return redirect()->intended($redirect);
         }
 

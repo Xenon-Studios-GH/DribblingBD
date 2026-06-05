@@ -5,7 +5,7 @@
                 <h1 class="text-2xl font-bold text-[#E6EDF3]">Workers</h1>
                 <p class="mt-1 text-sm text-[#94A3B8]">Manage staff accounts.</p>
             </div>
-            <a href="{{ route('workers.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
+            <a href="{{ admin_route('workers.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
                 <i class="fas fa-plus h-4 w-4"></i>
                 Add Worker
             </a>
@@ -57,10 +57,10 @@
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <a href="{{ route('workers.edit', $admin) }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/10">
+                                        <a href="{{ admin_route('workers.edit', $admin) }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/10">
                                             Edit
                                         </a>
-                                        <form method="POST" action="{{ route('workers.toggle-status', $admin) }}" class="inline">
+                                        <form method="POST" action="{{ admin_route('workers.toggle-status', $admin) }}" class="inline">
                                             @csrf
                                             <button type="submit" class="rounded-lg px-3 py-1.5 text-xs font-medium text-[#F59E0B] hover:bg-[#F59E0B]/10">
                                                 {{ $admin->status ? 'Deactivate' : 'Activate' }}
@@ -98,10 +98,10 @@
                         <span class="inline-flex items-center rounded-full {{ $admin->role === 'superadmin' ? 'bg-[#A855F7]/10 text-[#A855F7]' : 'bg-[#3B82F6]/10 text-[#3B82F6]' }} px-2.5 py-0.5 text-xs font-medium">{{ ucfirst($admin->role) }}</span>
                     </div>
                     <div class="flex gap-2 pt-2 border-t border-[#232A36]">
-                        <a href="{{ route('workers.edit', $admin) }}" class="flex-1 rounded-xl bg-[#3B82F6]/10 px-4 py-2.5 text-sm font-medium text-[#3B82F6] text-center hover:bg-[#3B82F6]/20">
+                        <a href="{{ admin_route('workers.edit', $admin) }}" class="flex-1 rounded-xl bg-[#3B82F6]/10 px-4 py-2.5 text-sm font-medium text-[#3B82F6] text-center hover:bg-[#3B82F6]/20">
                             Edit
                         </a>
-                        <form method="POST" action="{{ route('workers.toggle-status', $admin) }}" class="flex-1">
+                        <form method="POST" action="{{ admin_route('workers.toggle-status', $admin) }}" class="flex-1">
                             @csrf
                             <button type="submit" class="w-full rounded-xl bg-[#F59E0B]/10 px-4 py-2.5 text-sm font-medium text-[#F59E0B] hover:bg-[#F59E0B]/20">
                                 {{ $admin->status ? 'Deactivate' : 'Activate' }}
@@ -141,10 +141,10 @@
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <a href="{{ route('workers.edit', $worker) }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/10">
+                                        <a href="{{ admin_route('workers.edit', $worker) }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/10">
                                             Edit
                                         </a>
-                                        <form method="POST" action="{{ route('workers.toggle-status', $worker) }}" class="inline">
+                                        <form method="POST" action="{{ admin_route('workers.toggle-status', $worker) }}" class="inline">
                                             @csrf
                                             <button type="submit" class="rounded-lg px-3 py-1.5 text-xs font-medium text-[#F59E0B] hover:bg-[#F59E0B]/10">
                                                 {{ $worker->status ? 'Deactivate' : 'Activate' }}
@@ -189,10 +189,10 @@
                     </div>
                     @endif
                     <div class="flex gap-2 pt-2 border-t border-[#232A36]">
-                        <a href="{{ route('workers.edit', $worker) }}" class="flex-1 rounded-xl bg-[#3B82F6]/10 px-4 py-2.5 text-sm font-medium text-[#3B82F6] text-center hover:bg-[#3B82F6]/20">
+                        <a href="{{ admin_route('workers.edit', $worker) }}" class="flex-1 rounded-xl bg-[#3B82F6]/10 px-4 py-2.5 text-sm font-medium text-[#3B82F6] text-center hover:bg-[#3B82F6]/20">
                             Edit
                         </a>
-                        <form method="POST" action="{{ route('workers.toggle-status', $worker) }}" class="flex-1">
+                        <form method="POST" action="{{ admin_route('workers.toggle-status', $worker) }}" class="flex-1">
                             @csrf
                             <button type="submit" class="w-full rounded-xl bg-[#F59E0B]/10 px-4 py-2.5 text-sm font-medium text-[#F59E0B] hover:bg-[#F59E0B]/20">
                                 {{ $worker->status ? 'Deactivate' : 'Activate' }}

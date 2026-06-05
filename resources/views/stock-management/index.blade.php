@@ -57,10 +57,10 @@
                     <option value="stock_low">Low to high stock</option>
                     <option value="stock_high">High to low stock</option>
                 </select>
-                <a href="{{ route('stock.in') }}" class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#22C55E] text-white hover:bg-[#16A34A]" aria-label="Stock In">
+                <a href="{{ admin_route('stock.in') }}" class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#22C55E] text-white hover:bg-[#16A34A]" aria-label="Stock In">
                     <i class="fas fa-plus h-5 w-5"></i>
                 </a>
-                <a href="{{ route('stock.out') }}" class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EF4444] text-white hover:bg-[#DC2626]" aria-label="Stock Out">
+                <a href="{{ admin_route('stock.out') }}" class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EF4444] text-white hover:bg-[#DC2626]" aria-label="Stock Out">
                     <i class="fas fa-minus h-5 w-5"></i>
                 </a>
             </div>
@@ -83,7 +83,7 @@
 
             function loadTable(params) {
                 tableContainer.classList.add('opacity-50');
-                fetch(`{{ route('stock.filter') }}?${params}`)
+                fetch(`{{ admin_route('stock.filter') }}?${params}`)
                     .then(r => r.json())
                     .then(data => {
                         tableContainer.innerHTML = data.html;

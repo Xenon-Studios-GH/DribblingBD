@@ -162,7 +162,7 @@
                         <button @click="resetForm()" class="rounded-xl bg-[#3B82F6] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB]">
                             Add More Stock
                         </button>
-                        <a href="{{ route('stock.management') }}" class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333]">
+                        <a href="{{ admin_route('stock.management') }}" class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333]">
                             Back to Stock Management
                         </a>
                     </div>
@@ -189,7 +189,7 @@
 
                 submitPreview() {
                     this.error = '';
-                    fetch('{{ route('stock.in.preview') }}', {
+                    fetch('{{ admin_route('stock.in.preview') }}', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -211,7 +211,7 @@
                 },
 
                 confirmStockIn() {
-                    fetch('{{ route('stock.in.confirm') }}', {
+                    fetch('{{ admin_route('stock.in.confirm') }}', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',

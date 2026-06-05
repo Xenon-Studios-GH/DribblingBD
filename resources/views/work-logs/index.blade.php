@@ -34,7 +34,7 @@
                     <input type="date" name="date_to" value="{{ request('date_to') }}" class="rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
                 </div>
                 <button type="submit" class="rounded-xl bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white hover:bg-[#2563EB]">Filter</button>
-                <a href="{{ route('work-logs.index') }}" class="rounded-xl border border-[#232A36] px-4 py-2 text-sm text-[#94A3B8] hover:bg-[#1C2333]">Reset</a>
+                <a href="{{ admin_route('work-logs.index') }}" class="rounded-xl border border-[#232A36] px-4 py-2 text-sm text-[#94A3B8] hover:bg-[#1C2333]">Reset</a>
             </form>
         </x-card>
 

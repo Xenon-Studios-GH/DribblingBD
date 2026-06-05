@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <a href="{{ route('stock.management') }}"
+                <a href="{{ admin_route('stock.management') }}"
                     class="mb-2 inline-flex items-center gap-1.5 text-sm text-[#94A3B8] hover:text-[#E6EDF3]">
                     <i class="fas fa-chevron-left h-4 w-4"></i>
                     Back to Stock Management
@@ -156,7 +156,7 @@
     <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <x-card class="w-full max-w-md">
             <h3 id="modal-title" class="text-lg font-semibold text-[#E6EDF3]">Edit Product</h3>
-            <form id="editForm" method="POST" action="{{ route('stock.products.update', $product) }}" class="mt-4 space-y-4">
+            <form id="editForm" method="POST" action="{{ admin_route('stock.products.update', $product) }}" class="mt-4 space-y-4">
                 @csrf
                 @method('PUT')
                 <div>

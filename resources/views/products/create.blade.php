@@ -6,7 +6,7 @@
         </div>
 
         <x-card>
-            <form method="POST" action="{{ route('stock.products.store') }}" class="space-y-6">
+            <form method="POST" action="{{ admin_route('stock.products.store') }}" class="space-y-6">
                 @csrf
 
                 <div>
@@ -30,7 +30,7 @@
                     <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 focus:ring-offset-[#0F1117]">
                         Create Product
                     </button>
-                    <a href="{{ route('stock.management') }}" class="text-sm text-[#94A3B8] hover:text-[#E6EDF3]">Cancel</a>
+                    <a href="{{ admin_route('stock.management') }}" class="text-sm text-[#94A3B8] hover:text-[#E6EDF3]">Cancel</a>
                 </div>
             </form>
         </x-card>
