@@ -75,6 +75,20 @@
             Reports
         </x-nav-link>
         @endif
+        @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+        <div class="my-3 border-t border-[#232A36]"></div>
+        <p class="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Website</p>
+
+        <x-nav-link href="{{ admin_route('website.dashboard') }}" :active="request()->routeIs('website.dashboard')" icon="chart">
+            Dashboard
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('website.projects') }}" :active="request()->routeIs('website.projects*')" icon="project">
+            Projects
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('website.categories') }}" :active="request()->routeIs('website.categories*')" icon="category">
+            Categories
+        </x-nav-link>
+        @endif
     </nav>
 
     <!-- User Section -->
