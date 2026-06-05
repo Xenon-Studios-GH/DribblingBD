@@ -94,7 +94,7 @@
                                 <i class="fas fa-box w-16 h-16 text-gray-300 group-hover:text-gray-400 transition-colors"></i>
                             </div>
                             <div class="absolute top-3 right-3">
-                                <button @click.stop="toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code), name: @json($product->product_name) })" class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm">
+                                <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code), name: @json($product->product_name) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm">
                                     <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : 'text-gray-400'"></i>
                                 </button>
                             </div>
@@ -104,7 +104,7 @@
                             <div class="mt-1 flex items-center justify-between">
                                 <span class="text-base font-bold text-[#E85D2C]">৳{{ number_format($product->price) }}</span>
                             </div>
-                            <button @click="added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: 'M', quantity: 1 }); setTimeout(() => added = false, 1500)"
+                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: "M", quantity: 1 }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                                 :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
                                 <span x-show="!added">Add to Cart</span>

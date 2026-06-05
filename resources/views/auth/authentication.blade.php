@@ -28,8 +28,8 @@
 
         .container {
             position: relative;
-            width: 750px;
-            height: 450px;
+            width: 820px;
+            height: 500px;
             border: 2px solid #e46033;
             box-shadow: 0 0 25px #e46033;
             overflow: hidden;
@@ -47,7 +47,7 @@
 
         .form-box.Login {
             left: 0;
-            padding: 0 40px;
+            padding: 0 50px;
         }
 
         .form-box.Login .animation {
@@ -65,7 +65,7 @@
 
         .form-box.Register {
             right: 0;
-            padding: 0 60px;
+            padding: 0 40px;
         }
 
         .form-box.Register .animation {
@@ -84,15 +84,42 @@
         }
 
         .form-box h2 {
-            font-size: 32px;
+            font-size: 36px;
             text-align: center;
+        }
+
+        .form-box.Register h2 {
+            font-size: 26px;
+        }
+
+        .form-box.Register .input-box {
+            height: 44px;
+            margin-top: 16px;
+        }
+
+        .form-box.Register .input-box input {
+            font-size: 14px;
+        }
+
+        .form-box.Register .input-box label {
+            font-size: 14px;
+        }
+
+        .form-box.Register .btn {
+            height: 40px;
+            font-size: 14px;
+        }
+
+        .form-box.Register .regi-link {
+            font-size: 13px;
+            margin: 12px 0 8px;
         }
 
         .form-box .input-box {
             position: relative;
             width: 100%;
-            height: 50px;
-            margin-top: 25px;
+            height: 52px;
+            margin-top: 28px;
         }
 
         .input-box input {
@@ -101,7 +128,7 @@
             background: transparent;
             border: none;
             outline: none;
-            font-size: 16px;
+            font-size: 17px;
             color: #fff;
             font-weight: 600;
             border-bottom: 2px solid #fff;
@@ -119,7 +146,7 @@
             top: 50%;
             left: 0;
             transform: translateY(-50%);
-            font-size: 16px;
+            font-size: 17px;
             color: #fff;
             transition: .5s;
         }
@@ -154,11 +181,11 @@
         .btn {
             position: relative;
             width: 100%;
-            height: 45px;
+            height: 50px;
             background: transparent;
             border-radius: 40px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
             border: 2px solid #e46033;
             overflow: hidden;
@@ -182,9 +209,9 @@
         }
 
         .regi-link {
-            font-size: 14px;
+            font-size: 15px;
             text-align: center;
-            margin: 20px 0 10px;
+            margin: 24px 0 12px;
         }
 
         .regi-link a {
@@ -211,7 +238,7 @@
         .info-content.Login {
             right: 0;
             text-align: right;
-            padding: 0 40px 60px 150px;
+            padding: 0 50px 60px 150px;
         }
 
         .info-content.Login .animation {
@@ -232,8 +259,16 @@
         .info-content.Register {
             left: 0;
             text-align: left;
-            padding: 0 150px 60px 38px;
+            padding: 0 130px 50px 40px;
             pointer-events: none;
+        }
+
+        .info-content.Register h2 {
+            font-size: 28px;
+        }
+
+        .info-content.Register p {
+            font-size: 15px;
         }
 
         .info-content.Register .animation {
@@ -253,20 +288,20 @@
 
         .info-content h2 {
             text-transform: uppercase;
-            font-size: 36px;
+            font-size: 40px;
             line-height: 1.3;
         }
 
         .info-content p {
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .container .curved-shape {
             position: absolute;
             right: 0;
             top: -5px;
-            height: 600px;
-            width: 850px;
+            height: 650px;
+            width: 920px;
             background: linear-gradient(45deg, #25252b, #e46033);
             transform: rotate(10deg) skewY(40deg);
             transform-origin: bottom right;
@@ -281,10 +316,10 @@
 
         .container .curved-shape2 {
             position: absolute;
-            left: 250px;
+            left: 280px;
             top: 100%;
-            height: 700px;
-            width: 850px;
+            height: 750px;
+            width: 920px;
             background: #25252b;
             border-top: 3px solid #e46033;
             transform: rotate(0deg) skewY(0deg);
@@ -296,6 +331,28 @@
         .container.active .curved-shape2 {
             transform: rotate(-11deg) skewY(-41deg);
             transition-delay: 1.2s;
+        }
+
+        .remember-row {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: #e46033;
+            cursor: pointer;
         }
 
         .error-msg {
@@ -340,6 +397,13 @@
                     <span class="icon">
                         <i class="fas fa-lock"></i>
                     </span>
+                </div>
+
+                <div class="remember-row animation" style="--D:3; --S:24">
+                    <label class="remember-label">
+                        <input type="checkbox" name="remember" value="1" class="remember-checkbox">
+                        <span>Remember me</span>
+                    </label>
                 </div>
 
                 <div class="input-box animation" style="--D:3; --S:24">

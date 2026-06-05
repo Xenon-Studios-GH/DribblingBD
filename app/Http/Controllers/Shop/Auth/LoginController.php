@@ -34,6 +34,9 @@ class LoginController extends Controller
         }
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            if ($request->boolean('remember')) {
+                config(['session.lifetime' => 40320]);
+            }
             $request->session()->regenerate();
             $role = Auth::user()->role;
             return redirect()->intended($role === 'customer' ? '/' : '/dashboard');
