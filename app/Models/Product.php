@@ -29,4 +29,9 @@ class Product extends Model
     {
         return $this->hasMany(StockTransaction::class);
     }
+
+    public function project()
+    {
+        return $this->hasOne(WebsiteProject::class);
+    }
 }
