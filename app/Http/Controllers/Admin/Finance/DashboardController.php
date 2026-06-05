@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\FinanceTransaction;
-use App\Models\FinanceProject;
 
 class DashboardController extends Controller
 {
@@ -13,7 +12,6 @@ class DashboardController extends Controller
         $income = FinanceTransaction::income()->lastYear()->sum('amount');
         $expense = FinanceTransaction::expense()->lastYear()->sum('amount');
         $balance = $income - $expense;
-        $activeProjects = FinanceProject::where('status', 'active')->count();
 
         $recentTransactions = FinanceTransaction::with(['category', 'creator'])
             ->latest('date')
@@ -43,7 +41,7 @@ class DashboardController extends Controller
         });
 
         return view('finance.dashboard', compact(
-            'income', 'expense', 'balance', 'activeProjects',
+            'income', 'expense', 'balance',
             'recentTransactions', 'cashflowWithBalance'
         ));
     }

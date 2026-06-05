@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\FinanceCategory;
-use App\Models\FinanceProject;
 use App\Models\FinanceTransaction;
 use App\Models\FinanceTransactionVersion;
 use App\Services\Finance\NotificationService;
@@ -22,7 +21,7 @@ class TransactionController extends Controller
 
     public function index(Request $request)
     {
-        $query = FinanceTransaction::with(['category', 'project', 'creator']);
+        $query = FinanceTransaction::with(['category', 'creator']);
 
         // Default: last 1 year
         $query->where('date', '>=', $request->date_from ?: now()->subYear());
@@ -34,22 +33,16 @@ class TransactionController extends Controller
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
-        if ($request->filled('project_id')) {
-            $query->where('project_id', $request->project_id);
-        }
-
         $transactions = $query->latest('date')->paginate(20);
         $categories = FinanceCategory::active()->get();
-        $projects = FinanceProject::where('status', 'active')->get();
 
-        return view('finance.transactions.index', compact('transactions', 'categories', 'projects'));
+        return view('finance.transactions.index', compact('transactions', 'categories'));
     }
 
     public function create()
     {
         $categories = FinanceCategory::active()->get();
-        $projects = FinanceProject::where('status', 'active')->get();
-        return view('finance.transactions.form', compact('categories', 'projects'));
+        return view('finance.transactions.form', compact('categories'));
     }
 
     public function store(Request $request)
@@ -57,7 +50,6 @@ class TransactionController extends Controller
         $validated = $request->validate([
             'type' => 'required|in:income,expense',
             'category_id' => 'nullable|exists:finance_categories,id',
-            'project_id' => 'nullable|exists:finance_projects,id',
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
@@ -81,8 +73,7 @@ class TransactionController extends Controller
     public function edit(FinanceTransaction $transaction)
     {
         $categories = FinanceCategory::active()->get();
-        $projects = FinanceProject::where('status', 'active')->get();
-        return view('finance.transactions.form', compact('transaction', 'categories', 'projects'));
+        return view('finance.transactions.form', compact('transaction', 'categories'));
     }
 
     public function update(Request $request, FinanceTransaction $transaction)
@@ -90,13 +81,12 @@ class TransactionController extends Controller
         $validated = $request->validate([
             'type' => 'required|in:income,expense',
             'category_id' => 'nullable|exists:finance_categories,id',
-            'project_id' => 'nullable|exists:finance_projects,id',
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
         ]);
 
-        $oldData = $transaction->only(['type', 'category_id', 'project_id', 'amount', 'description', 'date']);
+        $oldData = $transaction->only(['type', 'category_id', 'amount', 'description', 'date']);
 
         $validated['updated_by'] = Auth::id();
         $transaction->update($validated);
@@ -104,7 +94,7 @@ class TransactionController extends Controller
         FinanceTransactionVersion::create([
             'transaction_id' => $transaction->id,
             'old_data' => $oldData,
-            'new_data' => $transaction->only(['type', 'category_id', 'project_id', 'amount', 'description', 'date']),
+            'new_data' => $transaction->only(['type', 'category_id', 'amount', 'description', 'date']),
             'edited_by' => Auth::id(),
         ]);
 

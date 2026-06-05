@@ -14,10 +14,6 @@
                 <p class="text-sm text-[#94A3B8]">Net Balance</p>
                 <p class="text-2xl font-bold {{ $balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">৳{{ number_format($balance, 2) }}</p>
             </x-card>
-            <x-card>
-                <p class="text-sm text-[#94A3B8]">Active Projects</p>
-                <p class="text-2xl font-bold text-[#3B82F6]">{{ $activeProjects }}</p>
-            </x-card>
         </div>
 
         {{-- 30-Day Cashflow Chart --}}

@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\FinanceProject;
 use App\Models\FinanceTransaction;
 use App\Models\FinanceTransactionVersion;
 use Illuminate\Console\Command;
@@ -20,13 +19,9 @@ class PurgeOldFinanceData extends Command
             ->where('deleted_at', '<', $cutoff)
             ->forceDelete();
 
-        $deletedProjects = FinanceProject::onlyTrashed()
-            ->where('deleted_at', '<', $cutoff)
-            ->forceDelete();
-
         $deletedVersions = FinanceTransactionVersion::where('created_at', '<', $cutoff)
             ->delete();
 
-        $this->info("Purged {$deletedTransactions} transactions, {$deletedProjects} projects, {$deletedVersions} versions.");
+        $this->info("Purged {$deletedTransactions} transactions, {$deletedVersions} versions.");
     }
 }

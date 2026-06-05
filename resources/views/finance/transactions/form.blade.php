@@ -33,16 +33,6 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Project (optional)</label>
-                    <select name="project_id" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
-                        <option value="">No project</option>
-                        @foreach($projects as $proj)
-                        <option value="{{ $proj->id }}" {{ old('project_id', $transaction->project_id ?? '') == $proj->id ? 'selected' : '' }}>{{ $proj->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
                     <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Amount (BDT)</label>
                     <input type="number" step="0.01" min="0" name="amount" value="{{ old('amount', $transaction->amount ?? '') }}" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]" required>
                     @error('amount') <p class="text-xs text-[#EF4444] mt-1">{{ $message }}</p> @enderror

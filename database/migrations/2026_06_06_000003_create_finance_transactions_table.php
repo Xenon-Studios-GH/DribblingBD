@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('type', 10); // income / expense
             $table->foreignId('category_id')->nullable()->constrained('finance_categories')->nullOnDelete();
-            $table->foreignId('project_id')->nullable()->constrained('finance_projects')->nullOnDelete();
             $table->decimal('amount', 12, 2);
             $table->text('description')->nullable();
             $table->date('date');

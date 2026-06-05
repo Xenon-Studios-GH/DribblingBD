@@ -20,12 +20,6 @@
                 <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                 @endforeach
             </select>
-            <select name="project_id" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
-                <option value="">All Projects</option>
-                @foreach($projects as $proj)
-                <option value="{{ $proj->id }}" {{ request('project_id') == $proj->id ? 'selected' : '' }}>{{ $proj->name }}</option>
-                @endforeach
-            </select>
             <input type="date" name="date_from" value="{{ request('date_from', now()->subYear()->format('Y-m-d')) }}" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
             <input type="date" name="date_to" value="{{ request('date_to', now()->format('Y-m-d')) }}" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
             <button type="submit" class="rounded-xl bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white">Filter</button>
@@ -40,7 +34,6 @@
                         <th class="pb-3 font-medium">Date</th>
                         <th class="pb-3 font-medium">Type</th>
                         <th class="pb-3 font-medium">Category</th>
-                        <th class="pb-3 font-medium">Project</th>
                         <th class="pb-3 font-medium text-right">Amount</th>
                         <th class="pb-3 font-medium">Description</th>
                         <th class="pb-3 font-medium">By</th>
@@ -57,7 +50,6 @@
                             </span>
                         </td>
                         <td class="py-3 text-[#94A3B8]">{{ $t->category?->name ?? '—' }}</td>
-                        <td class="py-3 text-[#94A3B8]">{{ $t->project?->name ?? '—' }}</td>
                         <td class="py-3 text-right font-semibold {{ $t->type === 'income' ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">
                             ৳{{ number_format($t->amount, 2) }}
                         </td>
@@ -69,7 +61,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="py-8 text-center text-[#94A3B8]">No transactions found.</td>
+                        <td colspan="7" class="py-8 text-center text-[#94A3B8]">No transactions found.</td>
                     </tr>
                     @endforelse
                 </tbody>

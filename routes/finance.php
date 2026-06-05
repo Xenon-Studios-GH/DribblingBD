@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Finance\DashboardController;
 use App\Http\Controllers\Admin\Finance\TransactionController;
 use App\Http\Controllers\Admin\Finance\CategoryController;
-use App\Http\Controllers\Admin\Finance\ProjectController;
 use App\Http\Controllers\Admin\Finance\ReportController;
 use App\Http\Controllers\Admin\Finance\NotificationController;
 
@@ -26,13 +25,6 @@ Route::middleware(['auth', 'role.match', 'role:superadmin,admin'])
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-
-    Route::get('projects', [ProjectController::class, 'index'])->name('projects');
-    Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-    Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
-    Route::put('projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
-    Route::patch('projects/{project}/quick', [ProjectController::class, 'updateQuick'])->name('projects.quick');
-    Route::delete('projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
     Route::get('reports', ReportController::class)->name('reports');
 

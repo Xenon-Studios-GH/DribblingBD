@@ -8,12 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::table('finance_transactions', function (Blueprint $table) {
+            $table->dropForeign(['project_id']);
+            $table->dropColumn('project_id');
+        });
+
+        Schema::dropIfExists('finance_projects');
+    }
+
+    public function down(): void
+    {
         Schema::create('finance_projects', function (Blueprint $table) {
             $table->id();
             $table->string('name', 200);
             $table->decimal('budget', 12, 2)->nullable();
             $table->decimal('spent', 12, 2)->default(0);
-            $table->string('status', 20)->default('active'); // active / completed / archived
+            $table->string('status', 20)->default('active');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->text('description')->nullable();
@@ -22,10 +32,9 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-    }
 
-    public function down(): void
-    {
-        Schema::dropIfExists('finance_projects');
+        Schema::table('finance_transactions', function (Blueprint $table) {
+            $table->foreignId('project_id')->nullable()->constrained('finance_projects')->nullOnDelete();
+        });
     }
 };

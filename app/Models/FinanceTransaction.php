@@ -12,7 +12,7 @@ class FinanceTransaction extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'type', 'category_id', 'project_id', 'amount',
+        'type', 'category_id', 'amount',
         'description', 'date', 'created_by', 'updated_by',
     ];
 
@@ -36,11 +36,6 @@ class FinanceTransaction extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(FinanceCategory::class, 'category_id');
-    }
-
-    public function project(): BelongsTo
-    {
-        return $this->belongsTo(FinanceProject::class, 'project_id');
     }
 
     public function versions(): HasMany
