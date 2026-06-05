@@ -118,12 +118,12 @@
                     setInterval(() => this.fetchUnreadCount(), 30000);
                 },
                 fetchUnreadCount() {
-                    fetch('{{ route('finance.notifications.unread') }}')
+                    fetch('{{ route('finance.notifications.unread', ['role' => Auth::user()->role]) }}')
                         .then(r => r.json())
                         .then(d => { this.unreadCount = d.count; });
                 },
                 fetchNotifications() {
-                    fetch('{{ route('finance.notifications.unread') }}?limit=5')
+                    fetch('{{ route('finance.notifications.unread', ['role' => Auth::user()->role]) }}?limit=5')
                         .then(r => r.json())
                         .then(d => { this.notifications = d.notifications || []; });
                 },

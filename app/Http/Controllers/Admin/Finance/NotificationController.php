@@ -18,13 +18,24 @@ class NotificationController extends Controller
         return view('finance.notifications.index', compact('notifications'));
     }
 
-    public function unreadCount()
+    public function unreadCount(Request $request)
     {
-        $count = Notification::where('user_id', Auth::id())
-            ->where('is_read', false)
-            ->count();
+        $query = Notification::where('user_id', Auth::id());
 
-        return response()->json(['count' => $count]);
+        $count = (clone $query)->where('is_read', false)->count();
+
+        $notifications = $query->latest('created_at')
+            ->when($request->filled('limit'), fn($q) => $q->take($request->limit))
+            ->get()
+            ->map(fn($n) => [
+                'id' => $n->id,
+                'title' => $n->title,
+                'message' => $n->message,
+                'is_read' => $n->is_read,
+                'time_ago' => $n->created_at->diffForHumans(),
+            ]);
+
+        return response()->json(['count' => $count, 'notifications' => $notifications]);
     }
 
     public function markAsRead(Notification $notification)

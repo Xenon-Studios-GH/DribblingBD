@@ -46,7 +46,7 @@
         <div class="fixed inset-0 bg-black/50" @click="isOpen = false"></div>
         <div class="relative bg-[#161B22] border border-[#232A36] rounded-xl p-6 w-full max-w-md mx-4">
             <h3 class="text-lg font-semibold text-[#E6EDF3] mb-4" x-text="editingId ? 'Edit Category' : 'New Category'"></h3>
-            <form :action="editingId ? '{{ admin_route('finance.categories.update', '') }}/' + editingId : '{{ admin_route('finance.categories.store') }}'" method="POST">
+            <form :action="editingId ? '{{ url()->current() }}/' + editingId : '{{ admin_route('finance.categories.store') }}'" method="POST">
                 @csrf
                 <template x-if="editingId">
                     <input type="hidden" name="_method" value="PUT">
