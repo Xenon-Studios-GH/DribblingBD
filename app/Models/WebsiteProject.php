@@ -24,7 +24,7 @@ class WebsiteProject extends Model
     protected static function booted(): void
     {
         static::creating(function (self $project) {
-            if (empty($project->slug)) {
+            if (empty($project->slug) && $project->product) {
                 $project->slug = Str::slug($project->product->product_name) . '-' . $project->product_id;
             }
         });

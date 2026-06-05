@@ -20,4 +20,9 @@ Route::name('shop.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::put('user/client/{usercode}', [ProfileController::class, 'update'])->name('profile.update');
     });
+
+    // Website projects
+    Route::get('/projects', [\App\Http\Controllers\Shop\WebsiteProjectController::class, 'index'])->name('projects');
+    Route::get('/project/{categorySlug}/{subcategorySlug}/details/{projectSlug}', [\App\Http\Controllers\Shop\WebsiteProjectController::class, 'show'])->name('project.detail');
+    Route::get('/category/{categorySlug}', [\App\Http\Controllers\Shop\WebsiteProjectController::class, 'category'])->name('category');
 });

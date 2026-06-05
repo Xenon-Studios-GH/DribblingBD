@@ -8,10 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('finance_transactions', function (Blueprint $table) {
-            $table->dropForeign(['project_id']);
-            $table->dropColumn('project_id');
-        });
+        if (Schema::hasColumn('finance_transactions', 'project_id')) {
+            Schema::table('finance_transactions', function (Blueprint $table) {
+                $table->dropForeign(['project_id']);
+                $table->dropColumn('project_id');
+            });
+        }
 
         Schema::dropIfExists('finance_projects');
     }

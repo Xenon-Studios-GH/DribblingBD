@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->nullable()->constrained('website_categories')->nullOnDelete();
+            $table->index('category_id');
             $table->decimal('regular_price', 12, 2)->default(0);
             $table->decimal('offer_price', 12, 2)->nullable();
             $table->text('details')->nullable();
