@@ -75,7 +75,34 @@ Route::middleware('auth')->group(function () {
             Route::get('work-logs', [WorkLogController::class, 'index'])->name('work-logs.index');
         });
 
+        // Finance
+        Route::middleware('role:superadmin,admin')->prefix('finance')->name('finance.')->group(function () {
+            Route::get('dashboard', \App\Http\Controllers\Admin\Finance\DashboardController::class)->name('dashboard');
+            Route::get('transactions', [\App\Http\Controllers\Admin\Finance\TransactionController::class, 'index'])->name('transactions');
+            Route::get('transactions/create', [\App\Http\Controllers\Admin\Finance\TransactionController::class, 'create'])->name('transactions.create');
+            Route::post('transactions', [\App\Http\Controllers\Admin\Finance\TransactionController::class, 'store'])->name('transactions.store');
+            Route::get('transactions/{transaction}/edit', [\App\Http\Controllers\Admin\Finance\TransactionController::class, 'edit'])->name('transactions.edit');
+            Route::put('transactions/{transaction}', [\App\Http\Controllers\Admin\Finance\TransactionController::class, 'update'])->name('transactions.update');
+            Route::delete('transactions/{transaction}', [\App\Http\Controllers\Admin\Finance\TransactionController::class, 'destroy'])->name('transactions.destroy');
+            Route::get('categories', [\App\Http\Controllers\Admin\Finance\CategoryController::class, 'index'])->name('categories');
+            Route::post('categories', [\App\Http\Controllers\Admin\Finance\CategoryController::class, 'store'])->name('categories.store');
+            Route::put('categories/{category}', [\App\Http\Controllers\Admin\Finance\CategoryController::class, 'update'])->name('categories.update');
+            Route::delete('categories/{category}', [\App\Http\Controllers\Admin\Finance\CategoryController::class, 'destroy'])->name('categories.destroy');
+            Route::get('projects', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'index'])->name('projects');
+            Route::post('projects', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'store'])->name('projects.store');
+            Route::put('projects/{project}', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'update'])->name('projects.update');
+            Route::delete('projects/{project}', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'destroy'])->name('projects.destroy');
+            Route::get('reports', \App\Http\Controllers\Admin\Finance\ReportController::class)->name('reports');
+            Route::get('notifications', [\App\Http\Controllers\Admin\Finance\NotificationController::class, 'index'])->name('notifications');
+            Route::post('notifications/{notification}/read', [\App\Http\Controllers\Admin\Finance\NotificationController::class, 'markAsRead'])->name('notifications.read');
+            Route::post('notifications/mark-all-read', [\App\Http\Controllers\Admin\Finance\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        });
+
     });
 });
+
+Route::get('controlPanel/{role}/finance/notifications/unread-count', [\App\Http\Controllers\Admin\Finance\NotificationController::class, 'unreadCount'])
+    ->middleware(['auth', 'role.match'])
+    ->name('finance.notifications.unread');
 
 require __DIR__.'/shop.php';

@@ -9,6 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }} — {{ config('app.name') }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -29,6 +30,36 @@
                 <h1 class="text-lg font-semibold text-[#E6EDF3]">{{ $title }}</h1>
 
                 <div class="flex-1"></div>
+
+                @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+                <div x-data="notificationBell()" x-init="init()" class="relative">
+                    <button @click="toggle()" class="relative flex h-10 w-10 items-center justify-center rounded-xl text-[#94A3B8] hover:bg-[#1C2333] hover:text-[#E6EDF3]" aria-label="Notifications">
+                        <i class="fas fa-bell h-5 w-5"></i>
+                        <span x-show="unreadCount > 0" x-cloak
+                            class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#EF4444] text-[10px] font-bold text-white"
+                            x-text="unreadCount"></span>
+                    </button>
+                    <div x-show="open" @click.outside="open = false" x-transition
+                        class="absolute right-0 mt-2 w-80 rounded-xl border border-[#232A36] bg-[#161B22] py-2 shadow-xl max-h-96 overflow-y-auto">
+                        <div class="flex items-center justify-between px-4 pb-2 border-b border-[#232A36]">
+                            <span class="text-sm font-semibold text-[#E6EDF3]">Notifications</span>
+                            <a href="{{ admin_route('finance.notifications') }}" class="text-xs text-[#3B82F6] hover:underline">View all</a>
+                        </div>
+                        <template x-for="notif in notifications" :key="notif.id">
+                            <div class="px-4 py-3 hover:bg-[#1C2333] cursor-pointer border-b border-[#232A36]/50"
+                                :class="{'opacity-60': notif.is_read}"
+                                @click="markRead(notif)">
+                                <p class="text-sm font-medium text-[#E6EDF3]" x-text="notif.title"></p>
+                                <p class="text-xs text-[#94A3B8] mt-0.5" x-text="notif.message"></p>
+                                <p class="text-[10px] text-[#64748B] mt-1" x-text="notif.time_ago"></p>
+                            </div>
+                        </template>
+                        <div x-show="notifications.length === 0" class="px-4 py-8 text-center text-sm text-[#94A3B8]">
+                            No notifications
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 <div x-data="{ dropdownOpen: false }" @keydown.escape.window="dropdownOpen = false" class="relative">
                     <button @click="dropdownOpen = !dropdownOpen" class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#E6EDF3] hover:bg-[#1C2333]" aria-label="User menu" aria-haspopup="true" :aria-expanded="dropdownOpen">
@@ -74,6 +105,40 @@
             return {
                 sidebarOpen: false,
             }
+        }
+
+        function notificationBell() {
+            return {
+                open: false,
+                unreadCount: 0,
+                notifications: [],
+                init() {
+                    this.fetchUnreadCount();
+                    this.fetchNotifications();
+                    setInterval(() => this.fetchUnreadCount(), 30000);
+                },
+                fetchUnreadCount() {
+                    fetch('{{ route('finance.notifications.unread') }}')
+                        .then(r => r.json())
+                        .then(d => { this.unreadCount = d.count; });
+                },
+                fetchNotifications() {
+                    fetch('{{ route('finance.notifications.unread') }}?limit=5')
+                        .then(r => r.json())
+                        .then(d => { this.notifications = d.notifications || []; });
+                },
+                toggle() {
+                    this.open = !this.open;
+                    if (this.open) this.fetchNotifications();
+                },
+                markRead(notif) {
+                    if (!notif.is_read) {
+                        fetch('/controlPanel/' + '{{ Auth::user()->role }}' + '/finance/notifications/' + notif.id + '/read', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
+                        notif.is_read = true;
+                        this.unreadCount = Math.max(0, this.unreadCount - 1);
+                    }
+                },
+            };
         }
     </script>
 </body>

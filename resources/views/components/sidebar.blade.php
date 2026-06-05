@@ -58,6 +58,26 @@
         <x-nav-link href="{{ admin_route('stock.out') }}" :active="request()->routeIs('stock.out')" icon="stockout">
             Stock Out
         </x-nav-link>
+        @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+        <div class="my-3 border-t border-[#232A36]"></div>
+        <p class="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Finance</p>
+
+        <x-nav-link href="{{ admin_route('finance.dashboard') }}" :active="request()->routeIs('finance.dashboard')" icon="chart">
+            Dashboard
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('finance.transactions') }}" :active="request()->routeIs('finance.transactions*')" icon="transaction">
+            Transactions
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('finance.categories') }}" :active="request()->routeIs('finance.categories*')" icon="category">
+            Categories
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('finance.projects') }}" :active="request()->routeIs('finance.projects*')" icon="project">
+            Projects
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('finance.reports') }}" :active="request()->routeIs('finance.reports')" icon="report">
+            Reports
+        </x-nav-link>
+        @endif
     </nav>
 
     <!-- User Section -->

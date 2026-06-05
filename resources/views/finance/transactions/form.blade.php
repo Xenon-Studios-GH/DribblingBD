@@ -1,0 +1,80 @@
+<x-layouts.app title="{{ isset($transaction) ? 'Edit Transaction' : 'New Transaction' }}">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold text-[#E6EDF3] mb-6">{{ isset($transaction) ? 'Edit Transaction' : 'New Transaction' }}</h1>
+
+        <form method="POST" action="{{ isset($transaction) ? admin_route('finance.transactions.update', $transaction) : admin_route('finance.transactions.store') }}">
+            @csrf
+            @isset($transaction) @method('PUT') @endisset
+
+            <x-card class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Type</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="type" value="income" {{ old('type', $transaction->type ?? '') === 'income' ? 'checked' : '' }} class="accent-[#22C55E]">
+                            <span class="text-sm text-[#E6EDF3]">Income</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="type" value="expense" {{ old('type', $transaction->type ?? '') === 'expense' ? 'checked' : '' }} class="accent-[#EF4444]">
+                            <span class="text-sm text-[#E6EDF3]">Expense</span>
+                        </label>
+                    </div>
+                    @error('type') <p class="text-xs text-[#EF4444] mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Category</label>
+                    <select name="category_id" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
+                        <option value="">Select category</option>
+                        @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}" {{ old('category_id', $transaction->category_id ?? '') == $cat->id ? 'selected' : '' }}>{{ $cat->name }} ({{ ucfirst($cat->type) }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Project (optional)</label>
+                    <select name="project_id" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
+                        <option value="">No project</option>
+                        @foreach($projects as $proj)
+                        <option value="{{ $proj->id }}" {{ old('project_id', $transaction->project_id ?? '') == $proj->id ? 'selected' : '' }}>{{ $proj->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Amount (BDT)</label>
+                    <input type="number" step="0.01" min="0" name="amount" value="{{ old('amount', $transaction->amount ?? '') }}" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]" required>
+                    @error('amount') <p class="text-xs text-[#EF4444] mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Date</label>
+                    <input type="date" name="date" value="{{ old('date', $transaction->date ?? now()->format('Y-m-d')) }}" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]" required>
+                    @error('date') <p class="text-xs text-[#EF4444] mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Description</label>
+                    <textarea name="description" rows="3" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">{{ old('description', $transaction->description ?? '') }}</textarea>
+                </div>
+
+                @isset($transaction)
+                <div class="border-t border-[#232A36] pt-3 text-xs text-[#94A3B8]">
+                    <p>Created by: {{ $transaction->creator?->name ?? 'Unknown' }} on {{ $transaction->created_at->format('M d, Y h:i A') }}</p>
+                    @if($transaction->updated_by)
+                    <p>Last edited by: {{ $transaction->updater?->name ?? 'Unknown' }}</p>
+                    @endif
+                </div>
+                @endisset
+
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="rounded-xl bg-[#3B82F6] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB]">
+                        {{ isset($transaction) ? 'Update' : 'Create' }}
+                    </button>
+                    <a href="{{ admin_route('finance.transactions') }}" class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm text-[#94A3B8] hover:bg-[#1C2333]">Cancel</a>
+                </div>
+            </x-card>
+        </form>
+    </div>
+</x-layouts.app>

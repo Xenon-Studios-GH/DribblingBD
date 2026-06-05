@@ -23,6 +23,18 @@ $classes = $active
     <i class="fas fa-chart-bar w-5 h-5"></i>
     @elseif ($icon === 'plus')
     <i class="fas fa-plus w-5 h-5"></i>
+    @elseif ($icon === 'chart')
+    <i class="fas fa-chart-pie w-5 h-5"></i>
+    @elseif ($icon === 'transaction')
+    <i class="fas fa-exchange-alt w-5 h-5"></i>
+    @elseif ($icon === 'category')
+    <i class="fas fa-tags w-5 h-5"></i>
+    @elseif ($icon === 'project')
+    <i class="fas fa-folder w-5 h-5"></i>
+    @elseif ($icon === 'report')
+    <i class="fas fa-file-alt w-5 h-5"></i>
+    @elseif ($icon === 'bell')
+    <i class="fas fa-bell w-5 h-5"></i>
     @endif
     <span>{{ $slot }}</span>
 </a>
