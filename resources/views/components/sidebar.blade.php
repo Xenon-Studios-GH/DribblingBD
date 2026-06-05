@@ -71,7 +71,13 @@
         <x-nav-link href="{{ admin_route('finance.categories') }}" :active="request()->routeIs('finance.categories*')" icon="category">
             Categories
         </x-nav-link>
-        <x-nav-link href="{{ admin_route('finance.projects') }}" :active="request()->routeIs('finance.projects*')" icon="project">
+        @php
+            $incompleteProjects = \App\Models\FinanceProject::whereNull('budget')
+                ->orWhereNull('description')
+                ->orWhereNull('start_date')
+                ->count();
+        @endphp
+        <x-nav-link href="{{ admin_route('finance.projects') }}" :active="request()->routeIs('finance.projects*')" icon="project" :badge="$incompleteProjects > 0">
             Projects
         </x-nav-link>
         <x-nav-link href="{{ admin_route('finance.reports') }}" :active="request()->routeIs('finance.reports')" icon="report">

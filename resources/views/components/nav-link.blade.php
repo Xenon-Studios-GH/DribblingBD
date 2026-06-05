@@ -1,4 +1,4 @@
-@props(['active' => false, 'href' => '#', 'icon' => 'link'])
+@props(['active' => false, 'href' => '#', 'icon' => 'link', 'badge' => false])
 
 @php
 $classes = $active
@@ -30,7 +30,15 @@ $classes = $active
     @elseif ($icon === 'category')
     <i class="fas fa-tags w-5 h-5"></i>
     @elseif ($icon === 'project')
-    <i class="fas fa-folder w-5 h-5"></i>
+    <span class="relative inline-flex">
+        <i class="fas fa-folder w-5 h-5"></i>
+        @if ($badge)
+        <span class="absolute -top-1.5 -right-1.5 flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EF4444] opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#EF4444]"></span>
+        </span>
+        @endif
+    </span>
     @elseif ($icon === 'report')
     <i class="fas fa-file-alt w-5 h-5"></i>
     @elseif ($icon === 'bell')

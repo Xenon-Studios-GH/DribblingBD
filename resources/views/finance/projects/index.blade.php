@@ -43,8 +43,9 @@
                             @if($p->start_date) {{ $p->start_date->format('M d, Y') }} @endif
                             @if($p->end_date) — {{ $p->end_date->format('M d, Y') }} @endif
                         </td>
-                        <td class="py-3 text-right">
-                            <button @click="$dispatch('open-project-modal', {id: {{ $p->id }}, name: '{{ $p->name }}', budget: '{{ $p->budget }}', status: '{{ $p->status }}', start_date: '{{ $p->start_date?->format('Y-m-d') }}', end_date: '{{ $p->end_date?->format('Y-m-d') }}', description: '{{ addslashes($p->description ?? '') }}'})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
+                        <td class="py-3 text-right flex items-center justify-end gap-2">
+                            <a href="{{ admin_route('finance.projects.show', ['project' => $p]) }}" class="text-xs text-[#3B82F6] hover:underline">View</a>
+                            <button @click="$dispatch('open-project-modal', {id: {{ $p->id }}, name: '{{ $p->name }}', budget: '{{ $p->budget }}', status: '{{ $p->status }}', start_date: '{{ $p->start_date?->format('Y-m-d') }}', end_date: '{{ $p->end_date?->format('Y-m-d') }}', description: '{{ addslashes($p->description ?? '') }}'})" class="text-xs text-[#F59E0B] hover:underline">Edit</button>
                         </td>
                     </tr>
                     @empty

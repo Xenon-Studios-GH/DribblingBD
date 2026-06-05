@@ -25,6 +25,17 @@ class ProjectController extends Controller
         return view('finance.projects.index', compact('projects'));
     }
 
+    public function show(FinanceProject $project)
+    {
+        $project->load(['transactions.category', 'transactions.creator', 'creator', 'updater']);
+
+        $totalIncome = $project->transactions->where('type', 'income')->sum('amount');
+        $totalExpense = $project->transactions->where('type', 'expense')->sum('amount');
+        $remaining = ($project->budget ?? 0) - $totalExpense;
+
+        return view('finance.projects.show', compact('project', 'totalIncome', 'totalExpense', 'remaining'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -47,7 +58,26 @@ class ProjectController extends Controller
             $project->id
         );
 
-        return redirect(admin_route('finance.projects'))->with('success', 'Project created.');
+        return redirect(admin_route('finance.projects.show', ['project' => $project]))->with('success', 'Project created.');
+    }
+
+    public function updateQuick(Request $request, FinanceProject $project)
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:200',
+            'budget' => 'nullable|numeric|min:0',
+            'status' => 'sometimes|in:active,completed,archived',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'description' => 'nullable|string|max:2000',
+        ]);
+
+        if (!empty($validated)) {
+            $validated['updated_by'] = Auth::id();
+            $project->update($validated);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function update(Request $request, FinanceProject $project)

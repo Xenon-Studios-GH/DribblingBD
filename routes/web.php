@@ -89,8 +89,10 @@ Route::middleware('auth')->group(function () {
             Route::put('categories/{category}', [\App\Http\Controllers\Admin\Finance\CategoryController::class, 'update'])->name('categories.update');
             Route::delete('categories/{category}', [\App\Http\Controllers\Admin\Finance\CategoryController::class, 'destroy'])->name('categories.destroy');
             Route::get('projects', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'index'])->name('projects');
+            Route::get('projects/{project}', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'show'])->name('projects.show');
             Route::post('projects', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'store'])->name('projects.store');
             Route::put('projects/{project}', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'update'])->name('projects.update');
+            Route::patch('projects/{project}/quick', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'updateQuick'])->name('projects.quick');
             Route::delete('projects/{project}', [\App\Http\Controllers\Admin\Finance\ProjectController::class, 'destroy'])->name('projects.destroy');
             Route::get('reports', \App\Http\Controllers\Admin\Finance\ReportController::class)->name('reports');
             Route::get('notifications', [\App\Http\Controllers\Admin\Finance\NotificationController::class, 'index'])->name('notifications');
