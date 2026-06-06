@@ -33,7 +33,7 @@ class CategoryController extends Controller
         return redirect(admin_route('website.categories'))->with('success', 'Category created.');
     }
 
-    public function update(Request $request, WebsiteCategory $category)
+    public function update(Request $request, ?string $role = null, WebsiteCategory $category)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
@@ -49,7 +49,7 @@ class CategoryController extends Controller
         return redirect(admin_route('website.categories'))->with('success', 'Category updated.');
     }
 
-    public function destroy(WebsiteCategory $category)
+    public function destroy(?string $role = null, WebsiteCategory $category)
     {
         if ($category->projects()->exists()) {
             return redirect(admin_route('website.categories'))

@@ -57,7 +57,7 @@ class ProductController extends Controller
             ->with('success', "Product {$product->product_name} created successfully.");
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, ?string $role = null, Product $product)
     {
         $validated = $request->validate([
             'product_name' => ['required', 'string', 'max:255'],

@@ -46,7 +46,7 @@ class CategoryController extends Controller
         return redirect(admin_route('finance.categories'))->with('success', 'Category created.');
     }
 
-    public function update(Request $request, FinanceCategory $category)
+    public function update(Request $request, ?string $role = null, FinanceCategory $category)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
@@ -60,7 +60,7 @@ class CategoryController extends Controller
         return redirect(admin_route('finance.categories'))->with('success', 'Category updated.');
     }
 
-    public function destroy(FinanceCategory $category)
+    public function destroy(?string $role = null, FinanceCategory $category)
     {
         $category->delete();
         return redirect(admin_route('finance.categories'))->with('success', 'Category deleted.');

@@ -54,7 +54,7 @@ class ProjectController extends Controller
         return view('website.projects.index', compact('products', 'categories'));
     }
 
-    public function createFromProduct(Product $product)
+    public function createFromProduct(?string $role = null, Product $product)
     {
         if ($product->project) {
             return redirect(admin_route('website.projects.edit', $product->project));
@@ -71,14 +71,14 @@ class ProjectController extends Controller
         return redirect(admin_route('website.projects.edit', $project));
     }
 
-    public function edit(WebsiteProject $project)
+    public function edit(?string $role = null, WebsiteProject $project)
     {
         $project->load('images');
         $categories = WebsiteCategory::with('parent')->orderBy('name')->get();
         return view('website.projects.form', compact('project', 'categories'));
     }
 
-    public function update(Request $request, WebsiteProject $project)
+    public function update(Request $request, ?string $role = null, WebsiteProject $project)
     {
         $validated = $request->validate([
             'regular_price' => 'required|numeric|min:0',

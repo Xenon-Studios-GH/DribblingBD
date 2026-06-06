@@ -18,6 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'role.match' => \App\Http\Middleware\EnsureRoleMatches::class,
         ]);
+
+        $middleware->redirectGuestsTo(fn() => route('authentication'));
+
+        $middleware->redirectUsersTo(fn() => route('dashboard', [
+            'role' => auth()->user()?->role ?? 'admin',
+        ]));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (HttpException $e, Request $request) {

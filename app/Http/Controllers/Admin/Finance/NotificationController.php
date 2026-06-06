@@ -38,7 +38,7 @@ class NotificationController extends Controller
         return response()->json(['count' => $count, 'notifications' => $notifications]);
     }
 
-    public function markAsRead(Notification $notification)
+    public function markAsRead(?string $role = null, Notification $notification)
     {
         if ($notification->user_id !== Auth::id()) {
             abort(403);

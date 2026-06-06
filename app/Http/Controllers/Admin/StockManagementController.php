@@ -28,7 +28,7 @@ class StockManagementController extends Controller
         ));
     }
 
-    public function show(Product $product)
+    public function show(?string $role = null, Product $product)
     {
         $product->load('stocks');
 
@@ -62,7 +62,7 @@ class StockManagementController extends Controller
         ));
     }
 
-    public function transactions(Product $product)
+    public function transactions(?string $role = null, Product $product)
     {
         $transactions = StockTransaction::where('product_id', $product->id)
             ->with('user')->latest()->paginate(20);
