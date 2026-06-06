@@ -47,7 +47,7 @@ class ProductController extends Controller
             return redirect()->route('shop.products.show', [$product->product_code, $expected]);
         }
 
-        $product->load('stocks');
+        $product->load(['stocks', 'project.images', 'project.category']);
 
         $allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
         $stockMap = collect($allSizes)->mapWithKeys(fn ($s) => [
