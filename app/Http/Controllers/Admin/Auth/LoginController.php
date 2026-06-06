@@ -20,11 +20,6 @@ class LoginController extends Controller
         $this->workLogService = $workLogService;
     }
 
-    public function create()
-    {
-        return view('auth.login');
-    }
-
     public function store(Request $request)
     {
         $credentials = $request->validate([

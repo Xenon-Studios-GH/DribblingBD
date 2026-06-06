@@ -18,12 +18,22 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 30-day cashflow
+        // 30-day cashflow (single query)
+        $dailyTotals = FinanceTransaction::where('date', '>=', now()->subDays(29))
+            ->selectRaw("date, 
+                COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income,
+                COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expense")
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
         $cashflow = collect();
         for ($i = 29; $i >= 0; $i--) {
             $day = now()->subDays($i)->format('Y-m-d');
-            $dayIncome = FinanceTransaction::income()->whereDate('date', $day)->sum('amount');
-            $dayExpense = FinanceTransaction::expense()->whereDate('date', $day)->sum('amount');
+            $totals = $dailyTotals->get($day);
+            $dayIncome = $totals ? (float) $totals->income : 0;
+            $dayExpense = $totals ? (float) $totals->expense : 0;
             $cashflow->push([
                 'date' => $day,
                 'income' => $dayIncome,

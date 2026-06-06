@@ -22,7 +22,7 @@ Route::prefix('auth/dribblingbd')->middleware('guest')->group(function () {
     Route::get('login', fn() => redirect()->route('authentication'))->name('login');
     Route::post('login', [LoginController::class, 'store'])->middleware('throttle:5,1');
     Route::get('register', fn() => redirect()->route('authentication'))->name('register');
-    Route::post('register', [\App\Http\Controllers\Shop\Auth\RegisterController::class, 'store']);
+    Route::post('register', [\App\Http\Controllers\Shop\Auth\RegisterController::class, 'store'])->middleware('throttle:5,10');
 });
 
 Route::middleware('guest')->group(function () {

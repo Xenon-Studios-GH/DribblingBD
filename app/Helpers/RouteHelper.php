@@ -25,10 +25,11 @@ if (!function_exists('admin_route')) {
         if (!is_array($parameters)) {
             $parameters = [$parameters];
         }
+        $role = Auth::user()?->role ?? 'admin';
         if (array_is_list($parameters)) {
-            array_unshift($parameters, Auth::user()?->role);
+            array_unshift($parameters, $role);
         } else {
-            $parameters['role'] = Auth::user()?->role;
+            $parameters['role'] = $role;
         }
         return route($name, $parameters, $absolute);
     }
