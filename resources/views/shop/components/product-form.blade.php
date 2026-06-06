@@ -46,7 +46,7 @@
                 Contact for Stock
             </a>
         </div>
-        <button @click="toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code), name: @json($product->product_name) })" class="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold text-sm hover:border-red-300 hover:text-red-500 transition-colors flex items-center justify-center gap-2">
+        <button @click='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code), name: @json($product->product_name) })' class="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold text-sm hover:border-red-300 hover:text-red-500 transition-colors flex items-center justify-center gap-2">
             <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : ''"></i>
             <span x-text="isInWishlist({{ $product->id }}) ? 'Saved' : 'Save'"></span>
         </button>

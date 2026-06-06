@@ -1,5 +1,48 @@
 @extends('shop.layouts.shop', ['title' => $product->product_name])
 
+@push('styles')
+<style>
+    .gallery-main {
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #f3f4f6;
+        aspect-ratio: 4/5;
+        position: relative;
+    }
+    .gallery-main img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.3s ease;
+    }
+    .gallery-thumbs {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .gallery-thumbs button {
+        flex: 1;
+        aspect-ratio: 1;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: 2px solid transparent;
+        transition: border-color 0.2s ease;
+        padding: 0;
+        cursor: pointer;
+        background: #f3f4f6;
+    }
+    .gallery-thumbs button.active {
+        border-color: #E85D2C;
+    }
+    .gallery-thumbs img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+</style>
+@endpush
+
 @section('content')
 @php
 $project = $product->project;
@@ -30,40 +73,53 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
 
     <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
             {{-- Image gallery --}}
-            <div x-data="{ active: 0 }">
-                <div class="aspect-[4/5] rounded-2xl bg-gray-100 relative overflow-hidden shadow-xl">
-                    @if ($images->isNotEmpty())
-                        @foreach ($images as $i => $img)
-                            <img src="{{ asset('storage/' . $img->image_path) }}"
-                                 class="absolute inset-0 w-full h-full object-cover"
-                                 style="{{ $i === 0 ? '' : 'display:none' }}"
-                                 x-show="active === {{ $i }}">
-                        @endforeach
-                    @else
-                        <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                            <i class="fas fa-box w-24 h-24 text-gray-300"></i>
-                        </div>
-                    @endif
-                    <div class="absolute top-4 left-4">
+            @if ($images->count() >= 1)
+            <div x-data="galleryFlip()" class="w-full">
+                <div class="gallery-main shadow-xl">
+                    <template x-for="(img, i) in images" :key="i">
+                        <img :src="'/storage/' + img" 
+                             x-show="activeIndex === i"
+                             class="absolute inset-0">
+                    </template>
+                    <div class="absolute top-3 left-3 z-10 pointer-events-none">
                         <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 text-gray-800">{{ $product->product_code }}</span>
                     </div>
                     @if ($hasOffer)
-                        <div class="absolute top-4 right-4">
-                            <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500 text-white">Sale</span>
-                        </div>
+                    <div class="absolute top-3 right-3 z-10 pointer-events-none">
+                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500 text-white">Sale</span>
+                    </div>
                     @endif
                 </div>
-                @if ($images->count() > 1)
-                <div class="grid grid-cols-4 gap-3 mt-3">
+                @if ($images->count() >= 2)
+                <div class="gallery-thumbs">
                     @foreach ($images as $i => $img)
-                        <button @click="active = {{ $i }}" class="aspect-[4/5] rounded-xl overflow-hidden border-2 transition-colors"
-                            :class="active === {{ $i }} ? 'border-[#E85D2C]' : 'border-transparent hover:border-gray-300'">
-                            <img src="{{ asset('storage/' . $img->image_path) }}" class="w-full h-full object-cover">
-                        </button>
+                    <button @click="activeIndex = {{ $i }}" 
+                            :class="{ 'active': activeIndex === {{ $i }} }">
+                        <img src="{{ asset('storage/' . $img->image_path) }}" alt="">
+                    </button>
                     @endforeach
                 </div>
                 @endif
             </div>
+            @elseif ($images->isNotEmpty())
+            <div class="rounded-2xl overflow-hidden shadow-xl bg-gray-100">
+                <div class="aspect-[4/5] relative">
+                    <img src="{{ asset('storage/' . $images[0]->image_path) }}" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute top-3 left-3 z-10">
+                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 text-gray-800">{{ $product->product_code }}</span>
+                    </div>
+                    @if ($hasOffer)
+                    <div class="absolute top-3 right-3 z-10">
+                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500 text-white">Sale</span>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @else
+            <div class="aspect-[4/5] rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shadow-xl">
+                <i class="fas fa-box w-24 h-24 text-gray-300"></i>
+            </div>
+            @endif
 
         {{-- Product info --}}
         <div class="flex flex-col">
@@ -141,4 +197,13 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
     </section>
     @endif
     </div>
+
+    <script>
+        function galleryFlip() {
+            return {
+                activeIndex: 0,
+                images: @json($images->pluck('image_path')),
+            };
+        }
+    </script>
     @endSection
