@@ -8,12 +8,15 @@ use App\Models\Stock;
 use App\Models\StockTransaction;
 use App\Models\WorkLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StockManagementController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $products = Product::with('stocks')->latest('updated_at')->paginate(20);
+        $products = Product::with('stocks')
+            ->orderByRaw('COALESCE((SELECT MAX(updated_at) FROM stocks WHERE product_id = products.id), products.updated_at) DESC')
+            ->paginate(20);
         $stockIn30d = StockTransaction::where('type', 'in')
             ->where('created_at', '>=', now()->subDays(30))->sum('quantity');
         $stockOut30d = StockTransaction::where('type', 'out')

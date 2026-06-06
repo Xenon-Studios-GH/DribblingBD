@@ -40,7 +40,7 @@ class StockFilterController extends Controller
         $query = match ($sort) {
             'stock_low' => $query->orderBy(DB::raw($subQuery)),
             'stock_high' => $query->orderByDesc(DB::raw($subQuery)),
-            default => $query->latest('updated_at'),
+            default => $query->orderByRaw('COALESCE((SELECT MAX(updated_at) FROM stocks WHERE product_id = products.id), products.updated_at) DESC'),
         };
 
         $products = $query->paginate(20);

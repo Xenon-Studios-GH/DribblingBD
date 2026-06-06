@@ -52,12 +52,6 @@
             Recent Activity
         </x-nav-link>
         @endif
-        <x-nav-link href="{{ admin_route('stock.in') }}" :active="request()->routeIs('stock.in')" icon="stockin">
-            Stock In
-        </x-nav-link>
-        <x-nav-link href="{{ admin_route('stock.out') }}" :active="request()->routeIs('stock.out')" icon="stockout">
-            Stock Out
-        </x-nav-link>
         @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
         <div class="my-3 border-t border-[#232A36]"></div>
         <p class="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Finance</p>

@@ -57,11 +57,13 @@
                     <option value="stock_low">Low to high stock</option>
                     <option value="stock_high">High to low stock</option>
                 </select>
-                <a href="{{ admin_route('stock.in') }}" class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#22C55E] text-white hover:bg-[#16A34A]" aria-label="Stock In">
-                    <i class="fas fa-plus h-5 w-5"></i>
+                <a href="{{ admin_route('stock.in') }}" class="flex items-center gap-2 rounded-xl bg-[#22C55E] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#16A34A] shadow-lg shadow-[#22C55E]/20" aria-label="Stock In">
+                    <i class="fas fa-plus h-4 w-4"></i>
+                    <span>In</span>
                 </a>
-                <a href="{{ admin_route('stock.out') }}" class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EF4444] text-white hover:bg-[#DC2626]" aria-label="Stock Out">
-                    <i class="fas fa-minus h-5 w-5"></i>
+                <a href="{{ admin_route('stock.out') }}" class="flex items-center gap-2 rounded-xl bg-[#EF4444] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#DC2626] shadow-lg shadow-[#EF4444]/20" aria-label="Stock Out">
+                    <i class="fas fa-minus h-4 w-4"></i>
+                    <span>Out</span>
                 </a>
             </div>
         </div>
@@ -81,6 +83,12 @@
             const tableContainer = document.getElementById('stockTableContainer');
             const filterSelect = document.getElementById('stockFilter');
 
+            function getCurrentParams() {
+                const q = encodeURIComponent(searchInput.value);
+                const filter = filterSelect.value;
+                return new URLSearchParams({ q, filter });
+            }
+
             function loadTable(params) {
                 tableContainer.classList.add('opacity-50');
                 fetch(`{{ admin_route('stock.filter') }}?${params}`)
@@ -94,20 +102,14 @@
 
             searchInput.addEventListener('input', function() {
                 clearTimeout(searchTimer);
-                searchTimer = setTimeout(() => {
-                    const q = encodeURIComponent(this.value);
-                    const filter = filterSelect.value;
-                    const params = new URLSearchParams({ q, filter });
-                    loadTable(params);
-                }, 300);
+                searchTimer = setTimeout(() => loadTable(getCurrentParams()), 300);
             });
 
             filterSelect.addEventListener('change', function() {
-                const q = encodeURIComponent(searchInput.value);
-                const filter = this.value;
-                const params = new URLSearchParams({ q, filter });
-                loadTable(params);
+                loadTable(getCurrentParams());
             });
+
+            setInterval(() => loadTable(getCurrentParams()), 60000);
         });
     </script>
 </x-layouts.app>
