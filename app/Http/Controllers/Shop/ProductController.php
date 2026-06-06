@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -34,13 +35,18 @@ class ProductController extends Controller
             default => $query->latest(),
         };
 
-        $products = $query->paginate(12)->withQueryString();
+        $products = $query->with('project')->paginate(12)->withQueryString();
 
         return view('shop.products.index', compact('products', 'sort', 'type', 'stock'));
     }
 
-    public function show(Product $product)
+    public function show(Product $product, ?string $slug = null)
     {
+        $expected = $product->project?->slug ?? Str::slug($product->product_name);
+        if ($slug !== $expected) {
+            return redirect()->route('shop.products.show', [$product->product_code, $expected]);
+        }
+
         $product->load('stocks');
 
         $allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
@@ -49,7 +55,8 @@ class ProductController extends Controller
         ])->toArray();
         $firstAvailable = collect($allSizes)->first(fn ($s) => ($stockMap[$s] ?? 0) > 0, 'M');
 
-        $related = Product::where('id', '!=', $product->id)
+        $related = Product::with('project')
+            ->where('id', '!=', $product->id)
             ->inRandomOrder()
             ->limit(4)
             ->get();
@@ -82,7 +89,7 @@ class ProductController extends Controller
                 'name' => $p->product_name,
                 'code' => $p->product_code,
                 'price' => (int) $p->price,
-                'url' => route('shop.products.show', $p->product_code),
+                'url' => route('shop.products.show', [$p->product_code, $p->project?->slug ?? Str::slug($p->product_name)]),
             ]);
 
         return response()->json($products);

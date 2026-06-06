@@ -9,10 +9,12 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $newArrivals = Product::whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
+        $newArrivals = Product::with('project')
+            ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
             ->latest()->take(8)->get();
 
-        $topSelling = Product::whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
+        $topSelling = Product::with('project')
+            ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
             ->withSum('stocks', 'quantity')
             ->orderBy('stocks_sum_quantity')
             ->take(8)->get();

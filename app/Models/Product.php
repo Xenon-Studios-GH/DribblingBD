@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -36,5 +37,10 @@ class Product extends Model
     public function project()
     {
         return $this->hasOne(WebsiteProject::class);
+    }
+
+    public function getSlugAttribute(): string
+    {
+        return $this->project?->slug ?? Str::slug($this->product_name);
     }
 }

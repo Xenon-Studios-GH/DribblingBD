@@ -88,7 +88,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     @foreach ($related as $rel)
                         <div class="group rounded-2xl bg-white border border-gray-200 hover:border-[#E85D2C]/30 hover:shadow-lg transition-all duration-300 overflow-hidden" x-data="{ added: false }">
-                            <a href="{{ route('shop.products.show', $rel->product_code) }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                            <a href="{{ route('shop.products.show', [$rel->product_code, $rel->slug]) }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                                 <div class="absolute inset-0 bg-gradient-to-br from-[#E85D2C]/10 to-[#F59E0B]/10 group-hover:scale-105 transition-transform duration-500"></div>
                                 <div class="absolute inset-0 flex items-center justify-center">
                                     <i class="fas fa-box w-12 h-12 text-gray-300"></i>

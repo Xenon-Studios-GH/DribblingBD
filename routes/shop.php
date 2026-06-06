@@ -9,7 +9,7 @@ Route::name('shop.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
     Route::get('shop', [ProductController::class, 'index'])->name('products.index');
-    Route::get('shop/{product:product_code}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('shop/{product:product_code}/{slug?}', [ProductController::class, 'show'])->name('products.show');
     Route::get('search', [ProductController::class, 'search'])->name('search');
 
     Route::view('cart', 'shop.cart.index')->name('cart.index');

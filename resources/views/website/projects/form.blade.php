@@ -2,7 +2,7 @@
     <div class="max-w-3xl mx-auto">
         <h1 class="text-2xl font-bold text-[#E6EDF3] mb-6">Edit Project: {{ $project->product->product_name }}</h1>
 
-        <form method="POST" action="{{ admin_route('website.projects.update', $project) }}" enctype="multipart/form-data" x-data="projectForm()">
+        <form method="POST" action="{{ admin_route('website.projects.update', $project) }}" enctype="multipart/form-data" x-data="projectForm()" @submit.prevent="submit">
             @csrf
             @method('PUT')
 
@@ -10,6 +10,9 @@
                 {{-- Images --}}
                 <div>
                     <label class="block text-sm font-medium text-[#E6EDF3] mb-3">Project Images (PNG/WebP, max 5MB each)</label>
+                    <template x-if="error">
+                        <div class="mb-3 rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/10 px-4 py-3 text-sm text-[#EF4444]" x-text="error"></div>
+                    </template>
                     <div class="grid grid-cols-2 gap-4">
                         @for($i = 1; $i <= 4; $i++)
                         @php $img = $project->images->firstWhere('sort_order', $i); @endphp
@@ -27,7 +30,7 @@
                                 <i class="fas fa-image text-[#232A36] text-3xl"></i>
                             </div>
                             @endif
-                            <input type="file" name="images[{{ $i }}]" accept=".png,.webp" class="text-xs text-[#94A3B8] file:mr-2 file:rounded-lg file:border-0 file:bg-[#1C2333] file:px-2 file:py-1 file:text-xs file:text-[#E6EDF3] hover:file:bg-[#232A36]">
+                            <input type="file" name="images[{{ $i }}]" accept=".png,.webp" @change="validateFileSize($event, {{ $i }})" class="text-xs text-[#94A3B8] file:mr-2 file:rounded-lg file:border-0 file:bg-[#1C2333] file:px-2 file:py-1 file:text-xs file:text-[#E6EDF3] hover:file:bg-[#232A36]">
                             <p class="text-xs text-[#94A3B8] mt-1">Slot {{ $i }}</p>
                         </div>
                         @endfor
@@ -111,10 +114,33 @@
         function projectForm() {
             return {
                 removedSlots: [],
+                error: '',
+                maxSize: 5 * 1024 * 1024,
+                validateFileSize(e, slot) {
+                    const file = e.target.files[0];
+                    if (file && file.size > this.maxSize) {
+                        this.error = `Slot ${slot}: Image exceeds 5MB (${(file.size / 1024 / 1024).toFixed(1)}MB). Please resize and try again.`;
+                        e.target.value = '';
+                    } else {
+                        this.error = '';
+                    }
+                },
                 markRemoved(slot) {
                     if (confirm('Remove this image? You can upload a new one in its place.')) {
                         this.removedSlots.push(slot);
                     }
+                },
+                submit() {
+                    this.error = '';
+                    const inputs = document.querySelectorAll('input[type="file"][name^="images["]');
+                    for (const input of inputs) {
+                        const file = input.files[0];
+                        if (file && file.size > this.maxSize) {
+                            this.error = `Image exceeds 5MB. Please resize before submitting.`;
+                            return;
+                        }
+                    }
+                    this.$el.submit();
                 },
             };
         }
