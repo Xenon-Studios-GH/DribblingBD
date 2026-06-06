@@ -16,6 +16,7 @@ Route::middleware(['auth', 'role.match', 'role:superadmin,admin'])
     Route::get('projects/create-from-product/{product}', [ProjectController::class, 'createFromProduct'])->name('projects.create-from-product');
     Route::get('projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
     Route::put('projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::post('projects/{project}/toggle-active', [ProjectController::class, 'toggleActive'])->name('projects.toggle-active');
 
     Route::get('categories', [CategoryController::class, 'index'])->name('categories');
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');

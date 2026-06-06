@@ -107,4 +107,12 @@ class ProjectController extends Controller
 
         return redirect(admin_route('website.projects'))->with('success', 'Project updated.');
     }
+
+    public function toggleActive(?string $role = null, WebsiteProject $project)
+    {
+        $project->update(['is_active' => !$project->is_active]);
+
+        $status = $project->is_active ? 'activated' : 'deactivated';
+        return back()->with('success', "Project {$status} successfully.");
+    }
 }

@@ -12,7 +12,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::query();
+        $query = Product::where('is_active', true);
 
         $type = $request->get('type', 'all');
         match ($type) {
@@ -56,6 +56,7 @@ class ProductController extends Controller
         $firstAvailable = collect($allSizes)->first(fn ($s) => ($stockMap[$s] ?? 0) > 0, 'M');
 
         $related = Product::with('project')
+            ->where('is_active', true)
             ->where('id', '!=', $product->id)
             ->inRandomOrder()
             ->limit(4)
@@ -80,8 +81,11 @@ class ProductController extends Controller
             return response()->json([]);
         }
 
-        $products = Product::where('product_name', 'like', "%{$q}%")
-            ->orWhere('product_code', 'like', "%{$q}%")
+        $products = Product::where('is_active', true)
+            ->where(function ($query) use ($q) {
+                $query->where('product_name', 'like', "%{$q}%")
+                  ->orWhere('product_code', 'like', "%{$q}%");
+            })
             ->take(8)
             ->get()
             ->map(fn ($p) => [

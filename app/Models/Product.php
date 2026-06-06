@@ -15,7 +15,15 @@ class Product extends Model
         'product_code',
         'product_name',
         'price',
+        'is_active',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 
     public static function generateProductCode(): string
     {

@@ -4,6 +4,18 @@
             <h1 class="text-2xl font-bold text-[#E6EDF3]">Projects</h1>
         </div>
 
+        @if (session('success'))
+        <div class="rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-3 text-sm text-[#22C55E]">
+            {{ session('success') }}
+        </div>
+        @endif
+
+        @if (session('error'))
+        <div class="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/10 px-4 py-3 text-sm text-[#EF4444]">
+            {{ session('error') }}
+        </div>
+        @endif
+
         {{-- Filters --}}
         <form method="GET" class="flex flex-wrap gap-3">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name or code..." class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3] min-w-[200px]">
@@ -68,8 +80,14 @@
                             <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-[#94A3B8]/10 text-[#94A3B8]">Not Setup</span>
                             @endif
                         </td>
-                        <td class="py-3 text-right">
+                        <td class="py-3 text-right flex items-center justify-end gap-2">
                             @if($proj)
+                            <form method="POST" action="{{ admin_route('website.projects.toggle-active', $proj) }}">
+                                @csrf
+                                <button type="submit" class="text-xs font-medium {{ $proj->is_active ? 'text-[#22C55E]' : 'text-[#94A3B8]' }} hover:underline">
+                                    {{ $proj->is_active ? 'Active' : 'Inactive' }}
+                                </button>
+                            </form>
                             <a href="{{ admin_route('website.projects.edit', $proj) }}" class="text-[#3B82F6] hover:underline text-xs">Edit</a>
                             @else
                             <a href="{{ admin_route('website.projects.create-from-product', $product) }}" class="text-[#22C55E] hover:underline text-xs">Add Details</a>

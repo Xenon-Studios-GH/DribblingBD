@@ -75,4 +75,5 @@ class ProductController extends Controller
 
         return back()->with('success', 'Product updated successfully.');
     }
+
 }
