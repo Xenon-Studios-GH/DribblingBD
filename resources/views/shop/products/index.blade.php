@@ -84,16 +84,21 @@ $title = $headings[$type ?? 'all'] ?? 'All Jerseys';
             @if ($products->count() > 0)
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
                 @foreach ($products as $product)
+                @php $firstImage = $product->project?->images->first(); @endphp
                 <div class="group rounded-2xl bg-white border border-gray-200 hover:border-[#E85D2C]/30 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 overflow-hidden" x-data="{ added: false }">
                     <a href="{{ route('shop.products.show', [$product->product_code, $product->slug]) }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-to-br from-[#E85D2C]/10 to-[#F59E0B]/10 group-hover:scale-105 transition-transform duration-500"></div>
-                        <div class="absolute top-3 left-3">
+                        <div class="absolute top-3 left-3 z-10">
                             <span class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-white/90 text-gray-700">{{ $product->product_code }}</span>
                         </div>
+                        @if ($firstImage)
+                        <img src="{{ asset('storage/' . $firstImage->image_path) }}" alt="{{ $product->product_name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        @else
                         <div class="absolute inset-0 flex items-center justify-center">
                             <i class="fas fa-box w-16 h-16 text-gray-300 group-hover:text-gray-400 transition-colors"></i>
                         </div>
-                        <div class="absolute top-3 right-3">
+                        @endif
+                        <div class="absolute top-3 right-3 z-10">
                             <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code), name: @json($product->product_name) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm">
                                 <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : 'text-gray-400'"></i>
                             </button>

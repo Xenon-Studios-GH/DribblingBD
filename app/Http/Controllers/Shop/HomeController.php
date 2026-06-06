@@ -11,7 +11,7 @@ class HomeController extends Controller
     {
         $newArrivals = Product::with('project')
             ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
-            ->latest()->take(8)->get();
+            ->latest('updated_at')->take(8)->get();
 
         $topSelling = Product::with('project')
             ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
