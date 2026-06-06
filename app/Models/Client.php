@@ -25,7 +25,6 @@ class Client extends Model
         'preferred_size',
         'favorite_team',
         'preferred_payment',
-        'password',
         'wishlist',
         'cart',
         'orders',
