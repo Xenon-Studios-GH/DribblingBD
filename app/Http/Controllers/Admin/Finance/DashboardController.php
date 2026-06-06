@@ -4,11 +4,22 @@ namespace App\Http\Controllers\Admin\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\FinanceTransaction;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function __invoke()
+    public function __invoke(Request $request)
     {
+        $period = $request->query('period', 'month');
+
+        $days = match($period) {
+            'day' => 0,
+            'week' => 6,
+            'month' => 29,
+            'year' => 364,
+            default => 29,
+        };
+
         $income = FinanceTransaction::income()->lastYear()->sum('amount');
         $expense = FinanceTransaction::expense()->lastYear()->sum('amount');
         $balance = $income - $expense;
@@ -18,8 +29,10 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 30-day cashflow (single query)
-        $dailyTotals = FinanceTransaction::where('date', '>=', now()->subDays(29))
+        $dateFrom = now()->subDays($days)->startOfDay();
+
+        // Cashflow (single query)
+        $dailyTotals = FinanceTransaction::where('date', '>=', $dateFrom)
             ->selectRaw("date, 
                 COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income,
                 COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expense")
@@ -29,7 +42,7 @@ class DashboardController extends Controller
             ->keyBy('date');
 
         $cashflow = collect();
-        for ($i = 29; $i >= 0; $i--) {
+        for ($i = $days; $i >= 0; $i--) {
             $day = now()->subDays($i)->format('Y-m-d');
             $totals = $dailyTotals->get($day);
             $dayIncome = $totals ? (float) $totals->income : 0;
@@ -51,7 +64,7 @@ class DashboardController extends Controller
         });
 
         $incomeByCategory = FinanceTransaction::income()
-            ->where('date', '>=', now()->subDays(29))
+            ->where('date', '>=', $dateFrom)
             ->selectRaw('category_id, SUM(amount) as total')
             ->with('category')
             ->groupBy('category_id')
@@ -64,7 +77,7 @@ class DashboardController extends Controller
             ->values();
 
         $expenseByCategory = FinanceTransaction::expense()
-            ->where('date', '>=', now()->subDays(29))
+            ->where('date', '>=', $dateFrom)
             ->selectRaw('category_id, SUM(amount) as total')
             ->with('category')
             ->groupBy('category_id')
@@ -78,7 +91,7 @@ class DashboardController extends Controller
 
         return view('finance.dashboard', compact(
             'income', 'expense', 'balance',
-            'recentTransactions', 'cashflowWithBalance',
+            'recentTransactions', 'cashflowWithBalance', 'period',
             'incomeByCategory', 'expenseByCategory'
         ));
     }
