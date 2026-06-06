@@ -50,9 +50,36 @@ class DashboardController extends Controller
             return $item;
         });
 
+        $incomeByCategory = FinanceTransaction::income()
+            ->where('date', '>=', now()->subDays(29))
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->with('category')
+            ->groupBy('category_id')
+            ->get()
+            ->map(fn($t) => [
+                'name' => $t->category?->name ?? 'Uncategorized',
+                'total' => (float) $t->total,
+            ])
+            ->sortByDesc('total')
+            ->values();
+
+        $expenseByCategory = FinanceTransaction::expense()
+            ->where('date', '>=', now()->subDays(29))
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->with('category')
+            ->groupBy('category_id')
+            ->get()
+            ->map(fn($t) => [
+                'name' => $t->category?->name ?? 'Uncategorized',
+                'total' => (float) $t->total,
+            ])
+            ->sortByDesc('total')
+            ->values();
+
         return view('finance.dashboard', compact(
             'income', 'expense', 'balance',
-            'recentTransactions', 'cashflowWithBalance'
+            'recentTransactions', 'cashflowWithBalance',
+            'incomeByCategory', 'expenseByCategory'
         ));
     }
 }

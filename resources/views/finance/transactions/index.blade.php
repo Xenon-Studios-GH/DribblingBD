@@ -34,8 +34,8 @@
                         <th class="pb-3 font-medium">Date</th>
                         <th class="pb-3 font-medium">Type</th>
                         <th class="pb-3 font-medium">Category</th>
-                        <th class="pb-3 font-medium text-right">Amount</th>
-                        <th class="pb-3 font-medium">Description</th>
+                        <th class="pb-3 font-medium text-right pr-6">Amount</th>
+                        <th class="pb-3 font-medium pl-4">Description</th>
                         <th class="pb-3 font-medium">By</th>
                         <th class="pb-3 font-medium text-right">Actions</th>
                     </tr>
@@ -50,10 +50,10 @@
                             </span>
                         </td>
                         <td class="py-3 text-[#94A3B8]">{{ $t->category?->name ?? '—' }}</td>
-                        <td class="py-3 text-right font-semibold {{ $t->type === 'income' ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">
+                        <td class="py-3 text-right font-semibold pr-6 {{ $t->type === 'income' ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">
                             ৳{{ number_format($t->amount, 2) }}
                         </td>
-                        <td class="py-3 text-[#94A3B8] max-w-[200px] truncate">{{ $t->description ?: '—' }}</td>
+                        <td class="py-3 text-[#94A3B8] max-w-[200px] truncate pl-4">{{ $t->description ?: '—' }}</td>
                         <td class="py-3 text-[#94A3B8]">{{ $t->creator?->name ?? '—' }}</td>
                         <td class="py-3 text-right">
                             <a href="{{ admin_route('finance.transactions.edit', $t) }}" class="text-[#3B82F6] hover:underline text-xs">Edit</a>

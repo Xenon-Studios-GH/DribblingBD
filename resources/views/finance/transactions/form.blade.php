@@ -2,7 +2,7 @@
     <div class="max-w-2xl mx-auto">
         <h1 class="text-2xl font-bold text-[#E6EDF3] mb-6">{{ isset($transaction) ? 'Edit Transaction' : 'New Transaction' }}</h1>
 
-        <form method="POST" action="{{ isset($transaction) ? admin_route('finance.transactions.update', $transaction) : admin_route('finance.transactions.store') }}">
+        <form method="POST" action="{{ isset($transaction) ? admin_route('finance.transactions.update', $transaction) : admin_route('finance.transactions.store') }}" x-data="transactionForm()">
             @csrf
             @isset($transaction) @method('PUT') @endisset
 
@@ -11,11 +11,11 @@
                     <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Type</label>
                     <div class="flex gap-4">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="type" value="income" {{ old('type', $transaction->type ?? '') === 'income' ? 'checked' : '' }} class="accent-[#22C55E]">
+                            <input type="radio" name="type" value="income" x-model="selectedType" class="accent-[#22C55E]">
                             <span class="text-sm text-[#E6EDF3]">Income</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="type" value="expense" {{ old('type', $transaction->type ?? '') === 'expense' ? 'checked' : '' }} class="accent-[#EF4444]">
+                            <input type="radio" name="type" value="expense" x-model="selectedType" class="accent-[#EF4444]">
                             <span class="text-sm text-[#E6EDF3]">Expense</span>
                         </label>
                     </div>
@@ -24,11 +24,11 @@
 
                 <div>
                     <label class="block text-sm font-medium text-[#E6EDF3] mb-2">Category</label>
-                    <select name="category_id" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
+                    <select name="category_id" x-model="selectedCategory" class="w-full rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
                         <option value="">Select category</option>
-                        @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ old('category_id', $transaction->category_id ?? '') == $cat->id ? 'selected' : '' }}>{{ $cat->name }} ({{ ucfirst($cat->type) }})</option>
-                        @endforeach
+                        <template x-for="cat in filteredCategories" :key="cat.id">
+                            <option :value="cat.id" x-text="cat.name"></option>
+                        </template>
                     </select>
                 </div>
 
@@ -66,5 +66,18 @@
                 </div>
             </x-card>
         </form>
+
+        <script>
+            function transactionForm() {
+                return {
+                    categories: @json($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'type' => $c->type])),
+                    selectedType: '{{ old('type', $transaction->type ?? '') }}',
+                    selectedCategory: '{{ old('category_id', $transaction->category_id ?? '') }}',
+                    get filteredCategories() {
+                        return this.categories.filter(c => c.type === this.selectedType);
+                    }
+                };
+            }
+        </script>
     </div>
 </x-layouts.app>
