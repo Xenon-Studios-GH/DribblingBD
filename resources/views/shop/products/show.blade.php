@@ -29,40 +29,41 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
     </nav>
 
     <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
-        {{-- Image gallery --}}
-        <div>
-            <div class="aspect-[4/5] rounded-2xl bg-gray-100 relative overflow-hidden shadow-xl" x-data="{ active: 0 }">
-                @if ($images->isNotEmpty())
-                @foreach ($images as $i => $img)
-                <img src="{{ asset('storage/' . $img->image_path) }}"
-                    x-show="active === {{ $i }}"
-                    class="absolute inset-0 w-full h-full object-cover">
-                @endforeach
-                @else
-                <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                    <i class="fas fa-box w-24 h-24 text-gray-300"></i>
-                </div>
-                @endif
-                <div class="absolute top-4 left-4">
-                    <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 text-gray-800">{{ $product->product_code }}</span>
-                </div>
+            {{-- Image gallery --}}
+            <div x-data="{ active: 0 }">
+                <div class="aspect-[4/5] rounded-2xl bg-gray-100 relative overflow-hidden shadow-xl">
+                    @if ($images->isNotEmpty())
+                        @foreach ($images as $i => $img)
+                            <img src="{{ asset('storage/' . $img->image_path) }}"
+                                 class="absolute inset-0 w-full h-full object-cover"
+                                 style="{{ $i === 0 ? '' : 'display:none' }}"
+                                 x-show="active === {{ $i }}">
+                        @endforeach
+                    @else
+                        <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                            <i class="fas fa-box w-24 h-24 text-gray-300"></i>
+                        </div>
+                    @endif
+                    <div class="absolute top-4 left-4">
+                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 text-gray-800">{{ $product->product_code }}</span>
+                    </div>
                     @if ($hasOffer)
                         <div class="absolute top-4 right-4">
                             <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500 text-white">Sale</span>
                         </div>
                     @endif
+                </div>
+                @if ($images->count() > 1)
+                <div class="grid grid-cols-4 gap-3 mt-3">
+                    @foreach ($images as $i => $img)
+                        <button @click="active = {{ $i }}" class="aspect-[4/5] rounded-xl overflow-hidden border-2 transition-colors"
+                            :class="active === {{ $i }} ? 'border-[#E85D2C]' : 'border-transparent hover:border-gray-300'">
+                            <img src="{{ asset('storage/' . $img->image_path) }}" class="w-full h-full object-cover">
+                        </button>
+                    @endforeach
+                </div>
+                @endif
             </div>
-            @if ($images->count() > 1)
-            <div class="grid grid-cols-4 gap-3 mt-3">
-                @foreach ($images as $i => $img)
-                <button @click="active = {{ $i }}" class="aspect-[4/5] rounded-xl overflow-hidden border-2 transition-colors"
-                    :class="active === {{ $i }} ? 'border-[#E85D2C]' : 'border-transparent hover:border-gray-300'">
-                    <img src="{{ asset('storage/' . $img->image_path) }}" class="w-full h-full object-cover">
-                </button>
-                @endforeach
-            </div>
-            @endif
-        </div>
 
         {{-- Product info --}}
         <div class="flex flex-col">
