@@ -226,7 +226,7 @@
                             })
                         .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(d)))
                         .then(data => {
-                            window.location.href = '/stock-management/' + data.product_id;
+                            window.location.href = '{{ admin_route('stock.management.show', ['product' => 'REPLACE_ID']) }}'.replace('REPLACE_ID', data.product_id);
                         })
                         .catch(e => {
                             this.error = e.message || Object.values(e.errors || {}).flat().join(' ') || 'An unexpected error occurred.';

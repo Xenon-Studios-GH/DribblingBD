@@ -121,7 +121,7 @@
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.edit-btn');
         if (btn) {
-            document.getElementById('editForm').action = '{{ url('stock/products') }}/' + btn.dataset.id;
+            document.getElementById('editForm').action = '{{ admin_route('stock.products.update', ['product' => 'REPLACE_ID']) }}'.replace('REPLACE_ID', btn.dataset.id);
             document.getElementById('editName').value = btn.dataset.name;
             document.getElementById('editPrice').value = btn.dataset.price;
             document.getElementById('editModal').classList.remove('hidden');

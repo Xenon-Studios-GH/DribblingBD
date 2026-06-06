@@ -73,7 +73,7 @@ class ProjectController extends Controller
 
     public function edit(?string $role = null, WebsiteProject $project)
     {
-        $project->load('images');
+        $project->load(['images', 'product']);
         $categories = WebsiteCategory::with('parent')->orderBy('name')->get();
         return view('website.projects.form', compact('project', 'categories'));
     }
