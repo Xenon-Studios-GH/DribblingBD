@@ -91,20 +91,4 @@
         @endif
     </nav>
 
-    <!-- User Section -->
-    <div class="shrink-0 border-t border-[#232A36] px-3 py-4">
-        <div class="mb-3 px-3">
-            <p class="text-sm font-medium text-[#E6EDF3]">{{ Auth::user()->name }}</p>
-            <p class="text-xs text-[#94A3B8]">{{ ucfirst(Auth::user()->role) }}</p>
-        </div>
-        <div class="flex justify-center lg:justify-start">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="flex w-full items-center justify-center lg:justify-start gap-3 rounded-xl px-3 py-2.5 text-sm text-[#94A3B8] transition-colors hover:bg-[#1C2333] hover:text-[#EF4444]" aria-label="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </button>
-            </form>
-        </div>
-    </div>
 </aside>

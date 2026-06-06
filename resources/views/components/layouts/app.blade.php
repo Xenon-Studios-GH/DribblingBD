@@ -31,6 +31,11 @@
 
                 <div class="flex-1"></div>
 
+                <a href="{{ url('/') }}" class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#94A3B8] hover:bg-[#1C2333] hover:text-[#E6EDF3] transition-colors" aria-label="Landing page">
+                    <i class="fas fa-globe h-4 w-4"></i>
+                    <span class="hidden md:inline">Landing Page</span>
+                </a>
+
                 @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
                 <div x-data="notificationBell()" x-init="init()" class="relative">
                     <button @click="toggle()" class="relative flex h-10 w-10 items-center justify-center rounded-xl text-[#94A3B8] hover:bg-[#1C2333] hover:text-[#E6EDF3]" aria-label="Notifications">
@@ -74,7 +79,11 @@
                             <p class="text-xs text-[#94A3B8]">{{ ucfirst(Auth::user()->role) }}</p>
                         </div>
                         <div class="px-2 pt-1">
-                            <form method="POST" action="{{ route('logout') }}">
+                            <a href="{{ url('/') }}" class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-[#E6EDF3] hover:bg-[#1C2333]" role="menuitem">
+                                <i class="fas fa-globe h-4 w-4"></i>
+                                Landing Page
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}" class="mt-1">
                                 @csrf
                                 <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-[#EF4444] hover:bg-[#1C2333]" role="menuitem">
                                     <i class="fas fa-sign-out-alt h-4 w-4"></i>
