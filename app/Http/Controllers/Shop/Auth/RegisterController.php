@@ -22,12 +22,13 @@ class RegisterController extends Controller
         ]);
 
         $user = DB::transaction(function () use ($data) {
+            $hashedPassword = Hash::make($data['password']);
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
-                'password' => Hash::make($data['password']),
-                'role' => 'customer',
+                'password' => $hashedPassword,
+                'role' => 'client',
                 'status' => true,
             ]);
 
@@ -38,6 +39,7 @@ class RegisterController extends Controller
                 'username' => null,
                 'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
+                'password' => $hashedPassword,
             ]);
 
             return $user;
