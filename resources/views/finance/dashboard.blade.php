@@ -251,8 +251,6 @@ var bigData = {
     expense: {!! json_encode($cashflowWithBalance->pluck('expense')) !!},
     net: {!! json_encode($cashflowWithBalance->pluck('net')) !!},
 };
-console.log('Hologram big chart data:', bigData);
-console.log('Hologram totals - income:', bigData.income.reduce((a,b)=>a+b,0), 'expense:', bigData.expense.reduce((a,b)=>a+b,0), 'net:', bigData.net.reduce((a,b)=>a+b,0), 'count:', bigData.income.length);
 hc.push(new Chart(document.getElementById('hologramBigChart'), {
     type: 'line',
     data: {
