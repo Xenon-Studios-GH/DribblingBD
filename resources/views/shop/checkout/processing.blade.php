@@ -47,57 +47,78 @@ footer { display: none !important; }
     to { opacity: 1; }
 }
 
-.btn-cloud {
-    font-family: inherit;
-    font-size: 20px;
-    background: #25D366;
-    color: white;
-    fill: rgba(255, 255, 255, 0.6);
-    padding: 0.7em 1em;
-    padding-left: 0.9em;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    border: none;
-    border-radius: 15px;
-    font-weight: 1000;
+.btn {
+    position: relative;
+    font-size: 17px;
+    text-transform: uppercase;
     text-decoration: none;
+    padding: 1em 2.5em;
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 6em;
+    transition: all 0.2s;
+    border: none;
+    font-family: inherit;
+    font-weight: 500;
+    color: white;
+    background-color: #25D366;
 }
-.btn-cloud span {
-    display: block;
-    margin-left: 0.3em;
-    transition: all 0.3s ease-in-out;
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
 }
-.btn-cloud svg {
-    display: block;
-    transform-origin: center center;
-    transition: transform 0.3s ease-in-out;
-    width: 30px;
-    height: 30px;
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(37, 211, 102, 0.2);
 }
-.btn-cloud:hover {
-    background: #1ebe5b;
+.btn::after {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    border-radius: 100px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transition: all 0.4s;
+    background-color: #25D366;
 }
-.btn-cloud:hover .svg-wrapper {
-    transform: scale(1.25);
-    transition: 0.5s linear;
-}
-.btn-cloud:hover svg {
-    transform: translateX(1.2em) scale(1.1);
-    fill: #fff;
-}
-.btn-cloud:hover span {
+.btn:hover::after {
+    transform: scaleX(1.4) scaleY(1.6);
     opacity: 0;
-    transition: 0.5s linear;
-}
-.btn-cloud:active {
-    transform: scale(0.95);
 }
 </style>
 @endpush
 
 @section('content')
-<div x-data="{ countdown: 3, showConfirm: false }" x-init="let timer = setInterval(() => { if (countdown > 1) { countdown--; } else { clearInterval(timer); showConfirm = true; } }, 1000)" class="processing-screen">
+<div x-data="{ countdown: 3, showConfirm: false, whatsappUrl: '#' }" x-init="
+    let timer = setInterval(() => {
+        if (countdown > 1) { countdown--; }
+        else { clearInterval(timer); showConfirm = true; }
+    }, 1000);
+    let cart = JSON.parse(localStorage.getItem('shop_cart') || '[]');
+    let addr = JSON.parse(localStorage.getItem('shop_checkout') || '{}');
+    let items = cart.map((i, idx) =>
+        (idx + 1) + '. ' + (i.name || 'Product') +
+        ' — Size: ' + (i.size || 'N/A') +
+        ' × ' + (i.quantity || 1) +
+        ' = ৳' + ((i.price || 0) * (i.quantity || 1)).toLocaleString()
+    ).join('%0A');
+    let subtotal = cart.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0);
+    let msg =
+        'Hello Vaiya, I need This Product...%0A%0A' +
+        '━━━ *Items* ━━━%0A' + items + '%0A%0A' +
+        '━━━ *Customer* ━━━%0A' +
+        'Name: ' + (addr.name || 'N/A') + '%0A' +
+        'Phone: ' + (addr.phone || 'N/A') + '%0A' +
+        'Address: ' + (addr.address || 'N/A') + '%0A' +
+        'City: ' + (addr.city || 'N/A') + '%0A' +
+        'Area: ' + (addr.area || 'N/A') + '%0A' +
+        'Postal: ' + (addr.postal || 'N/A') + '%0A' +
+        'Shipping Address: ' + (addr.address || 'N/A');
+    whatsappUrl = 'https://wa.me/8801641857715?text=' + msg;
+" class="processing-screen">
     <template x-if="!showConfirm">
         <div class="text-center">
             <div class="spinner">
@@ -122,13 +143,9 @@ footer { display: none !important; }
                 Please confirm your order via WhatsApp. Thank you for shopping with us!
             </p>
             <div class="flex flex-col items-center gap-3">
-                <a href="https://wa.me/8801XXXXXXXXX" target="_blank" class="btn-cloud">
-                    <div class="svg-wrapper">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M22,15.04C22,17.23 20.24,19 18.07,19H5.93C3.76,19 2,17.23 2,15.04C2,13.07 3.43,11.44 5.31,11.14C5.28,11 5.27,10.86 5.27,10.71C5.27,9.33 6.38,8.2 7.76,8.2C8.37,8.2 8.94,8.43 9.37,8.8C10.14,7.05 11.13,5.44 13.91,5.44C17.28,5.44 18.87,8.06 18.87,10.83C18.87,10.94 18.87,11.06 18.86,11.17C20.65,11.54 22,13.13 22,15.04Z"></path>
-                        </svg>
-                    </div>
-                    <span>Confirm on WhatsApp</span>
+                <a :href="whatsappUrl" target="_blank" class="btn">
+                    <i class="fab fa-whatsapp" style="margin-right: 8px; font-size: 20px;"></i>
+                    Confirm on WhatsApp
                 </a>
                 <a href="{{ route('shop.home') }}" class="text-sm font-medium text-gray-500 hover:text-[#E85D2C] transition-colors">
                     Back to Home
