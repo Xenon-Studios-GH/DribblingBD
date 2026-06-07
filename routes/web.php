@@ -35,7 +35,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('auth/dribblingbd/logout', LogoutController::class)->name('logout');
 
-    Route::prefix('controlPanel/{role}')->where(['role' => 'superadmin|admin|staff|manager'])->middleware('role.match')->group(function () {
+    Route::prefix('controlPanel/{role}')->where(['role' => 'superadmin|admin|staff'])->middleware('role.match')->group(function () {
 
         Route::get('dashboard', DashboardController::class)->name('dashboard');
 

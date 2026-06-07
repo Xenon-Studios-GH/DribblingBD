@@ -30,6 +30,7 @@
                             onclick="event.stopPropagation()">View</a>
                         <button type="button" class="edit-btn rounded-lg px-3 py-1.5 text-xs font-medium text-[#F59E0B] hover:bg-[#F59E0B]/10"
                             data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-price="{{ $product->price }}"
+                            data-action="{{ admin_route('stock.products.update', ['product' => '__ID__']) }}"
                             onclick="event.stopPropagation()">Edit</button>
                     </td>
                 </tr>
@@ -77,6 +78,7 @@
                 onclick="event.stopPropagation()">View Details</a>
             <button type="button" class="edit-btn flex-1 rounded-xl bg-[#F59E0B]/10 px-4 py-2.5 text-sm font-medium text-[#F59E0B] hover:bg-[#F59E0B]/20"
                 data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-price="{{ $product->price }}"
+                data-action="{{ admin_route('stock.products.update', ['product' => '__ID__']) }}"
                 onclick="event.stopPropagation()">Edit</button>
         </div>
     </x-card>
@@ -121,7 +123,7 @@
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.edit-btn');
         if (btn) {
-            document.getElementById('editForm').action = '{{ admin_route('stock.products.update', ['product' => 'REPLACE_ID']) }}'.replace('REPLACE_ID', btn.dataset.id);
+            document.getElementById('editForm').action = btn.dataset.action.replace('__ID__', btn.dataset.id);
             document.getElementById('editName').value = btn.dataset.name;
             document.getElementById('editPrice').value = btn.dataset.price;
             document.getElementById('editModal').classList.remove('hidden');

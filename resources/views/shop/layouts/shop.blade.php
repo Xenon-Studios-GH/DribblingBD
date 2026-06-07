@@ -101,7 +101,7 @@
                 get stockQty() { return this.stockMap[this.selectedSize] || 0; },
                 setSize(size) { this.selectedSize = size; this.qty = 1; },
                 get whatsappUrl() {
-                    return "https://wa.me/8801641857715?text=" + encodeURIComponent("Hi, I need " + data.productName + " (" + data.productCode + ")");
+                    return "https://wa.me/{{ config('shop.whatsapp_number') }}?text=" + encodeURIComponent("Hi, I need " + data.productName + " (" + data.productCode + ")");
                 }
             }
         }
