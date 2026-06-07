@@ -14,7 +14,7 @@
                     <span class="text-sm text-[#E6EDF3]">{{ $cat->name }}</span>
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-[#94A3B8]">{{ $cat->transactions_count ?? 0 }} txns</span>
-                        <button @click="$dispatch('open-category-modal', {id: {{ $cat->id }}, type: '{{ $cat->type }}', name: '{{ $cat->name }}', description: '{{ $cat->description ?? '' }}'})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
+                        <button @click="$dispatch('open-category-modal', {id: {{ $cat->id }}, type: @json($cat->type), name: @json($cat->name), description: @json($cat->description ?? '')})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
                     </div>
                 </div>
                 @endforeach
@@ -33,7 +33,7 @@
                     <span class="text-sm text-[#E6EDF3]">{{ $cat->name }}</span>
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-[#94A3B8]">{{ $cat->transactions_count ?? 0 }} txns</span>
-                        <button @click="$dispatch('open-category-modal', {id: {{ $cat->id }}, type: '{{ $cat->type }}', name: '{{ $cat->name }}', description: '{{ $cat->description ?? '' }}'})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
+                        <button @click="$dispatch('open-category-modal', {id: {{ $cat->id }}, type: @json($cat->type), name: @json($cat->name), description: @json($cat->description ?? '')})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
                     </div>
                 </div>
                 @endforeach
@@ -46,7 +46,7 @@
         <div class="fixed inset-0 bg-black/50" @click="isOpen = false"></div>
         <div class="relative bg-[#161B22] border border-[#232A36] rounded-xl p-6 w-full max-w-md mx-4">
             <h3 class="text-lg font-semibold text-[#E6EDF3] mb-4" x-text="editingId ? 'Edit Category' : 'New Category'"></h3>
-            <form :action="editingId ? '{{ url()->current() }}/' + editingId : '{{ admin_route('finance.categories.store') }}'" method="POST">
+            <form :action="editingId ? '{{ admin_route('finance.categories.update', '__EDIT__') }}'.replace('__EDIT__', editingId) : '{{ admin_route('finance.categories.store') }}'" method="POST">
                 @csrf
                 <template x-if="editingId">
                     <input type="hidden" name="_method" value="PUT">

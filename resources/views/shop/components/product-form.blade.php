@@ -8,7 +8,7 @@
                 @php
                     $stock = $product->stocks->firstWhere('size', $size);
                 @endphp
-                <button @click="setSize('{{ $size }}')" :class="selectedSize === '{{ $size }}' ? 'bg-[#E85D2C] text-white border-[#E85D2C]' : 'bg-white text-gray-700 border-gray-300 hover:border-[#E85D2C]'" class="px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors">
+                <button @click='setSize(@json($size))' :class="`selectedSize === ${JSON.stringify(@json($size))} ? 'bg-[#E85D2C] text-white border-[#E85D2C]' : 'bg-white text-gray-700 border-gray-300 hover:border-[#E85D2C]'`" class="px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors">
                     {{ $size }}
                 </button>
             @endforeach

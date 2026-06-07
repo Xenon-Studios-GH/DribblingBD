@@ -27,7 +27,7 @@
                             @endif
                         </div>
                         <div class="flex items-center gap-2">
-                            <button @click="$dispatch('open-category-modal', {id: {{ $cat->id }}, name: '{{ $cat->name }}', slug: '{{ $cat->slug }}', parent_id: null, description: '{{ addslashes($cat->description ?? '') }}', is_active: {{ $cat->is_active ? 'true' : 'false' }}})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
+                            <button @click="$dispatch('open-category-modal', {id: {{ $cat->id }}, name: @json($cat->name), slug: @json($cat->slug), parent_id: null, description: @json($cat->description ?? ''), is_active: {{ $cat->is_active ? 'true' : 'false' }}})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
                             <form method="POST" action="{{ admin_route('website.categories.destroy', $cat) }}" onsubmit="return confirm('Delete this category?')" class="inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-xs text-[#EF4444] hover:underline">Delete</button>
@@ -45,7 +45,7 @@
                             @endif
                         </div>
                         <div class="flex items-center gap-2">
-                            <button @click="$dispatch('open-category-modal', {id: {{ $child->id }}, name: '{{ $child->name }}', slug: '{{ $child->slug }}', parent_id: {{ $child->parent_id }}, description: '{{ addslashes($child->description ?? '') }}', is_active: {{ $child->is_active ? 'true' : 'false' }}})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
+                            <button @click="$dispatch('open-category-modal', {id: {{ $child->id }}, name: @json($child->name), slug: @json($child->slug), parent_id: {{ $child->parent_id }}, description: @json($child->description ?? ''), is_active: {{ $child->is_active ? 'true' : 'false' }}})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
                             <form method="POST" action="{{ admin_route('website.categories.destroy', $child) }}" onsubmit="return confirm('Delete this subcategory?')" class="inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-xs text-[#EF4444] hover:underline">Delete</button>
@@ -66,7 +66,7 @@
         <div class="fixed inset-0 bg-black/50" @click="isOpen = false"></div>
         <div class="relative bg-[#161B22] border border-[#232A36] rounded-xl p-6 w-full max-w-md mx-4">
             <h3 class="text-lg font-semibold text-[#E6EDF3] mb-4" x-text="editingId ? 'Edit Category' : 'New Category'"></h3>
-            <form :action="editingId ? '{{ url()->current() }}/' + editingId : '{{ admin_route('website.categories.store') }}'" method="POST">
+            <form :action="editingId ? '{{ admin_route('website.categories.update', '__EDIT__') }}'.replace('__EDIT__', editingId) : '{{ admin_route('website.categories.store') }}'" method="POST">
                 @csrf
                 <template x-if="editingId">
                     <input type="hidden" name="_method" value="PUT">
