@@ -20,11 +20,9 @@ class NotificationController extends Controller
 
     public function unreadCount(Request $request)
     {
-        $query = Notification::where('user_id', Auth::id());
+        $count = Notification::where('user_id', Auth::id())->where('is_read', false)->count();
 
-        $count = (clone $query)->where('is_read', false)->count();
-
-        $notifications = $query->latest('created_at')
+        $notifications = Notification::where('user_id', Auth::id())->latest('created_at')
             ->when($request->filled('limit'), fn($q) => $q->take($request->limit))
             ->get()
             ->map(fn($n) => [

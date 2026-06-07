@@ -113,22 +113,4 @@ class WorkerController extends Controller
         return redirect(admin_route('workers.index'))->with('success', "Worker {$action} successfully.");
     }
 
-    public function destroy(?string $role = null, User $worker)
-    {
-        if ($worker->id === auth()->id()) {
-            return redirect(admin_route('workers.index'))->with('error', 'You cannot delete your own account.');
-        }
-
-        $name = $worker->name;
-        $worker->delete();
-
-        $this->workLogService->log(
-            'User Deleted',
-            'user',
-            $worker->id,
-            "Worker {$name} was deleted"
-        );
-
-        return redirect(admin_route('workers.index'))->with('success', 'Worker deleted successfully.');
-    }
 }

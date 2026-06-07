@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\StockTransaction;
-use Illuminate\Http\Request;
 
 class StockActivityController extends Controller
 {

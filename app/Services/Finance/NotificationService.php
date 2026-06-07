@@ -4,7 +4,6 @@ namespace App\Services\Finance;
 
 use App\Models\Notification;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class NotificationService
 {

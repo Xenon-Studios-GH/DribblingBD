@@ -8,7 +8,6 @@ use App\Models\Stock;
 use App\Models\StockTransaction;
 use App\Models\WorkLog;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class StockManagementController extends Controller
 {

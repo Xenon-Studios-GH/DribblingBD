@@ -16,8 +16,7 @@ class ReportController extends Controller
         $dateTo = $request->date_to ?: now();
 
         $data = match ($chartType) {
-            'pnl' => $this->pnlTrend($dateFrom, $dateTo),
-            'monthly' => $this->monthlyComparison($dateFrom, $dateTo),
+            'pnl', 'monthly' => $this->pnlTrend($dateFrom, $dateTo),
             'category' => $this->categoryBreakdown($request->type, $dateFrom, $dateTo),
             'cashflow' => $this->cashflowChart($dateFrom, $dateTo),
             default => $this->pnlTrend($dateFrom, $dateTo),
@@ -45,11 +44,6 @@ class ReportController extends Controller
         $net = $transactions->map(fn($t) => $t->income - $t->expense);
 
         return compact('labels', 'income', 'expense', 'net');
-    }
-
-    private function monthlyComparison($from, $to): array
-    {
-        return $this->pnlTrend($from, $to);
     }
 
     private function categoryBreakdown(?string $type, $from, $to): array
