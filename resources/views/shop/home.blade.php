@@ -126,7 +126,7 @@
                             <div class="mt-1">
                                 <span class="text-base font-bold text-[#E85D2C]">৳{{ number_format($product->price) }}</span>
                             </div>
-                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: "M", quantity: 1 }); setTimeout(() => added = false, 1500)'
+                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : ""), code: @json($product->product_code), slug: @json($product->slug) }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                                 :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
                                 <span x-show="!added">Add to Cart</span>
@@ -197,7 +197,7 @@
                             <div class="mt-1">
                                 <span class="text-base font-bold text-[#E85D2C]">৳{{ number_format($product->price) }}</span>
                             </div>
-                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: "M", quantity: 1 }); setTimeout(() => added = false, 1500)'
+                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : ""), code: @json($product->product_code), slug: @json($product->slug) }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                                 :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
                                 <span x-show="!added">Add to Cart</span>

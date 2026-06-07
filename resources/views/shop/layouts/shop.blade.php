@@ -57,6 +57,8 @@
                             size: product.size,
                             image: product.image || '',
                             quantity: product.quantity || 1,
+                            code: product.code || '',
+                            slug: product.slug || '',
                         });
                     }
                     this.notify('Added to cart!');

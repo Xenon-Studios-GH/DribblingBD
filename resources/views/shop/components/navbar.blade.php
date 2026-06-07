@@ -74,7 +74,12 @@
                             </template>
                             <template x-for="(item, index) in cart" :key="index">
                                 <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-50">
-                                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-[#E85D2C] to-[#F59E0B] flex-shrink-0"></div>
+                                    <template x-if="item.image">
+                                        <img :src="'/' + item.image" :alt="item.name" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 bg-gray-100">
+                                    </template>
+                                    <template x-if="!item.image">
+                                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-[#E85D2C] to-[#F59E0B] flex-shrink-0"></div>
+                                    </template>
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-medium text-gray-900 truncate" x-text="item.name"></p>
                                         <p class="text-xs text-gray-500">

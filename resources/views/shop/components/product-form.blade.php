@@ -36,7 +36,7 @@
     {{-- Actions --}}
     <div class="mt-6 flex flex-col sm:flex-row gap-3">
         <div x-show="stockQty > 0 && qty <= stockQty" x-cloak class="flex-1">
-            <button @click='addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: selectedSize, quantity: qty })' class="w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20">
+            <button @click='addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: selectedSize, quantity: qty, image: @json($product->project?->images->first()?->image_path ? 'storage/' . $product->project->images->first()->image_path : ''), code: @json($product->product_code), slug: @json($product->slug) })' class="w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20">
                 Add to Cart
             </button>
         </div>
