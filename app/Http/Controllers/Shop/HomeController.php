@@ -18,7 +18,7 @@ class HomeController extends Controller
             ->where('is_active', true)
             ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
             ->withSum('stocks', 'quantity')
-            ->orderBy('stocks_sum_quantity')
+            ->orderByDesc('stocks_sum_quantity')
             ->take(8)->get();
 
         return view('shop.home', compact('newArrivals', 'topSelling'));

@@ -17,21 +17,16 @@ class StockService
         $this->workLogService = $workLogService;
     }
 
-    public function getOrCreateStock(Product $product, string $size): Stock
-    {
-        return Stock::firstOrCreate(
-            ['product_id' => $product->id, 'size' => $size],
-            ['quantity' => 0]
-        );
-    }
-
     public function previewIn(Product $product, string $size, int $quantity): array
     {
         if ($quantity <= 0) {
             throw new \InvalidArgumentException('Quantity must be positive.');
         }
 
-        $stock = $this->getOrCreateStock($product, $size);
+        $stock = Stock::firstOrCreate(
+            ['product_id' => $product->id, 'size' => $size],
+            ['quantity' => 0]
+        );
         return [
             'product' => $product,
             'size' => $size,
@@ -47,7 +42,10 @@ class StockService
             throw new \InvalidArgumentException('Quantity must be positive.');
         }
 
-        $stock = $this->getOrCreateStock($product, $size);
+        $stock = Stock::firstOrCreate(
+            ['product_id' => $product->id, 'size' => $size],
+            ['quantity' => 0]
+        );
 
         if ($stock->quantity < $quantity) {
             throw new \InvalidArgumentException('Insufficient stock available. Only ' . $stock->quantity . ' units in stock.');
@@ -69,8 +67,18 @@ class StockService
         }
 
         return DB::transaction(function () use ($product, $size, $quantity, $note) {
-            $stock = $this->getOrCreateStock($product, $size);
-            $stock = Stock::where('id', $stock->id)->lockForUpdate()->first();
+            $stock = Stock::where('product_id', $product->id)
+                ->where('size', $size)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$stock) {
+                $stock = Stock::create([
+                    'product_id' => $product->id,
+                    'size' => $size,
+                    'quantity' => 0,
+                ]);
+            }
 
             $stockBefore = $stock->quantity;
             $stock->increment('quantity', $quantity);
@@ -104,8 +112,14 @@ class StockService
         }
 
         return DB::transaction(function () use ($product, $size, $quantity, $note) {
-            $stock = $this->getOrCreateStock($product, $size);
-            $stock = Stock::where('id', $stock->id)->lockForUpdate()->first();
+            $stock = Stock::where('product_id', $product->id)
+                ->where('size', $size)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$stock) {
+                throw new \InvalidArgumentException('No stock record found for this size.');
+            }
 
             if ($stock->quantity < $quantity) {
                 throw new \InvalidArgumentException('Insufficient stock available. Only ' . $stock->quantity . ' units in stock.');

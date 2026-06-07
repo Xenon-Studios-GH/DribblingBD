@@ -55,9 +55,7 @@ class CategoryController extends Controller
             return redirect(admin_route('website.categories'))
                 ->with('error', 'Cannot delete category with existing projects.');
         }
-        if ($category->children()->exists()) {
-            $category->children()->update(['parent_id' => null]);
-        }
+        $category->children()->delete();
         $category->delete();
 
         return redirect(admin_route('website.categories'))->with('success', 'Category deleted.');

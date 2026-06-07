@@ -22,6 +22,8 @@ class LoginLogService
     {
         LoginLog::where('user_id', $userId)
             ->whereNull('logout_at')
+            ->latest('login_at')
+            ->limit(1)
             ->update(['logout_at' => now(), 'status' => 'logout']);
     }
 
