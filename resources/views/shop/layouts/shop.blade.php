@@ -18,7 +18,6 @@
     <div x-data="shopStore()" class="min-h-screen flex flex-col">
         <div class="sticky top-0 z-50">
             @include('shop.components.navbar')
-            @include('shop.components.subnavbar')
         </div>
 
         <main class="flex-1">
