@@ -211,4 +211,5 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
             };
         }
     </script>
+    @include('shop.components.features')
     @endSection

@@ -138,4 +138,5 @@ $title = $headings[$type ?? 'all'] ?? 'All Jerseys';
         </div>
     </div>
 </div>
+@include('shop.components.features')
 @endsection
