@@ -1,8 +1,63 @@
 @extends('shop.layouts.shop', ['title' => 'Checkout'])
 
+@push('styles')
+<style>
+    .btn-cloud {
+        font-family: inherit;
+        font-size: 20px;
+        background: #E85D2C;
+        color: white;
+        fill: rgba(255, 255, 255, 0.6);
+        padding: 0.7em 1em;
+        padding-left: 0.9em;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        border: none;
+        border-radius: 15px;
+        font-weight: 1000;
+    }
+
+    .btn-cloud span {
+        display: block;
+        margin-left: 0.3em;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-cloud .icon {
+        display: block;
+        transform-origin: center center;
+        transition: transform 0.3s ease-in-out;
+        font-size: 22px;
+    }
+
+    .btn-cloud:hover {
+        background: #d14d1f;
+    }
+
+    .btn-cloud:hover .svg-wrapper {
+        transform: scale(1.25);
+        transition: 0.5s linear;
+    }
+
+    .btn-cloud:hover .icon {
+        transform: translateX(2.2em) scale(1.1);
+    }
+
+    .btn-cloud:hover span {
+        opacity: 0;
+        transition: 0.5s linear;
+    }
+
+    .btn-cloud:active {
+        transform: scale(0.95);
+    }
+</style>
+@endpush
+
 @section('content')
 @php
-    $shipping = $client && $client->shipping_address ? json_decode($client->shipping_address, true) : null;
+$shipping = $client && $client->shipping_address ? json_decode($client->shipping_address, true) : null;
 @endphp
 <div x-data="{
     checkout: Alpine.$persist({
@@ -36,49 +91,71 @@
         @endauth
     }
 }" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">Final Checkout</h1>
+    <div class="flex items-center gap-3 mb-10">
+        <div class="w-10 h-10 rounded-xl bg-[#E85D2C]/10 flex items-center justify-center">
+            <i class="fas fa-credit-card text-[#E85D2C]"></i>
+        </div>
+        <div>
+            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">Checkout</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Review your order and complete the purchase</p>
+        </div>
+    </div>
 
     <template x-if="cart.length === 0">
-        <div class="text-center py-20">
-            <i class="fas fa-shopping-cart w-20 h-20 mx-auto text-gray-300"></i>
-            <h3 class="mt-4 text-lg font-semibold text-gray-900">Your cart is empty</h3>
-            <p class="mt-1 text-sm text-gray-500">Add some items before checking out.</p>
-            <a href="{{ route('shop.products.index') }}" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors">
-                Start Shopping
-                <i class="fas fa-arrow-right w-4 h-4"></i>
+        <div class="text-center py-24">
+            <div class="w-20 h-20 rounded-3xl bg-gray-50 flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-shopping-bag text-3xl text-gray-300"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Nothing to checkout</h3>
+            <p class="text-sm text-gray-500 mt-1">Add some items to your cart first.</p>
+            <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-all shadow-lg shadow-[#E85D2C]/20">
+                <i class="fas fa-arrow-left text-xs"></i>
+                Continue Shopping
             </a>
         </div>
     </template>
 
     <template x-if="cart.length > 0">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {{-- Left: Products + Address --}}
-            <div class="lg:col-span-2 space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10">
+            <div class="lg:col-span-3 space-y-8">
 
                 {{-- Products --}}
-                <div class="rounded-2xl bg-white border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900">
-                            Products (<span x-text="cart.length"></span>)
-                        </h2>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 sm:px-8 py-5 border-b border-gray-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                                <i class="fas fa-box text-sm text-orange-500"></i>
+                            </div>
+                            <h2 class="text-base font-bold text-gray-900">Products</h2>
+                        </div>
+                        <span class="text-sm text-gray-500" x-text="cart.length + ' item' + (cart.length > 1 ? 's' : '')"></span>
                     </div>
-                    <div class="divide-y divide-gray-100">
+                    <div class="divide-y divide-gray-50">
                         <template x-for="(item, index) in cart" :key="index">
-                            <div class="flex items-center gap-4 px-6 py-4">
+                            <div class="flex items-center gap-5 px-6 sm:px-8 py-5 hover:bg-gray-50/50 transition-colors">
                                 <template x-if="item.image">
-                                    <img :src="'/' + item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100">
+                                    <img :src="'/' + item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100 shadow-sm">
                                 </template>
                                 <template x-if="!item.image">
-                                    <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-[#E85D2C] to-[#F59E0B] flex-shrink-0"></div>
+                                    <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-[#E85D2C]/10 to-orange-50 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                        <i class="fas fa-tshirt text-2xl text-[#E85D2C]/40"></i>
+                                    </div>
                                 </template>
                                 <div class="flex-1 min-w-0">
-                                    <a :href="item.code && item.slug ? '/shop/' + item.code + '/' + item.slug : '#'" class="text-sm font-semibold text-gray-900 hover:text-[#E85D2C] transition-colors" x-text="item.name"></a>
-                                    <p class="text-xs text-gray-500 mt-0.5">Size: <span x-text="item.size"></span></p>
-                                    <p class="text-xs text-gray-400">Qty: <span x-text="item.quantity"></span></p>
+                                    <template x-if="item.code">
+                                        <a :href="'/shop/' + item.code + '/' + (item.slug ?? '')" class="text-sm font-semibold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug" x-text="item.name"></a>
+                                    </template>
+                                    <template x-if="!item.code">
+                                        <a :href="'/shop/id/' + item.id" class="text-sm font-semibold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug" x-text="item.name"></a>
+                                    </template>
+                                    <div class="flex items-center gap-3 mt-1.5">
+                                        <span class="text-xs text-gray-400 bg-gray-50 px-2.5 py-0.5 rounded-full">Size <span class="font-medium text-gray-600" x-text="item.size"></span></span>
+                                        <span class="text-xs text-gray-400">× <span x-text="item.quantity"></span></span>
+                                    </div>
                                 </div>
                                 <div class="text-right flex-shrink-0">
-                                    <p class="text-sm font-bold text-[#E85D2C]">৳<span x-text="item.price * item.quantity"></span></p>
-                                    <p class="text-xs text-gray-400">৳<span x-text="item.price"></span> each</p>
+                                    <p class="text-sm font-bold text-gray-900">৳<span x-text="(item.price * item.quantity).toLocaleString()"></span></p>
+                                    <p class="text-xs text-gray-400 mt-0.5">৳<span x-text="item.price.toLocaleString()"></span> each</p>
                                 </div>
                             </div>
                         </template>
@@ -86,77 +163,94 @@
                 </div>
 
                 {{-- Address --}}
-                <div class="rounded-2xl bg-white border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900">Shipping Address</h2>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 sm:px-8 py-5 border-b border-gray-100 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <i class="fas fa-map-marker-alt text-sm text-blue-500"></i>
+                        </div>
+                        <h2 class="text-base font-bold text-gray-900">Shipping Address</h2>
                     </div>
-                    <div class="px-6 py-5 space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="px-6 sm:px-8 py-6 space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
-                                <input type="text" x-model="checkout.name" @input="saveAddress()" placeholder="John Doe" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all">
+                                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Full Name</label>
+                                <input type="text" x-model="checkout.name" @input="saveAddress()" placeholder="John Doe" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all hover:border-gray-300">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
-                                <input type="tel" x-model="checkout.phone" @input="saveAddress()" placeholder="+880 1XXX-XXXXXX" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
-                            <input type="text" x-model="checkout.address" @input="saveAddress()" placeholder="House, Road, Area" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all">
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">City</label>
-                                <input type="text" x-model="checkout.city" @input="saveAddress()" placeholder="Dhaka" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Area</label>
-                                <input type="text" x-model="checkout.area" @input="saveAddress()" placeholder="Mirpur" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Postal Code</label>
-                                <input type="text" x-model="checkout.postal" @input="saveAddress()" placeholder="1216" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all">
+                                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Phone Number</label>
+                                <input type="tel" x-model="checkout.phone" @input="saveAddress()" placeholder="+880 1XXX-XXXXXX" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all hover:border-gray-300">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Order Notes <span class="text-gray-400 font-normal">(optional)</span></label>
-                            <textarea x-model="checkout.notes" @input="saveAddress()" rows="2" placeholder="Any special instructions..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all resize-none"></textarea>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Address</label>
+                            <input type="text" x-model="checkout.address" @input="saveAddress()" placeholder="House, Road, Area" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all hover:border-gray-300">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">City</label>
+                                <input type="text" x-model="checkout.city" @input="saveAddress()" placeholder="Dhaka" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all hover:border-gray-300">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Area</label>
+                                <input type="text" x-model="checkout.area" @input="saveAddress()" placeholder="Mirpur" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all hover:border-gray-300">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Postal Code</label>
+                                <input type="text" x-model="checkout.postal" @input="saveAddress()" placeholder="1216" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all hover:border-gray-300">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Order Notes <span class="font-normal text-gray-400 normal-case">(optional)</span></label>
+                            <textarea x-model="checkout.notes" @input="saveAddress()" rows="2" placeholder="Any special instructions for delivery..." class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all resize-none hover:border-gray-300"></textarea>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            {{-- Right: Order Summary --}}
-            <div class="lg:col-span-1">
-                <div class="rounded-2xl bg-white border border-gray-200 overflow-hidden sticky top-24">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900">Order Summary</h2>
+            {{-- Order Summary --}}
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
+                    <div class="px-6 sm:px-8 py-5 border-b border-gray-100 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                            <i class="fas fa-receipt text-sm text-green-500"></i>
+                        </div>
+                        <h2 class="text-base font-bold text-gray-900">Summary</h2>
                     </div>
-                    <div class="px-6 py-5 space-y-3">
-                        <div class="flex justify-between text-sm text-gray-600">
-                            <span>Subtotal</span>
-                            <span class="font-medium text-gray-900">৳<span x-text="cartTotal"></span></span>
+                    <div class="px-6 sm:px-8 py-6 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Subtotal</span>
+                            <span class="text-sm font-semibold text-gray-900">৳<span x-text="cartTotal.toLocaleString()"></span></span>
                         </div>
-                        <div class="flex justify-between text-sm text-gray-600">
-                            <span>Shipping</span>
-                            <span class="font-medium text-green-600">Free</span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Shipping</span>
+                            <span class="text-sm font-semibold text-green-600 flex items-center gap-1">
+                                <i class="fas fa-truck text-xs"></i> Free
+                            </span>
                         </div>
-                        <hr class="border-gray-200">
-                        <div class="flex justify-between text-base font-bold text-gray-900">
-                            <span>Total</span>
-                            <span class="text-[#E85D2C]">৳<span x-text="cartTotal"></span></span>
+                        <hr class="border-gray-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold text-gray-900">Total</span>
+                            <span class="text-lg font-bold text-[#E85D2C]">৳<span x-text="cartTotal.toLocaleString()"></span></span>
                         </div>
 
-                        <button class="mt-4 w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20">
-                            Place Order
-                        </button>
-                        <p class="text-xs text-gray-400 text-center">This button will connect with Dribbling BD's payment system</p>
+                        <div class="flex justify-center">
+                            <button class="btn-cloud" onclick="window.location.href='{{ route('shop.checkout.processing') }}'">
+                                <div class="svg-wrapper-1">
+                                    <div class="svg-wrapper">
+                                        <i class="fas fa-shopping-cart icon"></i>
+                                    </div>
+                                </div>
+                                <span>Place Order</span>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 text-center leading-relaxed">
+                            Checkout system is under maintenance — this button will connect with Dribbling BD
+                        </p>
 
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <a href="{{ route('shop.cart.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-[#E85D2C] transition-colors">
-                                <i class="fas fa-arrow-left w-4 h-4"></i>
+                        <div class="pt-4 border-t border-gray-100">
+                            <a href="{{ route('shop.cart.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#E85D2C] transition-colors">
+                                <i class="fas fa-arrow-left text-xs"></i>
                                 Back to Cart
                             </a>
                         </div>

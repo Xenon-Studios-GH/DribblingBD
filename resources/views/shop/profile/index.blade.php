@@ -337,7 +337,12 @@
                                                         </template>
                                                         <div class="flex-1 min-w-0 flex flex-col justify-between">
                                                             <div>
-                                                                <a :href="item.code && item.slug ? '/shop/' + item.code + '/' + item.slug : '#'" class="text-sm font-bold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug block" x-text="item.name || 'Product'"></a>
+                                                                <template x-if="item.code">
+                                                                    <a :href="'/shop/' + item.code + '/' + (item.slug ?? '')" class="text-sm font-bold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug block" x-text="item.name || 'Product'"></a>
+                                                                </template>
+                                                                <template x-if="!item.code">
+                                                                    <a :href="'/shop/id/' + item.id" class="text-sm font-bold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug block" x-text="item.name || 'Product'"></a>
+                                                                </template>
                                                                 <p class="text-xs text-gray-500 mt-1">
                                                                     <span x-text="item.size"></span> × <span x-text="item.quantity"></span>
                                                                 </p>

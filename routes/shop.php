@@ -11,11 +11,14 @@ Route::name('shop.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
     Route::get('shop', [ProductController::class, 'index'])->name('products.index');
+    Route::get('shop/id/{product}', [ProductController::class, 'redirectById'])->name('products.by-id');
     Route::get('shop/{product:product_code}/{slug?}', [ProductController::class, 'show'])->name('products.show');
     Route::get('search', [ProductController::class, 'search'])->name('search');
 
     Route::view('user/cart', 'shop.cart.index')->name('cart.index');
     Route::get('user/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::get('user/order', function () { return redirect()->route('shop.checkout.index'); });
+    Route::view('user/order/processing', 'shop.checkout.processing')->name('checkout.processing');
     Route::view('user/wishlist', 'shop.wishlist.index')->name('wishlist.index');
 
     Route::get('user', function () {

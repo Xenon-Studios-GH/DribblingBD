@@ -40,6 +40,12 @@ class ProductController extends Controller
         return view('shop.products.index', compact('products', 'sort', 'type', 'stock'));
     }
 
+    public function redirectById(Product $product)
+    {
+        $slug = $product->project?->slug ?? Str::slug($product->product_name);
+        return redirect()->route('shop.products.show', [$product->product_code, $slug]);
+    }
+
     public function show(Product $product, ?string $slug = null)
     {
         $expected = $product->project?->slug ?? Str::slug($product->product_name);
