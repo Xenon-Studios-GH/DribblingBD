@@ -60,7 +60,7 @@
                     </aside>
 
                     <div class="flex-1 min-w-0">
-                        <form method="POST" action="{{ route('shop.profile.update', $client->usercode) }}" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+                        <form method="POST" action="{{ route('shop.profile.update', $client->usercode) }}" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8" x-show="['personal', 'address', 'preferences'].includes(tab)">
                             @csrf
                             @method('PUT')
 
@@ -213,77 +213,158 @@
                             </div>
                         </form>
 
-                        {{-- Wishlist Tab --}}
-                        <div x-show="tab === 'wishlist'" x-cloak x-data="{ ids: (JSON.parse(localStorage.getItem('shop_wishlist') || '[]')).map(i => typeof i === 'object' ? i : { id: i }) }" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Wishlist <span x-text="ids.length" class="text-sm font-normal text-gray-400"></span></h3>
-                            <template x-if="ids.length === 0">
-                                <div class="text-center py-12">
-                                    <i class="fas fa-heart text-5xl mx-auto text-gray-300 mb-4 block text-center"></i>
-                                    <p class="text-gray-500 text-sm">Your wishlist is empty</p>
-                                    <a href="{{ route('shop.products.index') }}" class="inline-block mt-4 text-sm font-medium text-[#E85D2C] hover:underline">Browse Products</a>
-                                </div>
-                            </template>
-                            <template x-for="(item, index) in ids" :key="item.id ?? item">
-                                <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 mb-3">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900" x-text="item.name || 'Product #' + (item.id ?? item)"></p>
-                                        <a :href="'/shop/' + (item.code ?? item.id)" class="text-xs text-[#E85D2C] hover:underline">View Product</a>
+                        {{-- Activity tabs --}}
+                        <div x-show="tab === 'wishlist' || tab === 'orders' || tab === 'cart'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+                            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                                <div class="p-6 sm:p-8">
+                                    {{-- Wishlist --}}
+                                    <div x-show="tab === 'wishlist'" x-data="{ ids: (JSON.parse(localStorage.getItem('shop_wishlist') || '[]')).map(i => typeof i === 'object' ? i : { id: i }) }">
+                                        <div class="flex items-center justify-between mb-5">
+                                            <h3 class="text-lg font-bold text-gray-900">Wishlist</h3>
+                                            <span class="px-2.5 py-1 rounded-full bg-red-50 text-red-500 text-xs font-semibold" x-text="ids.length + ' items'"></span>
+                                        </div>
+                                        <template x-if="ids.length === 0">
+                                            <div class="text-center py-16">
+                                                <div class="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
+                                                    <i class="fas fa-heart text-2xl text-red-300"></i>
+                                                </div>
+                                                <p class="text-gray-500 text-sm font-medium">Your wishlist is empty</p>
+                                                <p class="text-xs text-gray-400 mt-1">Save your favourite jerseys here</p>
+                                                <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors">
+                                                    Browse Products <i class="fas fa-arrow-right text-xs"></i>
+                                                </a>
+                                            </div>
+                                        </template>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <template x-for="(item, index) in ids" :key="item.id ?? item">
+                                                <div class="relative group rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all overflow-hidden bg-white">
+                                                    <div class="flex gap-4 p-5">
+                                                        <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-red-100 to-red-50 flex items-center justify-center flex-shrink-0">
+                                                            <i class="fas fa-tshirt text-3xl text-red-300"></i>
+                                                        </div>
+                                                        <div class="flex-1 min-w-0 flex flex-col justify-between">
+                                                            <div>
+                                                                <p class="text-sm font-bold text-gray-900 leading-snug" x-text="item.name || 'Product #' + (item.id ?? item)"></p>
+                                                                <p class="text-xs text-gray-400 mt-1 truncate" x-text="item.code ? 'Code: ' + item.code : ''"></p>
+                                                            </div>
+                                                            <a :href="'/shop/' + (item.code ?? item.id) + '/' + (item.slug ?? '')" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#E85D2C] hover:text-[#d14d1f] transition-colors mt-2">
+                                                                View <i class="fas fa-arrow-right text-[10px]"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" @click="ids.splice(index, 1); localStorage.setItem('shop_wishlist', JSON.stringify(ids))" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100">
+                                                        <i class="fas fa-trash-alt text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
-                                    <button type="button" @click="ids.splice(index, 1); localStorage.setItem('shop_wishlist', JSON.stringify(ids))" class="text-xs text-red-500 hover:text-red-700 font-medium">Remove</button>
-                                </div>
-                            </template>
-                        </div>
 
-                        {{-- Orders Tab --}}
-                        <div x-show="tab === 'orders'" x-cloak class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Order History</h3>
-                            @if ($client->orders && count($client->orders) > 0)
-                                <div class="space-y-3">
-                                    @foreach ($client->orders as $order)
-                                        <div class="p-4 rounded-xl border border-gray-100 bg-gray-50">
-                                            <p class="text-sm text-gray-900 font-medium">Order #{{ is_array($order) ? ($order['id'] ?? 'N/A') : $order }}</p>
-                                            @if (is_array($order) && isset($order['date']))
-                                                <p class="text-xs text-gray-500 mt-1">{{ $order['date'] }}</p>
+                                    {{-- Orders --}}
+                                    <div x-show="tab === 'orders'">
+                                        <div class="flex items-center justify-between mb-5">
+                                            <h3 class="text-lg font-bold text-gray-900">Order History</h3>
+                                            @if ($client->orders && count($client->orders) > 0)
+                                                <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-500 text-xs font-semibold">{{ count($client->orders) }} orders</span>
                                             @endif
                                         </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="text-center py-12">
-                                    <i class="fas fa-clipboard-list text-5xl mx-auto text-gray-300 mb-4 block text-center"></i>
-                                    <p class="text-gray-500 text-sm">No orders yet</p>
-                                    <a href="{{ route('shop.products.index') }}" class="inline-block mt-4 text-sm font-medium text-[#E85D2C] hover:underline">Start Shopping</a>
-                                </div>
-                            @endif
-                        </div>
+                                        @if ($client->orders && count($client->orders) > 0)
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                @foreach ($client->orders as $order)
+                                                    <div class="rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all overflow-hidden bg-white">
+                                                        <div class="flex gap-4 p-5">
+                                                            <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0">
+                                                                <i class="fas fa-receipt text-3xl text-blue-400"></i>
+                                                            </div>
+                                                            <div class="flex-1 min-w-0 flex flex-col justify-between">
+                                                                <div>
+                                                                    <p class="text-sm font-bold text-gray-900">Order #{{ is_array($order) ? ($order['id'] ?? 'N/A') : $order }}</p>
+                                                                    @if (is_array($order) && isset($order['date']))
+                                                                        <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                                                            <i class="fas fa-calendar-alt text-gray-400"></i> {{ $order['date'] }}
+                                                                        </p>
+                                                                    @endif
+                                                                </div>
+                                                                <span class="self-start px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold">Completed</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="text-center py-16">
+                                                <div class="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                                                    <i class="fas fa-clipboard-list text-2xl text-blue-300"></i>
+                                                </div>
+                                                <p class="text-gray-500 text-sm font-medium">No orders yet</p>
+                                                <p class="text-xs text-gray-400 mt-1">Your orders will appear here</p>
+                                                <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors">
+                                                    Start Shopping <i class="fas fa-arrow-right text-xs"></i>
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
 
-                        {{-- Cart Tab --}}
-                        <div x-show="tab === 'cart'" x-cloak x-data="{ items: JSON.parse(localStorage.getItem('shop_cart') || '[]') }" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Cart <span x-text="items.length" class="text-sm font-normal text-gray-400"></span></h3>
-                            <template x-if="items.length === 0">
-                                <div class="text-center py-12">
-                                    <i class="fas fa-shopping-cart text-5xl mx-auto text-gray-300 mb-4 block text-center"></i>
-                                    <p class="text-gray-500 text-sm">Your cart is empty</p>
-                                    <a href="{{ route('shop.products.index') }}" class="inline-block mt-4 text-sm font-medium text-[#E85D2C] hover:underline">Browse Products</a>
-                                </div>
-                            </template>
-                            <template x-for="(item, index) in items" :key="index">
-                                <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 mb-3">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900" x-text="item.name || 'Product'"></p>
-                                        <p class="text-xs text-gray-500 mt-0.5" x-text="'Qty: ' + item.quantity + (item.size ? ' | ' + item.size : '')"></p>
+                                    {{-- Cart --}}
+                                    <div x-show="tab === 'cart'" x-data="{ items: JSON.parse(localStorage.getItem('shop_cart') || '[]') }">
+                                        <div class="flex items-center justify-between mb-5">
+                                            <h3 class="text-lg font-bold text-gray-900">Cart</h3>
+                                            <span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-500 text-xs font-semibold" x-text="items.length + ' items'"></span>
+                                        </div>
+                                        <template x-if="items.length === 0">
+                                            <div class="text-center py-16">
+                                                <div class="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-4">
+                                                    <i class="fas fa-shopping-cart text-2xl text-orange-300"></i>
+                                                </div>
+                                                <p class="text-gray-500 text-sm font-medium">Your cart is empty</p>
+                                                <p class="text-xs text-gray-400 mt-1">Add some jerseys to get started</p>
+                                                <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors">
+                                                    Browse Products <i class="fas fa-arrow-right text-xs"></i>
+                                                </a>
+                                            </div>
+                                        </template>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <template x-for="(item, index) in items" :key="index">
+                                                <div class="relative group rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all overflow-hidden bg-white">
+                                                    <div class="flex gap-4 p-5">
+                                                        <template x-if="item.image">
+                                                            <img :src="'/' + item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100">
+                                                        </template>
+                                                        <template x-if="!item.image">
+                                                            <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center flex-shrink-0">
+                                                                <i class="fas fa-tshirt text-3xl text-orange-300"></i>
+                                                            </div>
+                                                        </template>
+                                                        <div class="flex-1 min-w-0 flex flex-col justify-between">
+                                                            <div>
+                                                                <a :href="item.code && item.slug ? '/shop/' + item.code + '/' + item.slug : '#'" class="text-sm font-bold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug block" x-text="item.name || 'Product'"></a>
+                                                                <p class="text-xs text-gray-500 mt-1">
+                                                                    <span x-text="item.size"></span> × <span x-text="item.quantity"></span>
+                                                                </p>
+                                                                <p class="text-base font-bold text-[#E85D2C] mt-1">৳<span x-text="(item.price * item.quantity).toLocaleString()"></span></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" @click="items.splice(index, 1); localStorage.setItem('shop_cart', JSON.stringify(items))" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100">
+                                                        <i class="fas fa-trash-alt text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <template x-if="items.length > 0">
+                                            <div class="mt-5 pt-5 border-t border-gray-100 flex items-center justify-between">
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Total</p>
+                                                    <p class="text-lg font-bold text-gray-900">৳<span x-text="items.reduce((sum, i) => sum + (i.price * i.quantity), 0).toLocaleString()"></span></p>
+                                                </div>
+                                                <a href="{{ route('shop.checkout.index') }}" class="px-6 py-3 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors inline-flex items-center gap-2 shadow-lg shadow-[#E85D2C]/20">
+                                                    Proceed to Checkout <i class="fas fa-arrow-right text-xs"></i>
+                                                </a>
+                                            </div>
+                                        </template>
                                     </div>
-                                    <div class="text-right">
-                                        <p class="text-sm font-semibold text-gray-900" x-text="'৳' + (item.price * item.quantity).toLocaleString()"></p>
-                                        <button type="button" @click="items.splice(index, 1); localStorage.setItem('shop_cart', JSON.stringify(items))" class="text-xs text-red-500 hover:text-red-700 font-medium">Remove</button>
-                                    </div>
                                 </div>
-                            </template>
-                            <template x-if="items.length > 0">
-                                <div class="pt-4 border-t border-gray-100 flex justify-between items-center">
-                                    <p class="text-sm font-semibold text-gray-900">Total: <span x-text="'৳' + items.reduce((sum, i) => sum + (i.price * i.quantity), 0).toLocaleString()"></span></p>
-                                </div>
-                            </template>
+                            </div>
                         </div>
                     </div>
                 </div>

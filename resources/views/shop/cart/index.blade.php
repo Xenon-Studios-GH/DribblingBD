@@ -30,7 +30,7 @@
                                     <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-[#E85D2C] to-[#F59E0B] flex-shrink-0"></div>
                                 </template>
                                 <div class="flex-1 min-w-0">
-                                    <a :href="'/shop/' + item.code + '/' + item.slug" class="text-sm font-semibold text-gray-900 truncate hover:text-[#E85D2C] transition-colors" x-text="item.name"></a>
+                                    <a :href="item.code && item.slug ? '/shop/' + item.code + '/' + item.slug : '#'" class="text-sm font-semibold text-gray-900 truncate hover:text-[#E85D2C] transition-colors" x-text="item.name"></a>
                                     <p class="text-xs text-gray-500 mt-0.5">Size: <span x-text="item.size"></span></p>
                                     <p class="text-sm font-bold text-[#E85D2C] mt-1">৳<span x-text="item.price * item.quantity"></span></p>
                                 </div>
@@ -65,10 +65,9 @@
                             <span>Total</span>
                             <span>৳<span x-text="cartTotal"></span></span>
                         </div>
-                        <button class="mt-4 w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20">
+                        <a href="{{ route('shop.checkout.index') }}" class="mt-4 w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20 text-center block">
                             Proceed to Checkout
-                        </button>
-                        <p class="mt-2 text-xs text-gray-500 text-center">Checkout system is under maintenance — this button will connect with Dribbling BD</p>
+                        </a>
                     </div>
 
                     <div class="mt-6 text-center">
