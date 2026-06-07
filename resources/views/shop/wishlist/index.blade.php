@@ -5,7 +5,9 @@
         <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">My Wishlist</h1>
 
         <div x-data="{
-            items: ($store.shopStore?.wishlist ?? []).map(i => typeof i === 'object' ? i : { id: i }),
+            get items() {
+                return (wishlist ?? []).map(i => typeof i === 'object' ? i : { id: i });
+            }
         }">
             <template x-if="items.length === 0">
                 <div class="text-center py-20">
@@ -29,7 +31,7 @@
                         </a>
                         <div class="p-3">
                             <p class="text-sm font-semibold text-gray-900 truncate" x-text="item.name || 'Product #' + (item.id ?? item)"></p>
-                            <button @click="toggleWishlist(item); items.splice(idx, 1)" class="mt-2 w-full py-2 rounded-xl text-xs font-semibold bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                            <button @click="toggleWishlist(item); wishlist.splice(wishlist.indexOf(item), 1)" class="mt-2 w-full py-2 rounded-xl text-xs font-semibold bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
                                 Remove
                             </button>
                         </div>

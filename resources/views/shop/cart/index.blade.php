@@ -4,7 +4,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
 
-        <div x-data="{ items: $store.shopStore?.cart ?? [] }">
+        <div>
             <template x-if="cart.length === 0">
                 <div class="text-center py-20">
                     <i class="fas fa-shopping-cart w-20 h-20 mx-auto text-gray-300"></i>
