@@ -45,9 +45,38 @@ class OrderController extends Controller
                 'show_url' => admin_route('orders.show', ['order' => $o->order_no]),
                 'edit_url' => admin_route('orders.edit', ['order' => $o->order_no]),
                 'update_url' => admin_route('orders.update-status', ['order' => $o->order_no]),
+                'is_draft' => false,
             ];
-        });
-        return view('orders.index', compact('orders', 'ordersJson'));
+        })->toArray();
+
+        $drafts = OrderDraft::where('user_id', Auth::id())->whereNull('order_id')->latest('updated_at')->get();
+        $draftsJson = $drafts->map(function ($d) {
+            $data = $d->data;
+            return [
+                'id' => 'draft_' . $d->id,
+                'order_no' => 'DRAFT-' . str_pad($d->id, 5, '0', STR_PAD_LEFT),
+                'customer_name' => $data['customer_name'] ?? '—',
+                'phone' => $data['phone'] ?? '—',
+                'total' => number_format($data['total_amount'] ?? 0, 2),
+                'paid' => '0.00',
+                'due' => number_format($data['total_amount'] ?? 0, 2),
+                'total_raw' => (float) ($data['total_amount'] ?? 0),
+                'payment_method' => $data['payment_method'] ?? '—',
+                'status' => 'draft',
+                'dtf' => !empty($data['dtf']),
+                'dtf_name' => $data['dtf_name'] ?? null,
+                'dtf_number' => $data['dtf_number'] ?? null,
+                'patch' => !empty($data['patch']),
+                'date_formatted' => $d->updated_at->format('d M, h:i A'),
+                'show_url' => admin_route('orders.create'),
+                'edit_url' => admin_route('orders.create'),
+                'update_url' => null,
+                'is_draft' => true,
+                'draft_id' => $d->id,
+            ];
+        })->toArray();
+
+        return view('orders.index', compact('orders', 'ordersJson', 'draftsJson'));
     }
 
     public function create()

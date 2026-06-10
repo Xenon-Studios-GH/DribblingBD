@@ -314,6 +314,10 @@
                    class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333] transition-colors">
                     Cancel
                 </a>
+                <button type="button" @click="saveDraft()"
+                        class="rounded-xl border border-[#A855F7] px-6 py-2.5 text-sm font-medium text-[#A855F7] hover:bg-[#A855F7]/10 transition-colors">
+                    <i class="fas fa-pen mr-2"></i> Save Draft
+                </button>
                 <button type="submit"
                         class="rounded-xl bg-[#3B82F6] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB] transition-colors">
                     <i class="fas fa-save mr-2"></i> Update Order
@@ -366,7 +370,7 @@
                 status: @json($order->status),
                 drafts: [],
                 draftStatus: 'idle',
-                autoSaveInterval: null,
+                saveTimer: null,
                 draftLoaded: false,
 
                 init() {
@@ -376,7 +380,27 @@
                     });
                     this.calcTotal();
                     this.loadDrafts();
-                    this.startAutoSave();
+                    this.setupWatchers();
+                },
+
+                setupWatchers() {
+                    const fields = ['customer_name', 'phone', 'address', 'dtf', 'dtf_name', 'dtf_number', 'patch', 'patch_price', 'total_amount', 'advanced_payment', 'payment_method'];
+                    fields.forEach(f => {
+                        this.$watch(f, () => this.queueSave());
+                    });
+                    this.$watch('products', () => this.queueSave(), { deep: true });
+                },
+
+                queueSave() {
+                    if (this.saveTimer) clearTimeout(this.saveTimer);
+                    this.saveTimer = setTimeout(() => this.saveDraft(), 1500);
+                },
+
+                stopAutoSave() {
+                    if (this.saveTimer) {
+                        clearTimeout(this.saveTimer);
+                        this.saveTimer = null;
+                    }
                 },
 
                 getProductById(id) {
@@ -492,6 +516,7 @@
                             total_amount: this.total_amount,
                             advanced_payment: this.advanced_payment,
                             payment_method: this.payment_method,
+                            status: 'draft',
                         }),
                     };
                     try {
@@ -507,17 +532,6 @@
                         }
                     } catch (e) {
                         this.draftStatus = 'idle';
-                    }
-                },
-
-                startAutoSave() {
-                    this.autoSaveInterval = setInterval(() => this.saveDraft(), 3000);
-                },
-
-                stopAutoSave() {
-                    if (this.autoSaveInterval) {
-                        clearInterval(this.autoSaveInterval);
-                        this.autoSaveInterval = null;
                     }
                 },
 

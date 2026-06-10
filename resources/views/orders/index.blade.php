@@ -4,7 +4,7 @@
             <div>
                 <h1 class="text-2xl font-bold text-[#E6EDF3]">All Orders</h1>
                 <p class="mt-1 text-sm text-[#94A3B8]">
-                    <span x-text="filteredOrders.length"></span> of {{ $orders->count() }} orders
+                    <span x-text="allOrders.length"></span> orders
                 </p>
             </div>
             <a href="{{ admin_route('orders.create') }}"
@@ -19,7 +19,7 @@
         </div>
         @endif
 
-        <template x-if="orders.length === 0">
+        <template x-if="allOrders.length === 0">
             <x-card>
                 <div class="py-12 text-center">
                     <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#232A36]">
@@ -34,7 +34,7 @@
             </x-card>
         </template>
 
-        <template x-if="orders.length > 0">
+        <template x-if="allOrders.length > 0">
             <div>
                 <!-- Search + Filters -->
                 <div class="sticky top-16 z-20 -mx-4 -mt-2 bg-[#0F1117] px-4 pb-4 pt-4 md:-mx-8 md:px-8">
@@ -47,6 +47,7 @@
                         <select x-model="filterStatus"
                                 class="h-11 rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
                             <option value="">All Status</option>
+                            <option value="draft">Draft</option>
                             <option value="on_hold">On Hold</option>
                             <option value="packed">Packed</option>
                             <option value="picked">Picked</option>
@@ -99,9 +100,12 @@
                             </thead>
                             <tbody class="divide-y divide-[#232A36]">
                                 <template x-for="order in filteredOrders" :key="order.id">
-                                    <tr class="transition-colors hover:bg-[#1C2333]/50">
+                                    <tr class="transition-colors hover:bg-[#1C2333]/50"
+                                        x-bind:class="order.is_draft ? 'opacity-60 hover:opacity-100' : ''">
                                         <td class="whitespace-nowrap px-3 py-3">
-                                            <a x-bind:href="order.show_url" class="font-medium text-[#3B82F6] hover:underline" x-text="order.order_no"></a>
+                                            <a x-bind:href="order.show_url" class="font-medium hover:underline"
+                                               x-bind:class="order.is_draft ? 'text-[#A855F7]' : 'text-[#3B82F6]'"
+                                               x-text="order.order_no"></a>
                                             <div class="text-[10px] text-[#6B7280]" x-text="order.date_formatted"></div>
                                         </td>
                                         <td class="px-3 py-3">
@@ -139,10 +143,18 @@
                                             </span>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-3 text-center">
-                                            <a x-bind:href="order.edit_url"
-                                               class="inline-flex items-center gap-1.5 rounded-xl bg-[#3B82F6]/10 px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/20 transition-colors">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
+                                            <template x-if="!order.is_draft">
+                                                <a x-bind:href="order.edit_url"
+                                                   class="inline-flex items-center gap-1.5 rounded-xl bg-[#3B82F6]/10 px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/20 transition-colors">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                            </template>
+                                            <template x-if="order.is_draft">
+                                                <a x-bind:href="order.edit_url"
+                                                   class="inline-flex items-center gap-1.5 rounded-xl bg-[#A855F7]/10 px-3 py-1.5 text-xs font-medium text-[#A855F7] hover:bg-[#A855F7]/20 transition-colors">
+                                                    <i class="fas fa-pen"></i> Continue
+                                                </a>
+                                            </template>
                                         </td>
                                     </tr>
                                 </template>
@@ -168,9 +180,14 @@
                 filterPayment: '',
                 filterExtras: '',
                 orders: @json($ordersJson),
+                drafts: @json($draftsJson),
+
+                get allOrders() {
+                    return [...this.orders, ...this.drafts];
+                },
 
                 get filteredOrders() {
-                    return this.orders.filter(o => {
+                    return this.allOrders.filter(o => {
                         if (this.search) {
                             const q = this.search.toLowerCase();
                             if (!o.order_no.toLowerCase().includes(q) &&
@@ -200,6 +217,7 @@
                         packed: 'text-[#3B82F6] bg-[#3B82F6]/10',
                         picked: 'text-[#A855F7] bg-[#A855F7]/10',
                         delivered: 'text-[#22C55E] bg-[#22C55E]/10',
+                        draft: 'text-[#6B7280] bg-[#232A36]',
                     };
                     return map[status] || 'text-[#94A3B8] bg-[#232A36]';
                 },
@@ -211,11 +229,13 @@
                         packed: 'fa-box',
                         picked: 'fa-check-double',
                         delivered: 'fa-check-circle',
+                        draft: 'fa-pen',
                     };
                     return map[status] || 'fa-circle';
                 },
 
                 statusLabel(status) {
+                    if (status === 'draft') return 'Draft';
                     return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 },
             }
