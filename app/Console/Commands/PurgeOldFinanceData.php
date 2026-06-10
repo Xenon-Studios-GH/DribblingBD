@@ -13,15 +13,24 @@ class PurgeOldFinanceData extends Command
 
     public function handle(): void
     {
-        $cutoff = now()->subDays(30);
+        $days = 30;
+        $cutoff = now()->subDays($days);
+
+        if (!$this->confirm("This will permanently delete soft-deleted finance data older than {$days} days. Continue?")) {
+            $this->info('Cancelled.');
+            return;
+        }
 
         $deletedTransactions = FinanceTransaction::onlyTrashed()
             ->where('deleted_at', '<', $cutoff)
             ->forceDelete();
 
-        $deletedVersions = FinanceTransactionVersion::where('created_at', '<', $cutoff)
-            ->delete();
+        $deletedVersions = FinanceTransactionVersion::whereIn('transaction_id', function ($query) use ($cutoff) {
+            $query->select('id')
+                ->from('finance_transactions')
+                ->where('deleted_at', '<', $cutoff);
+        })->delete();
 
-        $this->info("Purged {$deletedTransactions} transactions, {$deletedVersions} versions.");
+        $this->info("Purged {$deletedTransactions} transactions and {$deletedVersions} versions.");
     }
 }

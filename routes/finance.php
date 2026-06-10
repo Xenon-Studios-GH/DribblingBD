@@ -34,5 +34,5 @@ Route::middleware(['auth', 'role.match', 'role:superadmin,admin'])
 });
 
 Route::get('controlPanel/{role}/finance/notifications/unread-count', [NotificationController::class, 'unreadCount'])
-    ->middleware(['auth', 'role.match'])
+    ->middleware(['auth', 'role.match', 'role:superadmin,admin'])
     ->name('finance.notifications.unread');

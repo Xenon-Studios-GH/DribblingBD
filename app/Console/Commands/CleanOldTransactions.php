@@ -15,16 +15,22 @@ class CleanOldTransactions extends Command
 
     public function handle()
     {
-        $cutoff = now()->subDays((int) $this->option('days'));
+        $days = (int) $this->option('days');
+        $cutoff = now()->subDays($days);
 
-        $days = $this->option('days');
+        if (!$this->confirm("This will permanently delete records older than {$days} days. Continue?")) {
+            $this->info('Cancelled.');
+            return;
+        }
+
         $deletedTransactions = StockTransaction::where('created_at', '<', $cutoff)->delete();
-        $this->info("Deleted {$deletedTransactions} transaction(s) older than {$days} days.");
+        $this->info("Deleted {$deletedTransactions} stock transaction(s) older than {$days} days.");
 
         $deletedLogs = LoginLog::where('login_at', '<', $cutoff)->delete();
         $this->info("Deleted {$deletedLogs} login log(s) older than {$days} days.");
 
-        $deletedWorkLogs = WorkLog::where('created_at', '<', $cutoff)->delete();
-        $this->info("Deleted {$deletedWorkLogs} work log(s) older than {$days} days.");
+        $deletedWorkLogs = WorkLog::where('module', 'stock')
+            ->where('created_at', '<', $cutoff)->delete();
+        $this->info("Deleted {$deletedWorkLogs} stock work log(s) older than {$days} days.");
     }
 }

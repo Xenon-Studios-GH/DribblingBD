@@ -20,16 +20,16 @@ class DashboardController extends Controller
             default => 29,
         };
 
-        $income = FinanceTransaction::income()->lastYear()->sum('amount');
-        $expense = FinanceTransaction::expense()->lastYear()->sum('amount');
+        $dateFrom = now()->subDays($days)->startOfDay();
+
+        $income = FinanceTransaction::income()->where('date', '>=', $dateFrom)->sum('amount');
+        $expense = FinanceTransaction::expense()->where('date', '>=', $dateFrom)->sum('amount');
         $balance = $income - $expense;
 
         $recentTransactions = FinanceTransaction::with(['category', 'creator'])
             ->latest('date')
             ->take(5)
             ->get();
-
-        $dateFrom = now()->subDays($days)->startOfDay();
 
         // Cashflow (single query)
         $dailyTotals = FinanceTransaction::where('date', '>=', $dateFrom)
