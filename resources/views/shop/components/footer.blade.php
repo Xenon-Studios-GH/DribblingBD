@@ -27,17 +27,14 @@
                     Bangladesh's premier destination for premium jerseys. From club kits to national team classics, we bring the pitch to your doorstep.
                 </p>
                 <div class="flex items-center gap-3 mt-4">
-                    <a href="#" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
+                    <a href="https://www.facebook.com/dribblingbd" target="_blank" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
                         <i class="fab fa-facebook w-4 h-4"></i>
                     </a>
-                    <a href="#" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
-                        <i class="fab fa-x-twitter w-4 h-4"></i>
+                    <a href="https://www.instagram.com/dribbling_bd1" target="_blank" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
+                        <i class="fab fa-instagram w-4 h-4"></i>
                     </a>
-                    <a href="#" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
-                        <i class="fab fa-github w-4 h-4"></i>
-                    </a>
-                    <a href="#" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
-                        <i class="fas fa-phone w-4 h-4"></i>
+                    <a href="https://wa.me/{{ config('shop.whatsapp_number') }}" target="_blank" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#25D366] hover:text-white transition-colors">
+                        <i class="fab fa-whatsapp w-4 h-4"></i>
                     </a>
                 </div>
             </div>
@@ -72,15 +69,15 @@
                 <ul class="mt-4 space-y-3">
                     <li class="flex items-start gap-2.5">
                         <i class="fas fa-envelope w-4 h-4 mt-0.5 text-gray-500 flex-shrink-0"></i>
-                        <span class="text-sm text-gray-400">support@dribblingbd.com</span>
+                        <span class="text-sm text-gray-400">dribblingbd1@gmail.com</span>
                     </li>
                     <li class="flex items-start gap-2.5">
                         <i class="fas fa-phone w-4 h-4 mt-0.5 text-gray-500 flex-shrink-0"></i>
-                        <span class="text-sm text-gray-400">+880 1700-000000</span>
+                        <span class="text-sm text-gray-400">01641857715</span>
                     </li>
                     <li class="flex items-start gap-2.5">
                         <i class="fas fa-map-marker-alt w-4 h-4 mt-0.5 text-gray-500 flex-shrink-0"></i>
-                        <span class="text-sm text-gray-400">Dhaka, Bangladesh</span>
+                        <span class="text-sm text-gray-400">Farmgate, Dhaka, Bangladesh</span>
                     </li>
                 </ul>
             </div>

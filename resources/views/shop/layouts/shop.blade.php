@@ -10,6 +10,9 @@
     <title>{{ $title }} — DribblingBD</title>
     <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>[x-cloak]{display:none!important}</style>
     @stack('styles')
@@ -165,6 +168,18 @@
                 },
                 get whatsappUrl() {
                     return "https://wa.me/{{ config('shop.whatsapp_number') }}?text=" + encodeURIComponent("Hi, I need " + data.productName + " (" + data.productCode + ")");
+                }
+            }
+        }
+
+        function heroAnimation() {
+            return {
+                loaded: false,
+                init() {
+                    window.addEventListener('load', () => {
+                        this.loaded = true;
+                    });
+                    setTimeout(() => { this.loaded = true; }, 100);
                 }
             }
         }

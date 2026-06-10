@@ -17,7 +17,6 @@ class ProductController extends Controller
         $type = $request->get('type', 'all');
         match ($type) {
             'player' => $query->whereRaw('LOWER(product_name) LIKE ?', ['%player edition%']),
-            'fan' => $query->whereRaw('LOWER(product_name) LIKE ?', ['%fan%']),
             default => null,
         };
 

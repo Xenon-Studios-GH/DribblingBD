@@ -2,74 +2,58 @@
 
 @section('content')
     {{-- Hero Section --}}
-    <section class="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-amber-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <div class="max-w-xl">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#E85D2C]/10 text-[#E85D2C] mb-5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#E85D2C]"></span>
-                        Premium Jersey Store
-                    </span>
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
-                        Your Identity.
-                        <span class="text-[#E85D2C]">Your Jersey.</span>
-                        Your Game.
+    <section class="relative min-h-screen bg-white flex items-center overflow-hidden">
+        <div class="w-full max-w-[1440px] mx-auto">
+            <div class="grid lg:grid-cols-[45%_55%] gap-8 lg:gap-16 items-center min-h-[calc(100vh-160px)]">
+                {{-- Left Content --}}
+                <div class="pb-16 lg:pb-0" x-data="heroAnimation()" x-init="init()">
+                    {{-- Heading --}}
+                    <h1 class="text-[42px] sm:text-[56px] lg:text-[72px] xl:text-[88px] font-black leading-[0.9] tracking-[-3px] text-black"
+                        :class="loaded ? 'animate-fade-up' : 'opacity-0'">
+                        <span class="block">Your Identity.</span>
+                        <span class="block delay-200" :class="loaded ? 'animate-fade-up' : 'opacity-0'">
+                            <span class="text-[#E85D2C]">Your Jersey.</span>
+                            <span> Your Game.</span>
+                        </span>
                     </h1>
-                    <p class="mt-4 text-lg text-gray-600 leading-relaxed">
-                        Premium custom jerseys for clubs, tournaments, and champions. Design your look, own the pitch.
+
+                    {{-- Description --}}
+                    <p class="mt-8 text-[18px] text-[#7A7A7A] leading-[1.8] max-w-[500px]"
+                       :class="loaded ? 'animate-fade-up delay-500' : 'opacity-0'">
+                        Premium custom jerseys for clubs, tournaments, and champions.
+                        Design your look, own the pitch.
                     </p>
-                    <div class="mt-8 flex flex-wrap gap-3">
-                        <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20">
-                            Shop Ready-Made
-                            <i class="fas fa-arrow-right w-4 h-4"></i>
+
+                    {{-- CTA --}}
+                    <div class="mt-10" :class="loaded ? 'animate-scale-in delay-800' : 'opacity-0 scale-0'">
+                        <a href="{{ route('shop.products.index') }}"
+                           class="inline-flex items-center justify-center w-[180px] h-[58px] rounded-full bg-black text-white font-semibold text-sm hover:scale-105 transition-transform duration-300 shadow-[0_15px_40px_rgba(0,0,0,0.15)]">
+                            Shop Now
                         </a>
-                        <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold text-sm hover:border-[#E85D2C] hover:text-[#E85D2C] transition-colors">
-                            Customize Your Jersey
-                        </a>
-                    </div>
-                    <div class="mt-8 flex items-center gap-6 text-sm text-gray-500">
-                        <span class="flex items-center gap-1.5">
-                            <i class="fas fa-check w-4 h-4 text-green-500"></i>
-                            Premium Quality
-                        </span>
-                        <span class="flex items-center gap-1.5">
-                            <i class="fas fa-check w-4 h-4 text-green-500"></i>
-                            Free Shipping
-                        </span>
-                        <span class="flex items-center gap-1.5">
-                            <i class="fas fa-check w-4 h-4 text-green-500"></i>
-                            72 Hours Home Delivery
-                        </span>
                     </div>
                 </div>
-                <div class="relative flex justify-center lg:justify-end">
-                    <div class="w-72 h-80 sm:w-80 sm:h-96 lg:w-96 lg:h-[28rem] rounded-3xl bg-gradient-to-br from-[#E85D2C] via-[#F97316] to-[#F59E0B] flex items-center justify-center shadow-2xl shadow-orange-500/20 relative overflow-hidden">
-                        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 20px 20px;"></div>
-                        <div class="text-center px-6">
-                            <i class="fas fa-box w-20 h-20 mx-auto text-white/80"></i>
-                            <p class="mt-4 text-white/90 font-bold text-lg">Premium Jerseys</p>
-                            <p class="text-white/60 text-sm">2026 Collection</p>
-                            <div class="mt-4 flex justify-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-white/80"></span>
-                                <span class="w-2 h-2 rounded-full bg-white/40"></span>
-                                <span class="w-2 h-2 rounded-full bg-white/40"></span>
-                            </div>
+
+                {{-- Right Image --}}
+                <div class="flex justify-center"
+                     x-data="heroAnimation()" x-init="init()"
+                     :class="loaded ? 'animate-slide-in-right' : 'opacity-0'">
+                    <div class="max-w-[500px] rounded-3xl overflow-hidden bg-gray-100 shadow-lg">
+                        @php $heroImage = $heroImages->first(); @endphp
+                        @if ($heroImage)
+                        <img src="{{ asset('storage/' . $heroImage) }}"
+                             alt="Premium Jersey"
+                             class="w-full h-full object-cover scale-110">
+                        @else
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i class="fas fa-box w-16 h-16 text-gray-300"></i>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-        {{-- Wave divider --}}
-        <div class="absolute bottom-0 left-0 right-0">
-            <svg viewBox="0 0 1440 60" fill="none" class="w-full h-auto" preserveAspectRatio="none">
-                <path d="M0 30Q360 60 720 30T1440 30V60H0V30Z" fill="white"/>
-            </svg>
-        </div>
     </section>
 
-
-
-    {{-- New Arrivals --}}
     <section class="py-14 lg:py-18 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between mb-8">

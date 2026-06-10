@@ -1,6 +1,5 @@
 @php
-$headings = ['all' => 'All Jerseys', 'player' => 'Player Edition', 'fan' => 'Fan Edition'];
-$title = $headings[$type ?? 'all'] ?? 'All Jerseys';
+$title = 'Player Edition';
 @endphp
 
 @extends('shop.layouts.shop', ['title' => "Shop $title"])
@@ -29,7 +28,6 @@ $title = $headings[$type ?? 'all'] ?? 'All Jerseys';
                         $types = [
                         'all' => 'All Jerseys',
                         'player' => 'Player Edition',
-                        'fan' => 'Fan Edition',
                         ];
                         @endphp
                         @foreach ($types as $val => $label)

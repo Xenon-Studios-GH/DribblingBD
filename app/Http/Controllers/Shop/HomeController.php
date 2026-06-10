@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\WebsiteProjectImage;
 
 class HomeController extends Controller
 {
@@ -20,6 +21,13 @@ class HomeController extends Controller
             ->latest('updated_at')
             ->take(8)->get();
 
-        return view('shop.home', compact('newArrivals', 'trending'));
+        $heroImages = WebsiteProjectImage::with('project.product')
+            ->whereHas('project.product', fn($q) => $q->where('is_active', true))
+            ->inRandomOrder()
+            ->take(5)
+            ->get()
+            ->pluck('image_path');
+
+        return view('shop.home', compact('newArrivals', 'trending', 'heroImages'));
     }
 }
