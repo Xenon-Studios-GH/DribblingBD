@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 class CleanOldTransactions extends Command
 {
-    protected $signature = 'app:clean-old-transactions {--days=120 : Number of days to keep records}';
+    protected $signature = 'app:clean-old-transactions {--days=120 : Number of days to keep records} {--force : Skip confirmation prompt}';
 
     protected $description = 'Delete stock transactions and login logs older than the specified cutoff';
 
@@ -18,7 +18,7 @@ class CleanOldTransactions extends Command
         $days = (int) $this->option('days');
         $cutoff = now()->subDays($days);
 
-        if (!$this->confirm("This will permanently delete records older than {$days} days. Continue?")) {
+        if (!$this->option('force') && !$this->confirm("This will permanently delete records older than {$days} days. Continue?")) {
             $this->info('Cancelled.');
             return;
         }
