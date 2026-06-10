@@ -17,22 +17,32 @@ class StockService
         $this->workLogService = $workLogService;
     }
 
+    public function getOrCreateStock(Product $product, string $size): Stock
+    {
+        return Stock::firstOrCreate(
+            ['product_id' => $product->id, 'size' => $size],
+            ['quantity' => 0]
+        );
+    }
+
     public function previewIn(Product $product, string $size, int $quantity): array
     {
         if ($quantity <= 0) {
             throw new \InvalidArgumentException('Quantity must be positive.');
         }
 
-        $stock = Stock::firstOrCreate(
-            ['product_id' => $product->id, 'size' => $size],
-            ['quantity' => 0]
-        );
+        $stock = Stock::where('product_id', $product->id)
+            ->where('size', $size)
+            ->first();
+
+        $currentStock = $stock?->quantity ?? 0;
+
         return [
             'product' => $product,
             'size' => $size,
-            'current_stock' => $stock->quantity,
+            'current_stock' => $currentStock,
             'change' => $quantity,
-            'new_stock' => $stock->quantity + $quantity,
+            'new_stock' => $currentStock + $quantity,
         ];
     }
 
@@ -42,21 +52,22 @@ class StockService
             throw new \InvalidArgumentException('Quantity must be positive.');
         }
 
-        $stock = Stock::firstOrCreate(
-            ['product_id' => $product->id, 'size' => $size],
-            ['quantity' => 0]
-        );
+        $stock = Stock::where('product_id', $product->id)
+            ->where('size', $size)
+            ->first();
 
-        if ($stock->quantity < $quantity) {
-            throw new \InvalidArgumentException('Insufficient stock available. Only ' . $stock->quantity . ' units in stock.');
+        $currentStock = $stock?->quantity ?? 0;
+
+        if ($currentStock < $quantity) {
+            throw new \InvalidArgumentException('Insufficient stock available. Only ' . $currentStock . ' units in stock.');
         }
 
         return [
             'product' => $product,
             'size' => $size,
-            'current_stock' => $stock->quantity,
+            'current_stock' => $currentStock,
             'change' => -$quantity,
-            'new_stock' => $stock->quantity - $quantity,
+            'new_stock' => $currentStock - $quantity,
         ];
     }
 

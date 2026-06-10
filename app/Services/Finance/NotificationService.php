@@ -13,6 +13,10 @@ class NotificationService
             ->where('status', true)
             ->pluck('id');
 
+        if ($adminUserIds->isEmpty()) {
+            return;
+        }
+
         $notifications = $adminUserIds->map(fn($userId) => [
             'user_id' => $userId,
             'type' => $type,

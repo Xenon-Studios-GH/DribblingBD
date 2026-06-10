@@ -8,11 +8,22 @@ class LoginLogService
 {
     public function recordLogin(string $email, bool $success, ?int $userId = null): LoginLog
     {
+        $ipAddress = null;
+        $userAgent = null;
+
+        if (app()->runningInConsole() || app()->runningUnitTests()) {
+            $ipAddress = '127.0.0.1';
+            $userAgent = 'CLI/Test';
+        } else {
+            $ipAddress = request()->ip();
+            $userAgent = request()->userAgent();
+        }
+
         return LoginLog::create([
             'user_id' => $userId,
             'email' => $email,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
+            'ip_address' => $ipAddress,
+            'user_agent' => $userAgent,
             'login_at' => now(),
             'status' => $success ? 'success' : 'failed',
         ]);
@@ -27,10 +38,10 @@ class LoginLogService
             ->update(['logout_at' => now(), 'status' => 'logout']);
     }
 
-    public function getLogs(array $filters = [])
+    public function getLogs(array $filters = [], int $days = 90)
     {
         $query = LoginLog::with('user')
-            ->where('login_at', '>=', now()->subDays(90))
+            ->where('login_at', '>=', now()->subDays($days))
             ->latest('login_at');
 
         if (!empty($filters['user_id'])) {

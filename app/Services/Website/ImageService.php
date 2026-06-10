@@ -6,6 +6,7 @@ use App\Models\WebsiteProject;
 use App\Models\WebsiteProjectImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 
 class ImageService
 {
@@ -22,18 +23,18 @@ class ImageService
                 $filled++;
                 $mime = $file->getMimeType();
                 if (!in_array($mime, self::ALLOWED_MIMES, true)) {
-                    abort(422, "Slot $slot: Only PNG and WebP images are allowed.");
+                    throw new InvalidArgumentException("Slot $slot: Only PNG and WebP images are allowed.");
                 }
                 if ($file->getSize() > self::MAX_SIZE * 1024) {
-                    abort(422, "Slot $slot: Image must be under 5MB.");
+                    throw new InvalidArgumentException("Slot $slot: Image must be under 5MB.");
                 }
             }
         }
         if ($filled < self::MIN_IMAGES) {
-            abort(422, 'At least 1 image is required.');
+            throw new InvalidArgumentException('At least 1 image is required.');
         }
         if ($filled > self::MAX_IMAGES) {
-            abort(422, 'Maximum 4 images allowed.');
+            throw new InvalidArgumentException('Maximum 4 images allowed.');
         }
     }
 
