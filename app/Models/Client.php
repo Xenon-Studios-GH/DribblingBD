@@ -30,7 +30,6 @@ class Client extends Model
         'orders',
         'newsletter',
         'status',
-        'password',
         'last_login_at',
     ];
 

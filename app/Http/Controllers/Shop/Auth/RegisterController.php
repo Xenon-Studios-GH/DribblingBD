@@ -28,7 +28,7 @@ class RegisterController extends Controller
                 'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
                 'password' => $hashedPassword,
-                'role' => 'client',
+                'role' => 'customer',
                 'status' => true,
             ]);
 
@@ -39,7 +39,6 @@ class RegisterController extends Controller
                 'username' => null,
                 'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
-                'password' => $hashedPassword,
             ]);
 
             return $user;
