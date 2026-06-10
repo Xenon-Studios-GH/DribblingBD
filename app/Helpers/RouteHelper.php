@@ -25,7 +25,10 @@ if (!function_exists('admin_route')) {
         if (!is_array($parameters)) {
             $parameters = [$parameters];
         }
-        $role = Auth::user()?->role ?? 'admin';
+        $role = Auth::user()?->role;
+        if (!$role) {
+            throw new \RuntimeException('Cannot generate admin route: user not authenticated.');
+        }
         if (array_is_list($parameters)) {
             array_unshift($parameters, $role);
         } else {

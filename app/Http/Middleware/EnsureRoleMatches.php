@@ -12,7 +12,15 @@ class EnsureRoleMatches
     {
         $user = $request->user();
 
-        if (!$user || $user->role !== $request->route('role')) {
+        if (!$user) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        if (!$user->status) {
+            abort(403, 'Your account has been deactivated.');
+        }
+
+        if ($user->role !== $request->route('role')) {
             abort(403, 'Unauthorized access.');
         }
 

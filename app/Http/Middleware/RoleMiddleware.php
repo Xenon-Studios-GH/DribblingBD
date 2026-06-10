@@ -12,12 +12,16 @@ class RoleMiddleware
     {
         $user = $request->user();
 
-        if (!$user || !in_array($user->role, $roles)) {
+        if (!$user) {
             abort(403, 'Unauthorized access.');
         }
 
         if (!$user->status) {
             abort(403, 'Your account has been deactivated.');
+        }
+
+        if (!in_array($user->role, $roles)) {
+            abort(403, 'Unauthorized access.');
         }
 
         return $next($request);

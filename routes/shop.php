@@ -23,8 +23,10 @@ Route::name('shop.')->group(function () {
 
     Route::get('user', function () {
         if (Auth::check()) {
-            $client = Auth::user()->client;
-            return redirect()->route('shop.profile.index', $client->usercode);
+            $client = optional(Auth::user())->client;
+            if ($client) {
+                return redirect()->route('shop.profile.index', $client->usercode);
+            }
         }
         return redirect()->route('authentication');
     })->name('user.home');
