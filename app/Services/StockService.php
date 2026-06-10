@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\TransactionType;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\StockTransaction;
@@ -71,13 +72,15 @@ class StockService
         ];
     }
 
-    public function stockIn(Product $product, string $size, int $quantity, ?string $note = null): Stock
+    public function stockIn(Product $product, string $size, int $quantity, ?string $note = null, ?int $userId = null): Stock
     {
         if ($quantity <= 0) {
             throw new \InvalidArgumentException('Quantity must be positive.');
         }
 
-        return DB::transaction(function () use ($product, $size, $quantity, $note) {
+        $userId ??= Auth::id();
+
+        return DB::transaction(function () use ($product, $size, $quantity, $note, $userId) {
             $stock = Stock::where('product_id', $product->id)
                 ->where('size', $size)
                 ->lockForUpdate()
@@ -96,8 +99,8 @@ class StockService
 
             StockTransaction::create([
                 'product_id' => $product->id,
-                'user_id' => Auth::id(),
-                'type' => 'in',
+                'user_id' => $userId,
+                'type' => TransactionType::In->value,
                 'size' => $size,
                 'quantity' => $quantity,
                 'stock_before' => $stockBefore,
@@ -109,20 +112,23 @@ class StockService
                 'Stock In',
                 'stock',
                 $product->id,
-                "Added {$quantity} {$product->product_name} ({$size})"
+                "Added {$quantity} {$product->product_name} ({$size})",
+                $userId
             );
 
             return $stock->fresh();
         });
     }
 
-    public function stockOut(Product $product, string $size, int $quantity, ?string $note = null): Stock
+    public function stockOut(Product $product, string $size, int $quantity, ?string $note = null, ?int $userId = null): Stock
     {
         if ($quantity <= 0) {
             throw new \InvalidArgumentException('Quantity must be positive.');
         }
 
-        return DB::transaction(function () use ($product, $size, $quantity, $note) {
+        $userId ??= Auth::id();
+
+        return DB::transaction(function () use ($product, $size, $quantity, $note, $userId) {
             $stock = Stock::where('product_id', $product->id)
                 ->where('size', $size)
                 ->lockForUpdate()
@@ -141,8 +147,8 @@ class StockService
 
             StockTransaction::create([
                 'product_id' => $product->id,
-                'user_id' => Auth::id(),
-                'type' => 'out',
+                'user_id' => $userId,
+                'type' => TransactionType::Out->value,
                 'size' => $size,
                 'quantity' => $quantity,
                 'stock_before' => $stockBefore,
@@ -154,7 +160,8 @@ class StockService
                 'Stock Out',
                 'stock',
                 $product->id,
-                "Removed {$quantity} {$product->product_name} ({$size})"
+                "Removed {$quantity} {$product->product_name} ({$size})",
+                $userId
             );
 
             return $stock->fresh();

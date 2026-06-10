@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\StockSize;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\Stock;
 use App\Services\StockService;
 use App\Services\WorkLogService;
 use Illuminate\Http\Request;
@@ -32,7 +32,7 @@ class StockInController extends Controller
     {
         $validated = $request->validate([
             'product_id' => ['required'],
-            'size' => ['required', 'in:' . implode(',', Stock::SIZES)],
+            'size' => ['required', 'in:' . implode(',', StockSize::values())],
             'quantity' => ['required', 'integer', 'min:1'],
             'product_name' => ['required_if:product_id,new', 'string', 'max:255'],
             'price' => ['required_if:product_id,new', 'numeric', 'min:0'],
@@ -78,7 +78,7 @@ class StockInController extends Controller
     {
         $validated = $request->validate([
             'product_id' => ['required'],
-            'size' => ['required', 'in:' . implode(',', Stock::SIZES)],
+            'size' => ['required', 'in:' . implode(',', StockSize::values())],
             'quantity' => ['required', 'integer', 'min:1'],
             'product_name' => ['required_if:product_id,new', 'string', 'max:255'],
             'price' => ['required_if:product_id,new', 'numeric', 'min:0'],
