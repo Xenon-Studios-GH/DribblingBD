@@ -382,30 +382,15 @@
                             </div>
                             <div>
                                 <h1 class="text-xl font-bold text-gray-900">{{ $client->name }}</h1>
-                                <p class="text-sm text-gray-500 mt-0.5">{{ $client->email }}</p>
                                 <span class="inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full bg-gray-100 text-xs font-medium text-gray-500">{{ $client->usercode }}</span>
                             </div>
                         </div>
                     </div>
                     <div class="px-6 sm:px-10 py-6 space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            @if ($client->username)
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider">Username</label>
-                                <p class="text-sm text-gray-900 mt-1">{{ $client->username }}</p>
-                            </div>
-                            @endif
-                            @if ($client->phone)
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</label>
-                                <p class="text-sm text-gray-900 mt-1">{{ $client->phone }}</p>
-                            </div>
-                            @endif
-                        </div>
-                        @if ($client->address || $client->city)
+                        @if ($client->username)
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider">Address</label>
-                            <p class="text-sm text-gray-900 mt-1">{{ collect([$client->address, $client->city, $client->state, $client->country])->filter()->join(', ') }}</p>
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider">Username</label>
+                            <p class="text-sm text-gray-900 mt-1">{{ $client->username }}</p>
                         </div>
                         @endif
                         <div class="pt-4 border-t border-gray-100">
@@ -423,20 +408,11 @@
                         </div>
                         <div>
                             <h1 class="text-xl font-bold text-gray-900">{{ $client->name }}</h1>
-                            <p class="text-sm text-gray-500 mt-0.5">{{ $client->email }}</p>
                         </div>
                     </div>
                 </div>
-                <div class="px-6 sm:px-10 py-6 space-y-4">
-                    @if ($client->phone)
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</label>
-                        <p class="text-sm text-gray-900 mt-1">{{ $client->phone }}</p>
-                    </div>
-                    @endif
-                    <div class="pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-400">Member since {{ $client->created_at->format('F Y') }}</p>
-                    </div>
+                <div class="px-6 sm:px-10 py-6">
+                    <p class="text-xs text-gray-400">Member since {{ $client->created_at->format('F Y') }}</p>
                 </div>
             </div>
         @endauth
