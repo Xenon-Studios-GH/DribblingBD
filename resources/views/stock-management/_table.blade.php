@@ -20,7 +20,7 @@
                 <tr class="transition-colors hover:bg-[#1C2333] cursor-pointer" onclick="window.location='{{ admin_route('stock.management.show', $product) }}'">
                     <td class="whitespace-nowrap px-6 py-4 font-mono text-xs text-[#94A3B8]">{{ $product->product_code }}</td>
                     <td class="whitespace-nowrap px-6 py-4 font-medium text-[#E6EDF3]">{{ $product->product_name }}</td>
-                    <td class="whitespace-nowrap px-6 py-4 font-medium {{ $totalStock > 10 ? 'text-[#22C55E]' : ($totalStock > 0 ? 'text-[#F59E0B]' : 'text-[#EF4444]') }}">
+                    <td class="whitespace-nowrap px-6 py-4 font-medium {{ $totalStock > 5 ? 'text-[#22C55E]' : ($totalStock > 0 ? 'text-[#F59E0B]' : 'text-[#EF4444]') }}">
                         {{ number_format($totalStock) }}
                     </td>
                     <td class="whitespace-nowrap px-6 py-4 text-[#94A3B8]">৳{{ number_format($product->price, 2) }}</td>
@@ -61,7 +61,7 @@
                 <p class="text-sm font-medium text-[#E6EDF3]">{{ $product->product_name }}</p>
                 <p class="text-xs text-[#94A3B8] font-mono">{{ $product->product_code }}</p>
             </div>
-            <span class="text-sm font-medium {{ $totalStock > 10 ? 'text-[#22C55E]' : ($totalStock > 0 ? 'text-[#F59E0B]' : 'text-[#EF4444]') }}">
+            <span class="text-sm font-medium {{ $totalStock > 5 ? 'text-[#22C55E]' : ($totalStock > 0 ? 'text-[#F59E0B]' : 'text-[#EF4444]') }}">
                 {{ number_format($totalStock) }}
             </span>
         </div>

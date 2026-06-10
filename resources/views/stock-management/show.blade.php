@@ -23,7 +23,7 @@
         <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <x-card>
                 <p class="text-xs text-[#94A3B8]">Total Stock</p>
-                <p class="mt-1 text-2xl font-bold {{ $totalStock > 10 ? 'text-[#22C55E]' : ($totalStock > 0 ? 'text-[#F59E0B]' : 'text-[#EF4444]') }}">
+                <p class="mt-1 text-2xl font-bold {{ $totalStock > 5 ? 'text-[#22C55E]' : ($totalStock > 0 ? 'text-[#F59E0B]' : 'text-[#EF4444]') }}">
                     {{ number_format($totalStock) }}
                 </p>
             </x-card>
@@ -62,7 +62,7 @@
                                 <td class="py-3 text-[#E6EDF3] font-medium">{{ $size }}</td>
                                 <td class="py-3 text-right font-mono text-[#E6EDF3]">{{ number_format($stock ? $stock->quantity : 0) }}</td>
                                 <td class="py-3 text-right">
-                                    @if ($stock && $stock->quantity > 10)
+                                    @if ($stock && $stock->quantity > 5)
                                     <span class="inline-flex items-center gap-1 rounded-full bg-[#22C55E]/10 px-2 py-0.5 text-xs font-medium text-[#22C55E]">In Stock</span>
                                     @elseif ($stock && $stock->quantity > 0)
                                     <span class="inline-flex items-center gap-1 rounded-full bg-[#F59E0B]/10 px-2 py-0.5 text-xs font-medium text-[#F59E0B]">Low Stock</span>
