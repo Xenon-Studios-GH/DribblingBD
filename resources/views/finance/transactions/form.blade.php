@@ -71,7 +71,7 @@
             function transactionForm() {
                 return {
                     categories: @json($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'type' => $c->type])),
-                    selectedType: '{{ old('type', $transaction->type ?? '') }}',
+                    selectedType: '{{ old('type', $transaction->type ?? 'income') }}',
                     selectedCategory: '{{ old('category_id', $transaction->category_id ?? '') }}',
                     get filteredCategories() {
                         return this.categories.filter(c => c.type === this.selectedType);

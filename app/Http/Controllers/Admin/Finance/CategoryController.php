@@ -19,8 +19,8 @@ class CategoryController extends Controller
 
     public function index()
     {
-        $incomeCategories = FinanceCategory::income()->get();
-        $expenseCategories = FinanceCategory::expense()->get();
+        $incomeCategories = FinanceCategory::income()->withCount('transactions')->get();
+        $expenseCategories = FinanceCategory::expense()->withCount('transactions')->get();
         return view('finance.categories.index', compact('incomeCategories', 'expenseCategories'));
     }
 

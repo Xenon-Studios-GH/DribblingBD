@@ -51,10 +51,10 @@ class ReportController extends Controller
         $type = $type ?: 'expense';
         $data = FinanceTransaction::where('type', $type)
             ->whereBetween('date', [$from, $to])
-            ->join('finance_categories', 'finance_transactions.category_id', '=', 'finance_categories.id')
-            ->selectRaw('finance_categories.name as category')
+            ->leftJoin('finance_categories', 'finance_transactions.category_id', '=', 'finance_categories.id')
+            ->selectRaw('COALESCE(finance_categories.name, \'Uncategorized\') as category')
             ->selectRaw('COALESCE(SUM(finance_transactions.amount), 0) as total')
-            ->groupBy('finance_categories.name')
+            ->groupByRaw('COALESCE(finance_categories.name, \'Uncategorized\')')
             ->orderByDesc('total')
             ->get();
 

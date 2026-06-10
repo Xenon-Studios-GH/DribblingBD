@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class PurgeOldFinanceData extends Command
 {
-    protected $signature = 'finance:purge-old';
+    protected $signature = 'finance:purge-old {--force : Skip confirmation}';
     protected $description = 'Permanently delete soft-deleted finance data older than 30 days';
 
     public function handle(): void
@@ -16,7 +16,7 @@ class PurgeOldFinanceData extends Command
         $days = 30;
         $cutoff = now()->subDays($days);
 
-        if (!$this->confirm("This will permanently delete soft-deleted finance data older than {$days} days. Continue?")) {
+        if (!$this->option('force') && !$this->confirm("This will permanently delete soft-deleted finance data older than {$days} days. Continue?")) {
             $this->info('Cancelled.');
             return;
         }

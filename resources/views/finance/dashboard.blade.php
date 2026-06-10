@@ -1,9 +1,6 @@
 <x-layouts.app title="Finance Dashboard">
     @php
     $chartColors = ['#22C55E', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
-    $periodIncome = $cashflowWithBalance->sum('income');
-    $periodExpense = $cashflowWithBalance->sum('expense');
-    $periodProfit = $periodIncome - $periodExpense;
     @endphp
     <div class="space-y-6">
         {{-- Stat Cards --}}

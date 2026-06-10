@@ -56,7 +56,9 @@
                         <td class="py-3 text-[#94A3B8] max-w-[200px] truncate pl-4">{{ $t->description ?: '—' }}</td>
                         <td class="py-3 text-[#94A3B8]">{{ $t->creator?->name ?? '—' }}</td>
                         <td class="py-3 text-right">
-                            <a href="{{ admin_route('finance.transactions.edit', $t) }}" class="text-[#3B82F6] hover:underline text-xs">Edit</a>
+                            <a href="{{ admin_route('finance.transactions.edit', $t) }}" class="text-[#3B82F6] hover:underline text-xs mr-3">Edit</a>
+                            <button type="button" onclick="confirmDelete({{ $t->id }})" class="text-[#EF4444] hover:underline text-xs">Delete</button>
+                            <form id="delete-form-{{ $t->id }}" method="POST" action="{{ admin_route('finance.transactions.destroy', $t) }}" class="hidden">@csrf @method('DELETE')</form>
                         </td>
                     </tr>
                     @empty
@@ -70,4 +72,26 @@
 
         {{ $transactions->links() }}
     </div>
+
+    @push('scripts')
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Delete Transaction?',
+                text: 'This will soft-delete the transaction and notify all admins.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Yes, delete',
+                background: '#161B22',
+                color: '#E6EDF3',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        }
+    </script>
+    @endpush
 </x-layouts.app>

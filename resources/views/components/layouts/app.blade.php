@@ -127,13 +127,15 @@
                 },
                 fetchUnreadCount() {
                     fetch('{{ route('finance.notifications.unread', ['role' => Auth::user()->role]) }}')
-                        .then(r => r.json())
-                        .then(d => { this.unreadCount = d.count; });
+                        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                        .then(d => { this.unreadCount = d.count; })
+                        .catch(e => console.error('Failed to fetch unread count:', e));
                 },
                 fetchNotifications() {
                     fetch('{{ route('finance.notifications.unread', ['role' => Auth::user()->role]) }}?limit=5')
-                        .then(r => r.json())
-                        .then(d => { this.notifications = d.notifications || []; });
+                        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                        .then(d => { this.notifications = d.notifications || []; })
+                        .catch(e => console.error('Failed to fetch notifications:', e));
                 },
                 toggle() {
                     this.open = !this.open;
@@ -141,7 +143,8 @@
                 },
                 markRead(notif) {
                     if (!notif.is_read) {
-                        fetch('/controlPanel/' + '{{ Auth::user()->role }}' + '/finance/notifications/' + notif.id + '/read', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
+                        fetch('{{ route('finance.notifications.read', ['role' => Auth::user()->role, 'notification' => '__ID__']) }}'.replace('__ID__', notif.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
+                            .catch(e => console.error('Failed to mark notification as read:', e));
                         notif.is_read = true;
                         this.unreadCount = Math.max(0, this.unreadCount - 1);
                     }
