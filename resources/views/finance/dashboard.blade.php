@@ -134,35 +134,33 @@
                         </div>
 
                         {{-- Charts Area --}}
-                        <div class="flex-1 flex flex-col gap-4 min-h-0">
-                            {{-- Big Table --}}
-                            <div class="flex-1 min-h-0 overflow-hidden rounded-lg border border-[#232A36] flex flex-col">
-                                <div class="flex-shrink-0 grid grid-cols-5 gap-2 px-4 py-2 text-xs font-medium text-[#94A3B8] bg-[#1A1F2E] border-b border-[#232A36]">
-                                    <span>Date</span>
-                                    <span class="text-right text-[#22C55E]">Income</span>
-                                    <span class="text-right text-[#EF4444]">Expense</span>
-                                    <span class="text-right text-[#3B82F6]">Net</span>
-                                    <span class="text-right">Balance</span>
+                        <div class="flex-1 grid grid-cols-[1fr_auto] gap-4 min-h-0">
+                            {{-- Debit/Credit Table --}}
+                            <div class="min-h-0 overflow-hidden rounded-lg border border-[#232A36] flex flex-col">
+                                <div class="flex-shrink-0 flex items-center text-xs font-medium text-[#94A3B8] bg-[#1A1F2E] border-b border-[#232A36]">
+                                    <span class="flex-1 px-3 py-2 text-left">Description</span>
+                                    <span class="w-36 px-3 py-2 text-right text-[#22C55E] border-l border-[#232A36]">Credit (IN)</span>
+                                    <span class="w-36 px-3 py-2 text-right text-[#EF4444] border-l border-[#232A36]">Debit (OUT)</span>
+                                    <span class="w-36 px-3 py-2 text-right border-l border-[#232A36]">Balance</span>
                                 </div>
                                 <div class="flex-1 overflow-y-auto text-xs">
                                     @foreach($cashflowWithBalance as $row)
-                                    <div class="grid grid-cols-5 gap-2 px-4 py-1.5 border-b border-[#232A36]/50 last:border-0 hover:bg-[#1C2333] transition-colors">
-                                        <span class="text-[#6B7280]">{{ \Carbon\Carbon::parse($row['date'])->format('M d') }}</span>
-                                        <span class="text-right text-[#22C55E] font-medium">৳{{ number_format($row['income']) }}</span>
-                                        <span class="text-right text-[#EF4444] font-medium">৳{{ number_format($row['expense']) }}</span>
-                                        <span class="text-right {{ $row['net'] >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }} font-medium">৳{{ number_format($row['net']) }}</span>
-                                        <span class="text-right text-[#E6EDF3] font-medium">৳{{ number_format($row['running_balance']) }}</span>
+                                    <div class="flex items-center border-b border-[#232A36]/50 last:border-0 hover:bg-[#1C2333] transition-colors">
+                                        <span class="flex-1 px-3 py-1.5 text-[#6B7280]">{{ \Carbon\Carbon::parse($row['date'])->format('M d') }} <span class="text-[#4A5568]">{{ \Carbon\Carbon::parse($row['date'])->format('D') }}</span></span>
+                                        <span class="w-36 px-3 py-1.5 text-right text-[#22C55E] font-medium border-l border-[#232A36]/50">{{ $row['income'] > 0 ? '৳'.number_format($row['income']) : '—' }}</span>
+                                        <span class="w-36 px-3 py-1.5 text-right text-[#EF4444] font-medium border-l border-[#232A36]/50">{{ $row['expense'] > 0 ? '৳'.number_format($row['expense']) : '—' }}</span>
+                                        <span class="w-36 px-3 py-1.5 text-right text-[#E6EDF3] font-medium border-l border-[#232A36]/50">৳{{ number_format($row['running_balance']) }}</span>
                                     </div>
                                     @endforeach
                                 </div>
                             </div>
                             {{-- Pies side by side --}}
-                            <div class="flex-shrink-0 bg-[#1A1F2E] rounded-lg p-3 flex items-center justify-center gap-6">
+                            <div class="w-56 flex-shrink-0 bg-[#1A1F2E] rounded-lg p-3 flex flex-col items-center justify-center gap-4">
                                 <div class="flex flex-col items-center gap-2">
                                     <p class="text-xs text-[#22C55E] font-medium">Income</p>
                                     <div class="w-20 h-20"><canvas id="hologramIncomePie"></canvas></div>
                                 </div>
-                                <div class="w-px h-12 bg-[#232A36]"></div>
+                                <div class="w-12 h-px bg-[#232A36]"></div>
                                 <div class="flex flex-col items-center gap-2">
                                     <p class="text-xs text-[#EF4444] font-medium">Expense</p>
                                     <div class="w-20 h-20"><canvas id="hologramExpensePie"></canvas></div>
@@ -198,7 +196,7 @@
         </x-card>
     </div>
 
-<script>
+    <script>
 document.addEventListener('DOMContentLoaded', function() {
 
 if (typeof Chart === 'undefined') { console.error('Chart.js not loaded'); return; }
