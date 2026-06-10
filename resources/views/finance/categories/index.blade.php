@@ -8,12 +8,12 @@
                 <h2 class="text-lg font-semibold text-[#22C55E]">Income Categories</h2>
                 <button @click="$dispatch('open-category-modal', {type: 'income'})" class="text-sm text-[#3B82F6] hover:underline">+ Add</button>
             </div>
-            <div class="space-y-2">
+             <div class="space-y-2">
                 @foreach($incomeCategories as $cat)
                 <div class="flex items-center justify-between py-2 border-b border-[#232A36] last:border-0">
-                    <span class="text-sm text-[#E6EDF3]">{{ $cat->name }}</span>
+                    <a href="{{ admin_route('finance.transactions', ['category_id' => $cat->id]) }}" class="text-sm text-[#E6EDF3] hover:text-[#3B82F6] transition-colors">{{ $cat->name }}</a>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs text-[#94A3B8]">{{ $cat->transactions_count ?? 0 }} txns</span>
+                        <a href="{{ admin_route('finance.transactions', ['category_id' => $cat->id]) }}" class="text-xs text-[#94A3B8] hover:text-[#3B82F6] transition-colors">{{ $cat->transactions_count }} txns</a>
                         <button @click="$dispatch('open-category-modal', {id: {{ $cat->id }}, type: @json($cat->type), name: @json($cat->name), description: @json($cat->description ?? '')})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
                     </div>
                 </div>
@@ -30,9 +30,9 @@
             <div class="space-y-2">
                 @foreach($expenseCategories as $cat)
                 <div class="flex items-center justify-between py-2 border-b border-[#232A36] last:border-0">
-                    <span class="text-sm text-[#E6EDF3]">{{ $cat->name }}</span>
+                    <a href="{{ admin_route('finance.transactions', ['category_id' => $cat->id]) }}" class="text-sm text-[#E6EDF3] hover:text-[#3B82F6] transition-colors">{{ $cat->name }}</a>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs text-[#94A3B8]">{{ $cat->transactions_count ?? 0 }} txns</span>
+                        <a href="{{ admin_route('finance.transactions', ['category_id' => $cat->id]) }}" class="text-xs text-[#94A3B8] hover:text-[#3B82F6] transition-colors">{{ $cat->transactions_count }} txns</a>
                         <button @click="$dispatch('open-category-modal', {id: {{ $cat->id }}, type: @json($cat->type), name: @json($cat->name), description: @json($cat->description ?? '')})" class="text-xs text-[#3B82F6] hover:underline">Edit</button>
                     </div>
                 </div>
