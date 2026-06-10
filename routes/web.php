@@ -17,11 +17,12 @@ use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\LoginLogController;
 use App\Http\Controllers\Admin\WorkLogController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\OrderDraftController;
 
 Route::prefix('auth/dribblingbd')->middleware('guest')->group(function () {
     Route::get('authentication', fn() => view('auth.authentication'))->name('authentication');
     Route::get('login', fn() => redirect()->route('authentication'))->name('login');
-    Route::post('login', [LoginController::class, 'store'])->middleware('throttle:5,1');
+    Route::post('login', [LoginController::class, 'store'])->name('login')->middleware('throttle:5,1');
     Route::get('register', fn() => redirect()->route('authentication'))->name('register');
     Route::post('register', [\App\Http\Controllers\Shop\Auth\RegisterController::class, 'store'])->middleware('throttle:5,10');
 });
@@ -57,6 +58,12 @@ Route::middleware('auth')->group(function () {
         Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+
+        // Order Drafts
+        Route::get('order-drafts', [OrderDraftController::class, 'index'])->name('order-drafts.index');
+        Route::post('order-drafts', [OrderDraftController::class, 'store'])->name('order-drafts.store');
+        Route::get('order-drafts/{orderDraft}', [OrderDraftController::class, 'show'])->name('order-drafts.show');
+        Route::delete('order-drafts/{orderDraft}', [OrderDraftController::class, 'destroy'])->name('order-drafts.destroy');
 
         // Stock In
         Route::get('stockin', [StockInController::class, 'index'])->name('stock.in');

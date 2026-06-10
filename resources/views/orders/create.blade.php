@@ -5,6 +5,38 @@
             <p class="mt-1 text-sm text-[#94A3B8]">Create a new customer order.</p>
         </div>
 
+        <!-- Drafts -->
+        <div x-show="drafts.length > 0" class="mb-6">
+            <x-card>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
+                        <i class="fas fa-pen text-[#A855F7]"></i>
+                    </div>
+                    <h2 class="text-lg font-semibold text-[#E6EDF3]">Saved Drafts</h2>
+                </div>
+                <div class="space-y-2">
+                    <template x-for="draft in drafts" :key="draft.id">
+                        <div class="flex items-center justify-between rounded-lg border border-[#232A36] bg-[#0F1117] p-3">
+                            <div class="text-sm text-[#94A3B8]">
+                                <span class="text-[#E6EDF3] font-medium">Draft</span>
+                                &middot; Saved <span x-text="new Date(draft.updated_at).toLocaleString()"></span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" @click="restoreDraft(draft)"
+                                        class="rounded-lg bg-[#3B82F6] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2563EB]">
+                                    <i class="fas fa-rotate-left mr-1"></i> Restore
+                                </button>
+                                <button type="button" @click="deleteDraft(draft.id)"
+                                        class="rounded-lg bg-[#EF4444]/10 px-3 py-1.5 text-xs font-medium text-[#EF4444] hover:bg-[#EF4444]/20">
+                                    <i class="fas fa-trash mr-1"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </x-card>
+        </div>
+
         <form method="POST" action="{{ admin_route('orders.store') }}"
               x-data="orderForm({{ Js::from($products->map(fn($p) => [
                   'id' => $p->id,
@@ -14,7 +46,7 @@
                   'stocks' => collect(\App\Models\Stock::SIZES)->mapWithKeys(fn($s) => [
                       $s => $p->stocks->where('size', $s)->first()?->quantity ?? 0
                   ])->toArray(),
-              ])->values()) }})"
+              ])->values()) }}, {{ $patchPrice }}, {{ $patchStock }})"
               @submit.prevent="submitForm()" novalidate>
             @csrf
             <input type="hidden" name="products" x-model="JSON.stringify(products)">
@@ -128,19 +160,26 @@
             <!-- DTF & Patch -->
             <div class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <x-card>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
-                                <i class="fas fa-print text-[#A855F7]"></i>
-                            </div>
-                            <h3 class="font-semibold text-[#E6EDF3]">DTF</h3>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
+                            <i class="fas fa-print text-[#A855F7]"></i>
                         </div>
-                        <label class="relative inline-flex cursor-pointer items-center">
-                            <input type="checkbox" name="dtf" x-model="dtf" class="peer sr-only">
-                            <div class="h-6 w-11 rounded-full bg-[#232A36] after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-[#94A3B8] after:transition-all peer-checked:bg-[#A855F7] peer-checked:after:translate-x-full peer-checked:after:bg-white"></div>
-                        </label>
+                        <h3 class="font-semibold text-[#E6EDF3]">DTF</h3>
                     </div>
-                    <div x-show="dtf" x-transition class="grid grid-cols-2 gap-3">
+                    <div class="flex gap-2 mb-4">
+                        <button type="button" @click="dtf = true; calcTotal()"
+                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
+                                :class="dtf ? 'bg-[#22C55E] text-white shadow-lg shadow-[#22C55E]/25' : 'bg-[#232A36] text-[#94A3B8] hover:bg-[#2A3344]'">
+                            Yes
+                        </button>
+                        <button type="button" @click="dtf = false; calcTotal()"
+                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
+                                :class="!dtf ? 'bg-[#232A36] text-[#E6EDF3] border border-[#22C55E]/30' : 'bg-[#161B22] text-[#94A3B8] hover:bg-[#232A36]'">
+                            No
+                        </button>
+                    </div>
+                    <input type="hidden" name="dtf" :value="dtf ? '1' : '0'">
+                    <div x-show="dtf" x-transition class="grid grid-cols-2 gap-3 mb-3">
                         <div>
                             <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Name</label>
                             <input type="text" name="dtf_name" x-model="dtf_name"
@@ -152,31 +191,57 @@
                                    class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none">
                         </div>
                     </div>
+                    <div x-show="dtf" x-transition class="rounded-lg bg-[#0F1117] p-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-[#E6EDF3]">
+                                <i class="fas fa-print mr-2 text-[#A855F7]"></i>
+                                DTF Service Fee
+                            </span>
+                            <span class="font-semibold text-[#A855F7]">
+                                + ৳200.00
+                            </span>
+                        </div>
+                    </div>
                 </x-card>
 
                 <x-card>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F59E0B]/10">
-                                <i class="fas fa-tshirt text-[#F59E0B]"></i>
-                            </div>
-                            <h3 class="font-semibold text-[#E6EDF3]">Patch</h3>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F59E0B]/10">
+                            <i class="fas fa-tshirt text-[#F59E0B]"></i>
                         </div>
-                        <label class="relative inline-flex cursor-pointer items-center">
-                            <input type="checkbox" name="patch" x-model="patch" @change="calcTotal()" class="peer sr-only">
-                            <div class="h-6 w-11 rounded-full bg-[#232A36] after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-[#94A3B8] after:transition-all peer-checked:bg-[#F59E0B] peer-checked:after:translate-x-full peer-checked:after:bg-white"></div>
-                        </label>
+                        <h3 class="font-semibold text-[#E6EDF3]">Patch</h3>
                     </div>
-                    <div x-show="patch" x-transition>
-                        <p class="text-sm text-[#94A3B8]">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            2 patches (Size S) will be auto-added. Set patch price below.
-                        </p>
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Patch Unit Price (৳)</label>
-                            <input type="number" name="patch_price" x-model="patch_price" @input="calcTotal()" step="0.01" min="0"
-                                   class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#F59E0B] focus:outline-none">
+                    <div class="flex gap-2 mb-4">
+                        <button type="button" @click="patch = true; calcTotal(); updateStatus()"
+                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
+                                :class="patch ? 'bg-[#22C55E] text-white shadow-lg shadow-[#22C55E]/25' : 'bg-[#232A36] text-[#94A3B8] hover:bg-[#2A3344]'">
+                            Yes
+                        </button>
+                        <button type="button" @click="patch = false; calcTotal(); updateStatus()"
+                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
+                                :class="!patch ? 'bg-[#232A36] text-[#E6EDF3] border border-[#22C55E]/30' : 'bg-[#161B22] text-[#94A3B8] hover:bg-[#232A36]'">
+                            No
+                        </button>
+                    </div>
+                    <input type="hidden" name="patch" :value="patch ? '1' : '0'">
+                    <div x-show="patch" x-transition class="rounded-lg bg-[#0F1117] p-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-[#E6EDF3]">
+                                <i class="fas fa-tshirt mr-2 text-[#F59E0B]"></i>
+                                2 × Patch (Size S)
+                            </span>
+                            <span class="font-semibold text-[#F59E0B]">
+                                + ৳<span x-text="(2 * patch_price).toFixed(2)"></span>
+                            </span>
                         </div>
+                        <div class="mt-2 text-xs">
+                            <span class="text-[#94A3B8]">Available: </span>
+                            <span x-text="patch_stock" :class="patch_stock < 2 ? 'text-[#EF4444]' : 'text-[#22C55E]'"></span>
+                            <span x-show="patch_stock < 2" class="ml-2 text-[#EF4444]">
+                                <i class="fas fa-exclamation-circle"></i> Out of Stock
+                            </span>
+                        </div>
+                        <input type="hidden" name="patch_price" :value="patch_price">
                     </div>
                 </x-card>
             </div>
@@ -252,11 +317,24 @@
                     <i class="fas fa-save mr-2"></i> Create Order
                 </button>
             </div>
+
+            <!-- Auto-save indicator -->
+            <div class="mt-4 flex items-center gap-2 justify-end">
+                <span x-show="draftStatus === 'saving'" class="text-xs text-[#94A3B8]">
+                    <i class="fas fa-circle-notch fa-spin mr-1"></i> Saving...
+                </span>
+                <span x-show="draftStatus === 'saved'" class="text-xs text-[#22C55E]">
+                    <i class="fas fa-check-circle mr-1"></i> Draft saved
+                </span>
+                <span x-show="draftStatus === 'idle'" class="text-xs text-[#94A3B8]">
+                    <i class="fas fa-clock mr-1"></i> Auto-save active
+                </span>
+            </div>
         </form>
     </div>
 
     <script>
-        function orderForm(productOptions) {
+        function orderForm(productOptions, patchPrice = 0, patchStockS = 0) {
             return {
                 productOptions: productOptions,
                 customer_name: '',
@@ -275,12 +353,22 @@
                 dtf_name: '',
                 dtf_number: '',
                 patch: false,
-                patch_price: 100,
+                patch_price: patchPrice,
+                patch_stock: patchStockS,
                 total_amount: 0,
                 advanced_payment: 0,
                 pending_payment: 0,
                 payment_method: '',
                 status: 'on_hold',
+                drafts: [],
+                draftStatus: 'idle',
+                autoSaveInterval: null,
+                draftLoaded: false,
+
+                init() {
+                    this.loadDrafts();
+                    this.startAutoSave();
+                },
 
                 get orderNoPreview() {
                     return 'DribblingOrder-XXXXX';
@@ -356,7 +444,8 @@
 
                 updateStatus() {
                     const anyOutOfStock = this.products.some(p => p.out_of_stock);
-                    this.status = anyOutOfStock ? 'out_of_stock' : 'on_hold';
+                    const patchOutOfStock = this.patch && (this.patch_stock < 2);
+                    this.status = (anyOutOfStock || patchOutOfStock) ? 'out_of_stock' : 'on_hold';
                 },
 
                 calcTotal() {
@@ -370,6 +459,9 @@
                     if (this.patch) {
                         total += 2 * (parseFloat(this.patch_price) || 0);
                     }
+                    if (this.dtf) {
+                        total += 200;
+                    }
                     this.total_amount = total;
                     this.calcPending();
                 },
@@ -378,6 +470,91 @@
                     const total = parseFloat(this.total_amount) || 0;
                     const adv = parseFloat(this.advanced_payment) || 0;
                     this.pending_payment = Math.max(0, total - adv);
+                },
+
+                async loadDrafts() {
+                    try {
+                        const res = await fetch('{{ admin_route("order-drafts.index") }}');
+                        if (res.ok) this.drafts = await res.json();
+                    } catch (e) {}
+                },
+
+                async saveDraft() {
+                    if (this.draftLoaded) return;
+                    this.draftStatus = 'saving';
+                    const payload = {
+                        data: JSON.stringify({
+                            customer_name: this.customer_name,
+                            phone: this.phone,
+                            address: this.address,
+                            products: this.products,
+                            dtf: this.dtf,
+                            dtf_name: this.dtf_name,
+                            dtf_number: this.dtf_number,
+                            patch: this.patch,
+                            patch_price: this.patch_price,
+                            total_amount: this.total_amount,
+                            advanced_payment: this.advanced_payment,
+                            payment_method: this.payment_method,
+                        }),
+                    };
+                    try {
+                        const res = await fetch('{{ admin_route("order-drafts.store") }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify(payload),
+                        });
+                        if (res.ok) {
+                            this.draftStatus = 'saved';
+                            await this.loadDrafts();
+                            setTimeout(() => { if (this.draftStatus === 'saved') this.draftStatus = 'idle'; }, 2000);
+                        }
+                    } catch (e) {
+                        this.draftStatus = 'idle';
+                    }
+                },
+
+                startAutoSave() {
+                    this.autoSaveInterval = setInterval(() => this.saveDraft(), 3000);
+                },
+
+                stopAutoSave() {
+                    if (this.autoSaveInterval) {
+                        clearInterval(this.autoSaveInterval);
+                        this.autoSaveInterval = null;
+                    }
+                },
+
+                restoreDraft(draft) {
+                    this.draftLoaded = true;
+                    const data = draft.data;
+                    this.customer_name = data.customer_name || '';
+                    this.phone = data.phone || '';
+                    this.address = data.address || '';
+                    this.products = data.products || [{ product_id: '', product_name: '', size: '', quantity: 1, price: 0, out_of_stock: false, in_stock: false }];
+                    this.dtf = data.dtf || false;
+                    this.dtf_name = data.dtf_name || '';
+                    this.dtf_number = data.dtf_number || '';
+                    this.patch = data.patch || false;
+                    this.patch_price = data.patch_price || this.patch_price;
+                    this.total_amount = data.total_amount || 0;
+                    this.advanced_payment = data.advanced_payment || 0;
+                    this.payment_method = data.payment_method || '';
+                    this.calcTotal();
+                    this.products.forEach((_, i) => this.checkStock(i));
+                    this.draftLoaded = false;
+                },
+
+                async deleteDraft(id) {
+                    try {
+                        const res = await fetch('{{ url("controlPanel") }}/' + '{{ auth()->user()->role }}' + '/order-drafts/' + id, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        });
+                        if (res.ok) {
+                            this.drafts = this.drafts.filter(d => d.id !== id);
+                        }
+                    } catch (e) {}
                 },
 
                 submitForm() {
@@ -393,6 +570,7 @@
                         alert('Please select a payment method.');
                         return;
                     }
+                    this.stopAutoSave();
                     this.$el.submit();
                 }
             }

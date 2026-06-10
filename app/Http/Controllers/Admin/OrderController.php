@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderDraft;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Services\StockService;
@@ -23,7 +24,7 @@ class OrderController extends Controller
 
     public function index()
     {
-        $orders = Order::with('creator')->latest()->get();
+        $orders = Order::with('creator')->latest()->paginate(20);
         $ordersJson = $orders->map(function ($o) {
             return [
                 'id' => $o->id,
@@ -41,9 +42,9 @@ class OrderController extends Controller
                 'dtf_number' => $o->dtf_number,
                 'patch' => (bool) $o->patch,
                 'date_formatted' => $o->created_at->format('d M, h:i A'),
-                'show_url' => route('orders.show', ['role' => auth()->user()->role, 'order' => $o->order_no]),
-                'edit_url' => route('orders.edit', ['role' => auth()->user()->role, 'order' => $o->order_no]),
-                'update_url' => route('orders.update-status', ['role' => auth()->user()->role, 'order' => $o->order_no]),
+                'show_url' => admin_route('orders.show', ['order' => $o->order_no]),
+                'edit_url' => admin_route('orders.edit', ['order' => $o->order_no]),
+                'update_url' => admin_route('orders.update-status', ['order' => $o->order_no]),
             ];
         });
         return view('orders.index', compact('orders', 'ordersJson'));
@@ -52,7 +53,10 @@ class OrderController extends Controller
     public function create()
     {
         $products = Product::with('stocks')->where('is_active', true)->get();
-        return view('orders.create', compact('products'));
+        $patchProduct = Product::with('stocks')->where('product_name', 'like', '%Patch%')->first();
+        $patchPrice = $patchProduct ? (float) $patchProduct->price : 0;
+        $patchStock = $patchProduct ? (int) ($patchProduct->stocks->where('size', 'S')->first()?->quantity ?? 0) : 0;
+        return view('orders.create', compact('products', 'patchPrice', 'patchStock'));
     }
 
     public function store(Request $request)
@@ -62,10 +66,8 @@ class OrderController extends Controller
             'phone' => 'required|string|max:20',
             'address' => 'required|string',
             'products' => 'required|json',
-            'dtf' => 'sometimes|boolean',
             'dtf_name' => 'nullable|string|max:255',
             'dtf_number' => 'nullable|string|max:255',
-            'patch' => 'sometimes|boolean',
             'patch_price' => 'nullable|numeric|min:0',
             'total_amount' => 'required|numeric|min:0',
             'advanced_payment' => 'nullable|numeric|min:0',
@@ -94,6 +96,16 @@ class OrderController extends Controller
         }
         unset($item);
 
+        if ($request->boolean('patch')) {
+            $patchProduct = Product::where('product_name', 'like', '%Patch%')->first();
+            if ($patchProduct) {
+                $patchStock = Stock::where('product_id', $patchProduct->id)->where('size', 'S')->first();
+                if (!$patchStock || $patchStock->quantity < 2) {
+                    $hasOutOfStock = true;
+                }
+            }
+        }
+
         $status = $hasOutOfStock ? 'out_of_stock' : ($validated['status'] ?? 'on_hold');
 
         $order = Order::create([
@@ -115,13 +127,18 @@ class OrderController extends Controller
             'created_by' => Auth::id(),
         ]);
 
+        OrderDraft::where('user_id', Auth::id())->whereNull('order_id')->delete();
+
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} created.");
     }
 
     public function edit(?string $role = null, Order $order)
     {
         $products = Product::with('stocks')->where('is_active', true)->get();
-        return view('orders.edit', compact('order', 'products'));
+        $patchProduct = Product::with('stocks')->where('product_name', 'like', '%Patch%')->first();
+        $patchPrice = $patchProduct ? (float) $patchProduct->price : 0;
+        $patchStock = $patchProduct ? (int) ($patchProduct->stocks->where('size', 'S')->first()?->quantity ?? 0) : 0;
+        return view('orders.edit', compact('order', 'products', 'patchPrice', 'patchStock'));
     }
 
     public function update(?string $role = null, Request $request, Order $order)
@@ -131,10 +148,8 @@ class OrderController extends Controller
             'phone' => 'required|string|max:20',
             'address' => 'required|string',
             'products' => 'required|json',
-            'dtf' => 'sometimes|boolean',
             'dtf_name' => 'nullable|string|max:255',
             'dtf_number' => 'nullable|string|max:255',
-            'patch' => 'sometimes|boolean',
             'patch_price' => 'nullable|numeric|min:0',
             'total_amount' => 'required|numeric|min:0',
             'advanced_payment' => 'nullable|numeric|min:0',
@@ -147,6 +162,7 @@ class OrderController extends Controller
             return back()->withErrors(['products' => 'At least one product is required.'])->withInput();
         }
 
+        $hasOutOfStock = false;
         foreach ($products as &$item) {
             $product = Product::find($item['product_id']);
             if (!$product) {
@@ -154,8 +170,25 @@ class OrderController extends Controller
             }
             $item['product_name'] = $product->product_name;
             $item['price'] = (float) ($item['price'] ?? $product->price);
+
+            $stock = Stock::where('product_id', $product->id)->where('size', $item['size'])->first();
+            if (!$stock || $stock->quantity < (int) $item['quantity']) {
+                $hasOutOfStock = true;
+            }
         }
         unset($item);
+
+        if ($request->boolean('patch')) {
+            $patchProduct = Product::where('product_name', 'like', '%Patch%')->first();
+            if ($patchProduct) {
+                $patchStock = Stock::where('product_id', $patchProduct->id)->where('size', 'S')->first();
+                if (!$patchStock || $patchStock->quantity < 2) {
+                    $hasOutOfStock = true;
+                }
+            }
+        }
+
+        $status = $hasOutOfStock ? 'out_of_stock' : $validated['status'];
 
         $order->update([
             'customer_name' => $validated['customer_name'],
@@ -171,8 +204,10 @@ class OrderController extends Controller
             'advanced_payment' => $validated['advanced_payment'] ?? 0,
             'pending_payment' => $validated['total_amount'] - ($validated['advanced_payment'] ?? 0),
             'payment_method' => $validated['payment_method'],
-            'status' => $validated['status'],
+            'status' => $status,
         ]);
+
+        OrderDraft::where('user_id', Auth::id())->where('order_id', $order->id)->delete();
 
         return redirect(admin_route('orders.show', $order->order_no))->with('success', "Order {$order->order_no} updated.");
     }
