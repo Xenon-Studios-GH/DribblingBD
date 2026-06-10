@@ -39,7 +39,7 @@ class DashboardController extends Controller
             ->groupBy('date')
             ->orderBy('date')
             ->get()
-            ->keyBy('date');
+            ->keyBy(fn($item) => $item->date instanceof \Carbon\Carbon ? $item->date->format('Y-m-d') : $item->date);
 
         $cashflow = collect();
         for ($i = $days; $i >= 0; $i--) {

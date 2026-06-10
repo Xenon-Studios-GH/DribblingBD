@@ -118,23 +118,18 @@
                         </button>
 
                         {{-- Top Stats --}}
-                        @php
-                        $hInc = $cashflowWithBalance->sum('income');
-                        $hExp = $cashflowWithBalance->sum('expense');
-                        $hProfit = $hInc - $hExp;
-                        @endphp
                         <div class="grid grid-cols-3 gap-4 mb-4 flex-shrink-0">
                             <div class="text-center p-3 rounded-lg bg-[#1A1F2E]">
                                 <p class="text-xs text-[#94A3B8]">Income</p>
-                                <p class="text-lg font-bold text-[#22C55E]">৳{{ number_format($hInc) }}</p>
+                                <p class="text-lg font-bold text-[#22C55E]">৳{{ number_format($income, 2) }}</p>
                             </div>
                             <div class="text-center p-3 rounded-lg bg-[#1A1F2E]">
                                 <p class="text-xs text-[#94A3B8]">Expense</p>
-                                <p class="text-lg font-bold text-[#EF4444]">৳{{ number_format($hExp) }}</p>
+                                <p class="text-lg font-bold text-[#EF4444]">৳{{ number_format($expense, 2) }}</p>
                             </div>
                             <div class="text-center p-3 rounded-lg bg-[#1A1F2E]">
                                 <p class="text-xs text-[#94A3B8]">Profit</p>
-                                <p class="text-lg font-bold {{ $hProfit >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">৳{{ number_format($hProfit) }}</p>
+                                <p class="text-lg font-bold {{ $balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">৳{{ number_format($balance, 2) }}</p>
                             </div>
                         </div>
 
