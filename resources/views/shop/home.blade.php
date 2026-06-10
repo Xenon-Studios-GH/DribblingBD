@@ -67,26 +67,7 @@
         </div>
     </section>
 
-    {{-- Categories Strip --}}
-    <section class="py-10 bg-white border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-center gap-4">
-                @php
-                    $categories = [
-                        ['name' => 'All Jerseys', 'slug' => 'all', 'icon' => '👕', 'color' => 'from-[#E85D2C] to-[#F59E0B]'],
-                        ['name' => 'Player Edition', 'slug' => 'player', 'icon' => '⭐', 'color' => 'from-blue-600 to-blue-800'],
-                        ['name' => 'Fan Edition', 'slug' => 'fan', 'icon' => '🎉', 'color' => 'from-green-600 to-green-800'],
-                    ];
-                @endphp
-                @foreach ($categories as $cat)
-                    <a href="{{ route('shop.products.index', $cat['slug'] !== 'all' ? ['type' => $cat['slug']] : []) }}" class="group flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 hover:bg-gradient-to-br {{ $cat['color'] }} hover:text-white transition-all duration-300 min-w-0 flex-1 max-w-48">
-                        <span class="text-2xl group-hover:scale-110 transition-transform">{{ $cat['icon'] }}</span>
-                        <span class="text-xs font-medium text-gray-700 group-hover:text-white">{{ $cat['name'] }}</span>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    </section>
+
 
     {{-- New Arrivals --}}
     <section class="py-14 lg:py-18 bg-white">
@@ -150,9 +131,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl sm:text-3xl font-bold text-white">Custom Jersey Design</h2>
             <p class="mt-2 text-orange-100 text-sm sm:text-base max-w-lg mx-auto">Design your team's unique look. Choose colors, patterns, and add your club name & number.</p>
-            <a href="{{ route('shop.products.index') }}" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#E85D2C] font-semibold text-sm hover:bg-orange-50 transition-colors">
-                Start Designing
-                <i class="fas fa-arrow-right w-4 h-4"></i>
+            <a href="https://wa.me/{{ config('shop.whatsapp_number') }}?text={{ urlencode('Hi, I want to design a custom jersey') }}" target="_blank" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#E85D2C] font-semibold text-sm hover:bg-orange-50 transition-colors">
+                <i class="fab fa-whatsapp w-5 h-5"></i>
+                Design on WhatsApp
             </a>
         </div>
     </section>

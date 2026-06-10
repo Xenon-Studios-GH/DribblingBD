@@ -4,15 +4,15 @@
     x-init="window.addEventListener('scroll', () => scrolled = window.scrollY > 10)"
     :class="scrolled && 'shadow-sm'">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 lg:h-20">
+        <div class="flex items-center justify-between min-h-16 lg:min-h-20">
             {{-- Mobile hamburger --}}
             <button @click="mobileMenuOpen = true" class="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100" aria-label="Open menu">
                 <i class="fas fa-bars w-5 h-5"></i>
             </button>
 
             {{-- Brand --}}
-            <a href="/" class="text-xl lg:text-2xl font-extrabold tracking-tight text-[#E85D2C] flex-shrink-0">
-                Dribbling<span class="text-gray-900">BD</span>
+            <a href="/" class="flex-shrink-0">
+                <img src="{{ asset('images/logo.png') }}" alt="DribblingBD" class="h-24 w-auto">
             </a>
 
             {{-- Search bar (desktop) --}}
@@ -165,7 +165,7 @@
         <div class="absolute inset-0 bg-black/40" @click="mobileMenuOpen = false"></div>
         <div class="relative w-72 max-w-[80vw] h-full bg-white shadow-xl overflow-y-auto" @click.outside="mobileMenuOpen = false">
             <div class="flex items-center justify-between px-4 h-16 border-b border-gray-200">
-                <span class="text-lg font-extrabold text-[#E85D2C]">Dribbling<span class="text-gray-900">BD</span></span>
+                <img src="{{ asset('images/logo.png') }}" alt="DribblingBD" class="h-24 w-auto">
                 <button @click="mobileMenuOpen = false" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100">
                     <i class="fas fa-times w-5 h-5"></i>
                 </button>

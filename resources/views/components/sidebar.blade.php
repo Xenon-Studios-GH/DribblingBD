@@ -6,11 +6,8 @@
     :class="{'translate-x-0': sidebarOpen}">
 
     <!-- Logo -->
-    <div class="flex h-16 shrink-0 items-center gap-3 border-b border-[#232A36] px-4 lg:px-6">
-        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3B82F6]">
-            <i class="fas fa-cubes text-2xl text-white"></i>
-        </div>
-        <span class="text-lg font-bold text-[#E6EDF3]">Dribbling Stock</span>
+    <div class="flex min-h-16 shrink-0 items-center gap-3 border-b border-[#232A36] lg:px-6 py-2">
+        <img src="{{ asset('images/logo.png') }}" alt="DribblingBD" class="h-16 w-auto">
     </div>
 
     <!-- Navigation -->

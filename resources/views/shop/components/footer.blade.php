@@ -22,7 +22,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {{-- Brand --}}
             <div class="sm:col-span-2 lg:col-span-1">
-                <span class="text-xl font-extrabold text-white">Dribbling<span class="text-[#E85D2C]">BD</span></span>
+                <img src="{{ asset('images/logo.png') }}" alt="DribblingBD" class="h-24 w-auto">
                 <p class="mt-3 text-sm text-gray-400 leading-relaxed">
                     Bangladesh's premier destination for premium jerseys. From club kits to national team classics, we bring the pitch to your doorstep.
                 </p>
