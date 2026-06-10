@@ -25,7 +25,7 @@ class StockFilterController extends Controller
         }
 
         if ($filter === 'out_of_stock') {
-            $query->having('total_stock', '=', 0);
+            $query->whereRaw('(SELECT COALESCE(SUM(quantity), 0) FROM stocks WHERE product_id = products.id) = 0');
         }
 
         $sort = match ($filter) {

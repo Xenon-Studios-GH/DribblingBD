@@ -157,7 +157,7 @@
         </div>
     </section>
 
-    {{-- Top Selling --}}
+    {{-- Trending --}}
     <section class="py-14 lg:py-18 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between mb-8">
@@ -171,7 +171,7 @@
                 </a>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                @foreach ($topSelling as $product)
+                @foreach ($trending as $product)
                     @php $firstImage = $product->project?->images->first(); @endphp
                     <div class="group rounded-2xl bg-white border border-gray-200 hover:border-[#E85D2C]/30 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 overflow-hidden" x-data="{ added: false }">
                         <a href="{{ route('shop.products.show', [$product->product_code, $product->slug]) }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">

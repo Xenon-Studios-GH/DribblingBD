@@ -14,13 +14,12 @@ class HomeController extends Controller
             ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
             ->latest('updated_at')->take(8)->get();
 
-        $topSelling = Product::with('project')
+        $trending = Product::with('project')
             ->where('is_active', true)
             ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
-            ->withSum('stocks', 'quantity')
-            ->orderByDesc('stocks_sum_quantity')
+            ->latest('updated_at')
             ->take(8)->get();
 
-        return view('shop.home', compact('newArrivals', 'topSelling'));
+        return view('shop.home', compact('newArrivals', 'trending'));
     }
 }

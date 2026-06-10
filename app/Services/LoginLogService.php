@@ -29,7 +29,7 @@ class LoginLogService
         ]);
     }
 
-    public function updateLogout(int $userId): void
+    public function updateLogout(?int $userId): void
     {
         LoginLog::where('user_id', $userId)
             ->whereNull('logout_at')

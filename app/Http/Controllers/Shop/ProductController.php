@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -86,7 +87,8 @@ class ProductController extends Controller
             return response()->json([]);
         }
 
-        $products = Product::where('is_active', true)
+        $products = Product::with('project')
+            ->where('is_active', true)
             ->where(function ($query) use ($q) {
                 $query->where('product_name', 'like', "%{$q}%")
                   ->orWhere('product_code', 'like', "%{$q}%");
