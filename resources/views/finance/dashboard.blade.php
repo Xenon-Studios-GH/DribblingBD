@@ -139,10 +139,27 @@
                         </div>
 
                         {{-- Charts Area --}}
-                        <div class="flex-1 grid grid-cols-[1fr_auto] gap-4 min-h-0">
-                            {{-- Big Chart --}}
-                            <div class="min-h-0">
-                                <canvas id="hologramBigChart" class="w-full h-full"></canvas>
+                        <div class="flex-1 grid grid-cols-[1fr_auto] gap-4 min-h-0" style="grid-template-rows: 1fr">
+                            {{-- Big Table --}}
+                            <div class="min-h-0 overflow-hidden rounded-lg border border-[#232A36] flex flex-col">
+                                <div class="flex-shrink-0 grid grid-cols-5 gap-2 px-4 py-2 text-xs font-medium text-[#94A3B8] bg-[#1A1F2E] border-b border-[#232A36]">
+                                    <span>Date</span>
+                                    <span class="text-right text-[#22C55E]">Income</span>
+                                    <span class="text-right text-[#EF4444]">Expense</span>
+                                    <span class="text-right text-[#3B82F6]">Net</span>
+                                    <span class="text-right">Balance</span>
+                                </div>
+                                <div class="flex-1 overflow-y-auto text-xs">
+                                    @foreach($cashflowWithBalance as $row)
+                                    <div class="grid grid-cols-5 gap-2 px-4 py-1.5 border-b border-[#232A36]/50 last:border-0 hover:bg-[#1C2333] transition-colors">
+                                        <span class="text-[#6B7280]">{{ \Carbon\Carbon::parse($row['date'])->format('M d') }}</span>
+                                        <span class="text-right text-[#22C55E] font-medium">৳{{ number_format($row['income']) }}</span>
+                                        <span class="text-right text-[#EF4444] font-medium">৳{{ number_format($row['expense']) }}</span>
+                                        <span class="text-right {{ $row['net'] >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }} font-medium">৳{{ number_format($row['net']) }}</span>
+                                        <span class="text-right text-[#E6EDF3] font-medium">৳{{ number_format($row['running_balance']) }}</span>
+                                    </div>
+                                    @endforeach
+                                </div>
                             </div>
                             {{-- Small Pies --}}
                             <div class="flex flex-col gap-4 w-56 flex-shrink-0">
@@ -248,26 +265,6 @@ function initHologramCharts() {
 destroyHologramCharts();
 try {
 var hc = _hologramCharts;
-hc.push(new Chart(document.getElementById('hologramBigChart'), {
-    type: 'line',
-    data: {
-        labels: {!! json_encode($cashflowWithBalance->pluck('date')) !!},
-        datasets: [
-            { label: 'Income', data: {!! json_encode($cashflowWithBalance->pluck('income')) !!}, borderColor: '#22C55E', backgroundColor: 'rgba(34,197,94,0.15)', fill: true, tension: 0.3, pointRadius: 0 },
-            { label: 'Expense', data: {!! json_encode($cashflowWithBalance->pluck('expense')) !!}, borderColor: '#EF4444', backgroundColor: 'rgba(239,68,68,0.15)', fill: true, tension: 0.3, pointRadius: 0 },
-            { label: 'Net', data: {!! json_encode($cashflowWithBalance->pluck('net')) !!}, borderColor: '#3B82F6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, pointRadius: 0, borderDash: [4,4] },
-        ],
-    },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        animation: { duration: 3000, easing: 'easeOutQuart' },
-        plugins: { legend: { labels: { color: '#94A3B8', boxWidth: 12, padding: 8 } } },
-        scales: {
-            x: { ticks: { color: '#6B7280', maxTicksLimit: 10 }, grid: { color: '#232A36' } },
-            y: { ticks: { color: '#6B7280' }, grid: { color: '#232A36' } },
-        },
-    },
-}));
 hc.push(new Chart(document.getElementById('hologramIncomePie'), {
     type: 'doughnut',
     data: {
