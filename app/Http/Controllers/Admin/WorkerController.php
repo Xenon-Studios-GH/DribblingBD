@@ -21,7 +21,7 @@ class WorkerController extends Controller
     public function index()
     {
         $workers = User::where('role', 'staff')->latest()->paginate(20);
-        $admins = User::whereIn('role', ['superadmin', 'admin'])->latest()->get();
+        $admins = User::whereIn('role', ['superadmin', 'admin'])->latest()->paginate(20);
         return view('workers.index', compact('workers', 'admins'));
     }
 
@@ -32,11 +32,16 @@ class WorkerController extends Controller
 
     public function store(Request $request)
     {
+        $allowedRoles = ['staff', 'admin'];
+        if (auth()->user()->role === 'superadmin') {
+            $allowedRoles[] = 'superadmin';
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'role' => ['required', Rule::in(['staff', 'admin', 'superadmin'])],
+            'role' => ['required', Rule::in($allowedRoles)],
             'password' => ['required', 'string', 'min:8'],
         ]);
 

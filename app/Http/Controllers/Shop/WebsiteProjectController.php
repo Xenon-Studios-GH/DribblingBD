@@ -50,7 +50,7 @@ class WebsiteProjectController extends Controller
         $relatedProjects = WebsiteProject::active()
             ->where('category_id', $project->category_id)
             ->where('id', '!=', $project->id)
-            ->with('images')
+            ->with(['images', 'product'])
             ->take(4)
             ->get();
 

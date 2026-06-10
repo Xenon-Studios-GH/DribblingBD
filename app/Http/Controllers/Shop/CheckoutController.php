@@ -32,18 +32,16 @@ class CheckoutController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        $shipping = [
-            'area' => $data['area'] ?? '',
-            'postal' => $data['postal'] ?? '',
-            'notes' => $data['notes'] ?? '',
-        ];
-
         $client->update([
             'name' => $data['name'],
             'phone' => $data['phone'],
             'address' => $data['address'],
             'city' => $data['city'],
-            'shipping_address' => json_encode($shipping),
+            'shipping_address' => [
+                'area' => $data['area'] ?? '',
+                'postal' => $data['postal'] ?? '',
+                'notes' => $data['notes'] ?? '',
+            ],
         ]);
 
         return response()->json(['success' => true]);

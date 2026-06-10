@@ -10,13 +10,19 @@ class StockSearchController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $query = $request->get('q');
+        $query = $request->get('q', '');
 
-        $products = Product::where('product_code', 'like', "%{$query}%")
-            ->orWhere('product_name', 'like', "%{$query}%")
-            ->with('stocks')
-            ->latest('updated_at')
-            ->paginate(20);
+        if (empty($query)) {
+            $products = Product::with('stocks')
+                ->latest('updated_at')
+                ->paginate(20);
+        } else {
+            $products = Product::where('product_code', 'like', "%{$query}%")
+                ->orWhere('product_name', 'like', "%{$query}%")
+                ->with('stocks')
+                ->latest('updated_at')
+                ->paginate(20);
+        }
 
         $html = view('stock-management._table', compact('products'))->render();
 

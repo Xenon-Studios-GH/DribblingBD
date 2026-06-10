@@ -84,6 +84,8 @@ class StockInController extends Controller
             'price' => ['required_if:product_id,new', 'numeric', 'min:0'],
         ]);
 
+        $productId = $validated['product_id'] ?? null;
+
         try {
             $product = DB::transaction(function () use ($validated) {
                 if ($validated['product_id'] === 'new') {
@@ -91,6 +93,7 @@ class StockInController extends Controller
                         'product_code' => Product::generateProductCode(),
                         'product_name' => $validated['product_name'],
                         'price' => $validated['price'],
+                        'is_active' => true,
                     ]);
 
                     $this->workLogService->log(
@@ -111,7 +114,7 @@ class StockInController extends Controller
         } catch (\InvalidArgumentException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         } catch (\Throwable $e) {
-            Log::error('Stock in confirm failed', ['error' => $e->getMessage(), 'product_id' => $product->id ?? null]);
+            Log::error('Stock in confirm failed', ['error' => $e->getMessage(), 'product_id' => $productId]);
             return response()->json(['success' => false, 'message' => 'An unexpected error occurred.'], 500);
         }
     }

@@ -5,16 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class StockFilterController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $subQuery = '(SELECT COALESCE(SUM(quantity), 0) FROM stocks WHERE product_id = products.id)';
-
         $query = Product::select('products.*')
-            ->selectRaw("{$subQuery} as total_stock")
+            ->selectRaw('COALESCE((SELECT SUM(quantity) FROM stocks WHERE product_id = products.id), 0) as total_stock')
             ->with('stocks');
 
         $filter = $request->get('filter');
@@ -28,7 +25,7 @@ class StockFilterController extends Controller
         }
 
         if ($filter === 'out_of_stock') {
-            $query->whereRaw("{$subQuery} = 0");
+            $query->having('total_stock', '=', 0);
         }
 
         $sort = match ($filter) {
@@ -38,8 +35,8 @@ class StockFilterController extends Controller
         };
 
         $query = match ($sort) {
-            'stock_low' => $query->orderBy(DB::raw($subQuery)),
-            'stock_high' => $query->orderByDesc(DB::raw($subQuery)),
+            'stock_low' => $query->orderBy('total_stock'),
+            'stock_high' => $query->orderByDesc('total_stock'),
             default => $query->orderByRaw('COALESCE((SELECT MAX(updated_at) FROM stocks WHERE product_id = products.id), products.updated_at) DESC'),
         };
 
