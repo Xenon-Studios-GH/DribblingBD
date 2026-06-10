@@ -135,33 +135,35 @@ class OrderController extends Controller
             }
         }
 
-        $status = $hasOutOfStock ? 'out_of_stock' : ($validated['status'] ?? 'on_hold');
+        $order = DB::transaction(function () use ($validated, $products, $hasOutOfStock, $request) {
+            $order = Order::create([
+                'order_no' => Order::generateOrderNo(),
+                'customer_name' => $validated['customer_name'],
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'products' => $products,
+                'dtf' => $request->boolean('dtf'),
+                'dtf_name' => $validated['dtf_name'] ?? null,
+                'dtf_number' => $validated['dtf_number'] ?? null,
+                'patch' => $request->boolean('patch'),
+                'patch_price' => $validated['patch_price'] ?? 0,
+                'total_amount' => $validated['total_amount'],
+                'advanced_payment' => $validated['advanced_payment'] ?? 0,
+                'pending_payment' => $validated['total_amount'] - ($validated['advanced_payment'] ?? 0),
+                'payment_method' => $validated['payment_method'],
+                'status' => $hasOutOfStock ? 'out_of_stock' : ($validated['status'] ?? 'on_hold'),
+                'created_by' => Auth::id(),
+            ]);
 
-        $order = Order::create([
-            'order_no' => Order::generateOrderNo(),
-            'customer_name' => $validated['customer_name'],
-            'phone' => $validated['phone'],
-            'address' => $validated['address'],
-            'products' => $products,
-            'dtf' => $request->boolean('dtf'),
-            'dtf_name' => $validated['dtf_name'] ?? null,
-            'dtf_number' => $validated['dtf_number'] ?? null,
-            'patch' => $request->boolean('patch'),
-            'patch_price' => $validated['patch_price'] ?? 0,
-            'total_amount' => $validated['total_amount'],
-            'advanced_payment' => $validated['advanced_payment'] ?? 0,
-            'pending_payment' => $validated['total_amount'] - ($validated['advanced_payment'] ?? 0),
-            'payment_method' => $validated['payment_method'],
-            'status' => $status,
-            'created_by' => Auth::id(),
-        ]);
+            OrderDraft::where('user_id', Auth::id())->whereNull('order_id')->delete();
 
-        OrderDraft::where('user_id', Auth::id())->whereNull('order_id')->delete();
+            return $order;
+        });
 
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} created.");
     }
 
-    public function edit(?string $role = null, Order $order)
+    public function edit(string $role, Order $order)
     {
         $products = Product::with('stocks')->where('is_active', true)->get();
         $patchProduct = Product::with('stocks')->where('product_name', 'like', '%Patch%')->first();
@@ -170,7 +172,7 @@ class OrderController extends Controller
         return view('orders.edit', compact('order', 'products', 'patchPrice', 'patchStock'));
     }
 
-    public function update(?string $role = null, Request $request, Order $order)
+    public function update(string $role, Request $request, Order $order)
     {
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
@@ -241,12 +243,12 @@ class OrderController extends Controller
         return redirect(admin_route('orders.show', $order->order_no))->with('success', "Order {$order->order_no} updated.");
     }
 
-    public function show(?string $role = null, Order $order)
+    public function show(string $role, Order $order)
     {
         return view('orders.show', compact('order'));
     }
 
-    public function updateStatus(?string $role = null, Request $request, Order $order)
+    public function updateStatus(string $role, Request $request, Order $order)
     {
         $request->validate([
             'status' => 'required|in:on_hold,packed,picked,delivered',
@@ -267,7 +269,8 @@ class OrderController extends Controller
                             $product,
                             $item['size'],
                             (int) $item['quantity'],
-                            "Order {$order->order_no}"
+                            "Order {$order->order_no}",
+                            Auth::id()
                         );
                     } catch (\InvalidArgumentException $e) {
                         DB::rollBack();
@@ -277,19 +280,23 @@ class OrderController extends Controller
 
                 if ($order->patch) {
                     $patchProduct = Product::where('product_name', 'like', '%Patch%')->first();
-                    if ($patchProduct) {
-                        try {
-                            $this->stockService->stockOut(
-                                $patchProduct,
-                                'S',
-                                2,
-                                "Order {$order->order_no} (patch)"
-                            );
-                        } catch (\InvalidArgumentException $e) {
-                            Log::warning("Patch stock out failed for order {$order->order_no}: {$e->getMessage()}");
-                        }
-                    } else {
-                        Log::warning("No patch product found for order {$order->order_no}. Create a product with 'Patch' in the name.");
+                    if (!$patchProduct) {
+                        DB::rollBack();
+                        Log::error("No patch product found for order {$order->order_no}. Create a product with 'Patch' in the name.");
+                        return back()->withErrors(['status' => 'No patch product found. Cannot fulfill order.']);
+                    }
+
+                    try {
+                        $this->stockService->stockOut(
+                            $patchProduct,
+                            'S',
+                            2,
+                            "Order {$order->order_no} (patch)",
+                            Auth::id()
+                        );
+                    } catch (\InvalidArgumentException $e) {
+                        DB::rollBack();
+                        return back()->withErrors(['status' => "Patch stock out failed: " . $e->getMessage()]);
                     }
                 }
             }
@@ -305,7 +312,7 @@ class OrderController extends Controller
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} marked as {$newStatus}.");
     }
 
-    public function productStock(?string $role = null, $productId)
+    public function productStock(string $role, $productId)
     {
         $product = Product::with('stocks')->findOrFail($productId);
         $stockData = [];
