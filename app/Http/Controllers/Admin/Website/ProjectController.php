@@ -54,7 +54,7 @@ class ProjectController extends Controller
         return view('website.projects.index', compact('products', 'categories'));
     }
 
-    public function createFromProduct(?string $role = null, Product $product)
+    public function createFromProduct(string $role, Product $product)
     {
         if ($product->project) {
             return redirect(admin_route('website.projects.edit', $product->project));
@@ -71,14 +71,14 @@ class ProjectController extends Controller
         return redirect(admin_route('website.projects.edit', $project));
     }
 
-    public function edit(?string $role = null, WebsiteProject $project)
+    public function edit(string $role, WebsiteProject $project)
     {
         $project->load(['images', 'product']);
         $categories = WebsiteCategory::with('parent')->orderBy('name')->get();
         return view('website.projects.form', compact('project', 'categories'));
     }
 
-    public function update(Request $request, ?string $role = null, WebsiteProject $project)
+    public function update(Request $request, string $role, WebsiteProject $project)
     {
         $validated = $request->validate([
             'regular_price' => 'required|numeric|min:0',
@@ -108,7 +108,7 @@ class ProjectController extends Controller
         return redirect(admin_route('website.projects'))->with('success', 'Project updated.');
     }
 
-    public function toggleActive(?string $role = null, WebsiteProject $project)
+    public function toggleActive(string $role, WebsiteProject $project)
     {
         $project->update(['is_active' => !$project->is_active]);
 

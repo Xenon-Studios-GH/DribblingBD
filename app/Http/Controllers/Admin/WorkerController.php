@@ -61,12 +61,12 @@ class WorkerController extends Controller
             ->with('success', 'Worker created successfully.');
     }
 
-    public function edit(?string $role = null, User $worker)
+    public function edit(string $role, User $worker)
     {
         return view('workers.edit', compact('worker'));
     }
 
-    public function update(Request $request, ?string $role = null, User $worker)
+    public function update(Request $request, string $role, User $worker)
     {
         if ($worker->id === auth()->id() && $request->role !== $worker->role) {
             return redirect(admin_route('workers.index'))->with('error', 'You cannot change your own role.');
@@ -98,7 +98,7 @@ class WorkerController extends Controller
         return redirect(admin_route('workers.index'))->with('success', 'Worker updated successfully.');
     }
 
-    public function toggleStatus(?string $role = null, User $worker)
+    public function toggleStatus(string $role, User $worker)
     {
         if ($worker->id === auth()->id()) {
             return redirect(admin_route('workers.index'))->with('error', 'You cannot deactivate your own account.');

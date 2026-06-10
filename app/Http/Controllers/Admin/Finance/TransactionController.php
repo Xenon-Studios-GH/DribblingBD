@@ -70,13 +70,13 @@ class TransactionController extends Controller
         return redirect(admin_route('finance.transactions'))->with('success', 'Transaction created.');
     }
 
-    public function edit(?string $role = null, FinanceTransaction $transaction)
+    public function edit(string $role, FinanceTransaction $transaction)
     {
         $categories = FinanceCategory::active()->get();
         return view('finance.transactions.form', compact('transaction', 'categories'));
     }
 
-    public function update(Request $request, ?string $role = null, FinanceTransaction $transaction)
+    public function update(Request $request, string $role, FinanceTransaction $transaction)
     {
         $validated = $request->validate([
             'type' => 'required|in:income,expense',
@@ -109,7 +109,7 @@ class TransactionController extends Controller
         return redirect(admin_route('finance.transactions'))->with('success', 'Transaction updated.');
     }
 
-    public function destroy(?string $role = null, FinanceTransaction $transaction)
+    public function destroy(string $role, FinanceTransaction $transaction)
     {
         $transaction->delete();
 
