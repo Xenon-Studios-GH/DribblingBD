@@ -43,6 +43,8 @@ $classes = $active
     <i class="fas fa-file-alt w-5 h-5"></i>
     @elseif ($icon === 'bell')
     <i class="fas fa-bell w-5 h-5"></i>
+    @elseif ($icon === 'order')
+    <i class="fas fa-receipt w-5 h-5"></i>
     @endif
     <span>{{ $slot }}</span>
 </a>

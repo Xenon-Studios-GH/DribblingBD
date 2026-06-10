@@ -52,6 +52,16 @@
             Recent Activity
         </x-nav-link>
         @endif
+        <div class="my-3 border-t border-[#232A36]"></div>
+        <p class="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Orders</p>
+
+        <x-nav-link href="{{ admin_route('orders.index') }}" :active="request()->routeIs('orders.*')" icon="order">
+            All Orders
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('orders.create') }}" :active="request()->routeIs('orders.create')" icon="plus">
+            New Order
+        </x-nav-link>
+
         @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
         <div class="my-3 border-t border-[#232A36]"></div>
         <p class="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Finance</p>

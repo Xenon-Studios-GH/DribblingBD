@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\LoginLogController;
 use App\Http\Controllers\Admin\WorkLogController;
+use App\Http\Controllers\Admin\OrderController;
 
 Route::prefix('auth/dribblingbd')->middleware('guest')->group(function () {
     Route::get('authentication', fn() => view('auth.authentication'))->name('authentication');
@@ -46,6 +47,14 @@ Route::middleware('auth')->group(function () {
         Route::get('stock/search', StockSearchController::class)->name('stock.search');
         Route::get('stock/filter', StockFilterController::class)->name('stock.filter');
         Route::get('stock-activity', StockActivityController::class)->name('stock.activity');
+
+        // Orders
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
+        Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
+        Route::get('orders/product-stock/{product}', [OrderController::class, 'productStock'])->name('orders.product-stock');
+        Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
 
         // Stock In
         Route::get('stockin', [StockInController::class, 'index'])->name('stock.in');
