@@ -107,7 +107,10 @@
                 </div>
 
                 {{-- Full Hologram Overlay --}}
-                <div x-show="hologram" x-cloak x-transition.opacity.duration.300ms class="fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">
+                <div x-show="hologram" x-cloak x-transition.opacity.duration.300ms
+                    @click.self="destroyHologramCharts(); hologram = false"
+                    @keydown.escape.window="destroyHologramCharts(); hologram = false"
+                    class="fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">
                     <div class="relative w-[90vw] h-[85vh] max-w-6xl bg-[#0F1117] rounded-2xl border border-[#232A36] p-6 flex flex-col">
                         {{-- Close --}}
                         <button @click="destroyHologramCharts(); hologram = false" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-[#232A36] hover:bg-[#EF4444] text-[#94A3B8] hover:text-white transition-colors z-10">
@@ -142,14 +145,17 @@
                                 <canvas id="hologramBigChart" class="w-full h-full"></canvas>
                             </div>
                             {{-- Small Pies --}}
-                            <div class="flex flex-col gap-4 w-48 flex-shrink-0">
-                                <div class="flex-1 bg-[#1A1F2E] rounded-lg p-3 flex flex-col items-center justify-center min-h-0">
-                                    <p class="text-xs text-[#22C55E] font-medium mb-2">Income</p>
-                                    <div class="w-24 h-24"><canvas id="hologramIncomePie"></canvas></div>
-                                </div>
-                                <div class="flex-1 bg-[#1A1F2E] rounded-lg p-3 flex flex-col items-center justify-center min-h-0">
-                                    <p class="text-xs text-[#EF4444] font-medium mb-2">Expense</p>
-                                    <div class="w-24 h-24"><canvas id="hologramExpensePie"></canvas></div>
+                            <div class="flex flex-col gap-4 w-56 flex-shrink-0">
+                                <div class="flex-1 bg-[#1A1F2E] rounded-lg p-3 flex items-center justify-center gap-4 min-h-0">
+                                    <div class="flex flex-col items-center gap-2 min-w-0 flex-1">
+                                        <p class="text-xs text-[#22C55E] font-medium">Income</p>
+                                        <div class="w-24 h-24"><canvas id="hologramIncomePie"></canvas></div>
+                                    </div>
+                                    <div class="w-px h-16 bg-[#232A36]"></div>
+                                    <div class="flex flex-col items-center gap-2 min-w-0 flex-1">
+                                        <p class="text-xs text-[#EF4444] font-medium">Expense</p>
+                                        <div class="w-24 h-24"><canvas id="hologramExpensePie"></canvas></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -242,12 +248,6 @@ function initHologramCharts() {
 destroyHologramCharts();
 try {
 var hc = _hologramCharts;
-var bigData = {
-    labels: {!! json_encode($cashflowWithBalance->pluck('date')) !!},
-    income: {!! json_encode($cashflowWithBalance->pluck('income')) !!},
-    expense: {!! json_encode($cashflowWithBalance->pluck('expense')) !!},
-    net: {!! json_encode($cashflowWithBalance->pluck('net')) !!},
-};
 hc.push(new Chart(document.getElementById('hologramBigChart'), {
     type: 'line',
     data: {
