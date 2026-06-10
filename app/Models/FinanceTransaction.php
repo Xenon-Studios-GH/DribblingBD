@@ -20,6 +20,7 @@ class FinanceTransaction extends Model
     {
         return [
             'date' => 'date',
+            'amount' => 'decimal:2',
         ];
     }
 

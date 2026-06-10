@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Client extends Model
 {
@@ -39,6 +40,7 @@ class Client extends Model
             'wishlist' => 'array',
             'cart' => 'array',
             'orders' => 'array',
+            'shipping_address' => 'array',
             'date_of_birth' => 'date',
             'status' => 'boolean',
             'newsletter' => 'boolean',
@@ -53,10 +55,11 @@ class Client extends Model
 
     public static function generateUsercode(): string
     {
-        do {
-            $code = 'dribbler-' . str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        } while (static::where('usercode', $code)->lockForUpdate()->exists());
-
-        return $code;
+        return DB::transaction(function () {
+            do {
+                $code = 'dribbler-' . str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            } while (static::where('usercode', $code)->lockForUpdate()->exists());
+            return $code;
+        });
     }
 }

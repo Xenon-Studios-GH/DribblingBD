@@ -35,6 +35,10 @@ class Order extends Model
             'products' => 'array',
             'dtf' => 'boolean',
             'patch' => 'boolean',
+            'total_amount' => 'decimal:2',
+            'advanced_payment' => 'decimal:2',
+            'pending_payment' => 'decimal:2',
+            'patch_price' => 'decimal:2',
         ];
     }
 
@@ -45,9 +49,11 @@ class Order extends Model
 
     public static function generateOrderNo(): string
     {
-        $last = static::lockForUpdate()->latest('id')->value('order_no');
-        $next = $last ? ((int) substr($last, 15)) + 1 : 1;
-        return 'DribblingOrder-' . str_pad($next, 5, '0', STR_PAD_LEFT);
+        return DB::transaction(function () {
+            $last = static::lockForUpdate()->latest('id')->value('order_no');
+            $next = $last ? ((int) substr($last, 15)) + 1 : 1;
+            return 'DribblingOrder-' . str_pad($next, 5, '0', STR_PAD_LEFT);
+        });
     }
 
     public function creator()

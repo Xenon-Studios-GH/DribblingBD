@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -21,14 +22,17 @@ class Product extends Model
     {
         return [
             'is_active' => 'boolean',
+            'price' => 'decimal:2',
         ];
     }
 
     public static function generateProductCode(): string
     {
-        $last = static::lockForUpdate()->latest('id')->value('product_code');
-        $next = $last ? ((int) substr($last, 10)) + 1 : 1;
-        return 'Dribbling-' . str_pad($next, 4, '0', STR_PAD_LEFT);
+        return DB::transaction(function () {
+            $last = static::lockForUpdate()->latest('id')->value('product_code');
+            $next = $last ? ((int) substr($last, 10)) + 1 : 1;
+            return 'Dribbling-' . str_pad($next, 4, '0', STR_PAD_LEFT);
+        });
     }
 
     public function stocks()

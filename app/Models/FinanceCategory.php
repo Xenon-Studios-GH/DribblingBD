@@ -13,6 +13,13 @@ class FinanceCategory extends Model
         'created_by', 'updated_by',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
