@@ -53,6 +53,8 @@ Route::middleware('auth')->group(function () {
         Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
         Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
         Route::get('orders/product-stock/{product}', [OrderController::class, 'productStock'])->name('orders.product-stock');
+        Route::get('orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
+        Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
 

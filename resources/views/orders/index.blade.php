@@ -139,26 +139,10 @@
                                             </span>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-3 text-center">
-                                            <div class="flex items-center gap-1 justify-center">
-                                                <a x-bind:href="order.show_url"
-                                                   class="rounded bg-[#232A36] px-1.5 py-0.5 text-[10px] text-[#94A3B8] hover:bg-[#1C2333] hover:text-[#E6EDF3] transition-colors">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <form method="POST" x-bind:action="order.update_url" class="flex items-center gap-1">
-                                                    @csrf
-                                                    <select name="status" required
-                                                            class="rounded border border-[#232A36] bg-[#0F1117] px-1.5 py-0.5 text-[10px] text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
-                                                        <option value="on_hold" x-bind:selected="order.status==='on_hold'">Hold</option>
-                                                        <option value="packed" x-bind:selected="order.status==='packed'">Packed</option>
-                                                        <option value="picked" x-bind:selected="order.status==='picked'">Picked</option>
-                                                        <option value="delivered" x-bind:selected="order.status==='delivered'">Done</option>
-                                                    </select>
-                                                    <button type="submit"
-                                                            class="rounded bg-[#3B82F6] px-1.5 py-0.5 text-[10px] text-white hover:bg-[#2563EB] transition-colors">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
+                                            <a x-bind:href="order.edit_url"
+                                               class="inline-flex items-center gap-1.5 rounded-xl bg-[#3B82F6]/10 px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/20 transition-colors">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
                                         </td>
                                     </tr>
                                 </template>

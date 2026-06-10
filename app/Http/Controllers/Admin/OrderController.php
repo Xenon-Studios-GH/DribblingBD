@@ -42,6 +42,7 @@ class OrderController extends Controller
                 'patch' => (bool) $o->patch,
                 'date_formatted' => $o->created_at->format('d M, h:i A'),
                 'show_url' => route('orders.show', ['role' => auth()->user()->role, 'order' => $o->order_no]),
+                'edit_url' => route('orders.edit', ['role' => auth()->user()->role, 'order' => $o->order_no]),
                 'update_url' => route('orders.update-status', ['role' => auth()->user()->role, 'order' => $o->order_no]),
             ];
         });
@@ -117,12 +118,71 @@ class OrderController extends Controller
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} created.");
     }
 
-    public function show(Order $order)
+    public function edit(?string $role = null, Order $order)
+    {
+        $products = Product::with('stocks')->where('is_active', true)->get();
+        return view('orders.edit', compact('order', 'products'));
+    }
+
+    public function update(?string $role = null, Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string',
+            'products' => 'required|json',
+            'dtf' => 'sometimes|boolean',
+            'dtf_name' => 'nullable|string|max:255',
+            'dtf_number' => 'nullable|string|max:255',
+            'patch' => 'sometimes|boolean',
+            'patch_price' => 'nullable|numeric|min:0',
+            'total_amount' => 'required|numeric|min:0',
+            'advanced_payment' => 'nullable|numeric|min:0',
+            'payment_method' => 'required|in:bkash,nagad,rocket,cod,cash',
+            'status' => 'required|in:on_hold,packed,picked,delivered,out_of_stock',
+        ]);
+
+        $products = json_decode($validated['products'], true);
+        if (!is_array($products) || empty($products)) {
+            return back()->withErrors(['products' => 'At least one product is required.'])->withInput();
+        }
+
+        foreach ($products as &$item) {
+            $product = Product::find($item['product_id']);
+            if (!$product) {
+                return back()->withErrors(['products' => "Product ID {$item['product_id']} not found."])->withInput();
+            }
+            $item['product_name'] = $product->product_name;
+            $item['price'] = (float) ($item['price'] ?? $product->price);
+        }
+        unset($item);
+
+        $order->update([
+            'customer_name' => $validated['customer_name'],
+            'phone' => $validated['phone'],
+            'address' => $validated['address'],
+            'products' => $products,
+            'dtf' => $request->boolean('dtf'),
+            'dtf_name' => $validated['dtf_name'] ?? null,
+            'dtf_number' => $validated['dtf_number'] ?? null,
+            'patch' => $request->boolean('patch'),
+            'patch_price' => $validated['patch_price'] ?? 0,
+            'total_amount' => $validated['total_amount'],
+            'advanced_payment' => $validated['advanced_payment'] ?? 0,
+            'pending_payment' => $validated['total_amount'] - ($validated['advanced_payment'] ?? 0),
+            'payment_method' => $validated['payment_method'],
+            'status' => $validated['status'],
+        ]);
+
+        return redirect(admin_route('orders.show', $order->order_no))->with('success', "Order {$order->order_no} updated.");
+    }
+
+    public function show(?string $role = null, Order $order)
     {
         return view('orders.show', compact('order'));
     }
 
-    public function updateStatus(Request $request, Order $order)
+    public function updateStatus(?string $role = null, Request $request, Order $order)
     {
         $request->validate([
             'status' => 'required|in:on_hold,packed,picked,delivered',
@@ -181,7 +241,7 @@ class OrderController extends Controller
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} marked as {$newStatus}.");
     }
 
-    public function productStock($productId)
+    public function productStock(?string $role = null, $productId)
     {
         $product = Product::with('stocks')->findOrFail($productId);
         $stockData = [];
