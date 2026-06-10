@@ -569,15 +569,15 @@
 
                 submitForm() {
                     if (!this.customer_name || !this.phone || !this.address) {
-                        alert('Please fill in customer name, phone, and address.');
+                        Swal.fire({ icon: 'warning', title: 'Missing fields', text: 'Please fill in customer name, phone, and address.', background: '#161B22', color: '#E6EDF3', confirmButtonColor: '#3B82F6' });
                         return;
                     }
                     if (!this.products.some(p => p.product_id)) {
-                        alert('Please add at least one product.');
+                        Swal.fire({ icon: 'warning', title: 'No products', text: 'Please add at least one product.', background: '#161B22', color: '#E6EDF3', confirmButtonColor: '#3B82F6' });
                         return;
                     }
                     if (!this.payment_method) {
-                        alert('Please select a payment method.');
+                        Swal.fire({ icon: 'warning', title: 'Payment method', text: 'Please select a payment method.', background: '#161B22', color: '#E6EDF3', confirmButtonColor: '#3B82F6' });
                         return;
                     }
                     this.stopAutoSave();
