@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,6 +17,42 @@ class CheckoutController extends Controller
             $client = Auth::user()->client;
         }
         return view('shop.checkout.index', compact('client'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+            'address' => ['required', 'string', 'max:1000'],
+            'city' => ['required', 'string', 'max:100'],
+            'area' => ['nullable', 'string', 'max:100'],
+            'postal' => ['nullable', 'string', 'max:20'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+            'products' => ['required', 'json'],
+            'total_amount' => ['required', 'numeric', 'min:0'],
+            'payment_method' => ['required', 'string', 'in:bkash,nagad,rocket,cod,cash'],
+        ]);
+
+        $order = Order::create([
+            'order_no' => Order::generateOrderNo(),
+            'customer_name' => $validated['customer_name'],
+            'phone' => $validated['phone'],
+            'address' => trim(implode(', ', array_filter([
+                $validated['address'],
+                $validated['city'],
+                $validated['area'] ?? null,
+                $validated['postal'] ?? null,
+            ])), ', '),
+            'products' => json_decode($validated['products'], true),
+            'total_amount' => $validated['total_amount'],
+            'payment_method' => $validated['payment_method'],
+            'status' => 'on_hold',
+            'created_by' => Auth::id(),
+        ]);
+
+        return redirect(route('shop.checkout.processing'))
+            ->with('order_no', $order->order_no);
     }
 
     public function saveAddress(Request $request)

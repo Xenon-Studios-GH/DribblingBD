@@ -29,6 +29,7 @@ Route::name('shop.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::put('user/{usercode}/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('user/checkout/address', [CheckoutController::class, 'saveAddress'])->name('checkout.address.save');
+        Route::post('user/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     });
 
     Route::get('faq', [FaqController::class, 'index'])->name('faq');
