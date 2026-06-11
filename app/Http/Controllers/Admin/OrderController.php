@@ -17,6 +17,9 @@ class OrderController extends Controller
 {
     protected StockService $stockService;
 
+    private const PATCH_PRODUCT_QUERY = '%Patch%';
+    private const PATCH_STOCK_QUANTITY = 2;
+
     public function __construct(StockService $stockService)
     {
         $this->stockService = $stockService;
@@ -82,7 +85,7 @@ class OrderController extends Controller
     public function create()
     {
         $products = Product::with('stocks')->where('is_active', true)->get();
-        $patchProduct = Product::with('stocks')->where('product_name', 'like', '%Patch%')->first();
+        $patchProduct = Product::with('stocks')->where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
         $patchPrice = $patchProduct ? (float) $patchProduct->price : 0;
         $patchStock = $patchProduct ? (int) ($patchProduct->stocks->where('size', 'S')->first()?->quantity ?? 0) : 0;
         return view('orders.create', compact('products', 'patchPrice', 'patchStock'));
@@ -126,16 +129,19 @@ class OrderController extends Controller
         unset($item);
 
         if ($request->boolean('patch')) {
-            $patchProduct = Product::where('product_name', 'like', '%Patch%')->first();
+            $patchProduct = Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
             if ($patchProduct) {
                 $patchStock = Stock::where('product_id', $patchProduct->id)->where('size', 'S')->first();
-                if (!$patchStock || $patchStock->quantity < 2) {
+                if (!$patchStock || $patchStock->quantity < self::PATCH_STOCK_QUANTITY) {
                     $hasOutOfStock = true;
                 }
             }
         }
 
-        $order = DB::transaction(function () use ($validated, $products, $hasOutOfStock, $request) {
+        $advancedPayment = $validated['advanced_payment'] ?? 0;
+        $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
+
+        $order = DB::transaction(function () use ($validated, $products, $hasOutOfStock, $request, $pendingPayment) {
             $order = Order::create([
                 'order_no' => Order::generateOrderNo(),
                 'customer_name' => $validated['customer_name'],
@@ -148,8 +154,8 @@ class OrderController extends Controller
                 'patch' => $request->boolean('patch'),
                 'patch_price' => $validated['patch_price'] ?? 0,
                 'total_amount' => $validated['total_amount'],
-                'advanced_payment' => $validated['advanced_payment'] ?? 0,
-                'pending_payment' => $validated['total_amount'] - ($validated['advanced_payment'] ?? 0),
+                'advanced_payment' => $advancedPayment,
+                'pending_payment' => $pendingPayment,
                 'payment_method' => $validated['payment_method'],
                 'status' => $hasOutOfStock ? 'out_of_stock' : ($validated['status'] ?? 'on_hold'),
                 'created_by' => Auth::id(),
@@ -166,7 +172,7 @@ class OrderController extends Controller
     public function edit(string $role, Order $order)
     {
         $products = Product::with('stocks')->where('is_active', true)->get();
-        $patchProduct = Product::with('stocks')->where('product_name', 'like', '%Patch%')->first();
+        $patchProduct = Product::with('stocks')->where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
         $patchPrice = $patchProduct ? (float) $patchProduct->price : 0;
         $patchStock = $patchProduct ? (int) ($patchProduct->stocks->where('size', 'S')->first()?->quantity ?? 0) : 0;
         return view('orders.edit', compact('order', 'products', 'patchPrice', 'patchStock'));
@@ -185,7 +191,7 @@ class OrderController extends Controller
             'total_amount' => 'required|numeric|min:0',
             'advanced_payment' => 'nullable|numeric|min:0',
             'payment_method' => 'required|in:bkash,nagad,rocket,cod,cash',
-            'status' => 'required|in:on_hold,packed,picked,delivered,out_of_stock',
+            'status' => 'required|in:on_hold,processing,picked,delivered,out_of_stock,return',
         ]);
 
         $products = json_decode($validated['products'], true);
@@ -210,35 +216,104 @@ class OrderController extends Controller
         unset($item);
 
         if ($request->boolean('patch')) {
-            $patchProduct = Product::where('product_name', 'like', '%Patch%')->first();
+            $patchProduct = Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
             if ($patchProduct) {
                 $patchStock = Stock::where('product_id', $patchProduct->id)->where('size', 'S')->first();
-                if (!$patchStock || $patchStock->quantity < 2) {
+                if (!$patchStock || $patchStock->quantity < self::PATCH_STOCK_QUANTITY) {
                     $hasOutOfStock = true;
                 }
             }
         }
 
         $status = $hasOutOfStock ? 'out_of_stock' : $validated['status'];
+        $advancedPayment = $validated['advanced_payment'] ?? 0;
+        $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
 
-        $order->update([
-            'customer_name' => $validated['customer_name'],
-            'phone' => $validated['phone'],
-            'address' => $validated['address'],
-            'products' => $products,
-            'dtf' => $request->boolean('dtf'),
-            'dtf_name' => $validated['dtf_name'] ?? null,
-            'dtf_number' => $validated['dtf_number'] ?? null,
-            'patch' => $request->boolean('patch'),
-            'patch_price' => $validated['patch_price'] ?? 0,
-            'total_amount' => $validated['total_amount'],
-            'advanced_payment' => $validated['advanced_payment'] ?? 0,
-            'pending_payment' => $validated['total_amount'] - ($validated['advanced_payment'] ?? 0),
-            'payment_method' => $validated['payment_method'],
-            'status' => $status,
-        ]);
+        DB::beginTransaction();
+        try {
+            if ($status === 'processing' && $order->status !== 'processing') {
+                foreach ($products as $item) {
+                    $product = Product::find($item['product_id']);
+                    if (!$product) continue;
+                    try {
+                        $this->stockService->stockOut(
+                            $product, $item['size'], (int) $item['quantity'],
+                            "Order {$order->order_no}", Auth::id()
+                        );
+                    } catch (\InvalidArgumentException $e) {
+                        DB::rollBack();
+                        return back()->withErrors(['status' => "Stock out failed for {$product->product_name}: " . $e->getMessage()]);
+                    }
+                }
+                if ($request->boolean('patch')) {
+                    $patchProduct = Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
+                    if ($patchProduct) {
+                        try {
+                            $this->stockService->stockOut(
+                                $patchProduct, 'S', self::PATCH_STOCK_QUANTITY,
+                                "Order {$order->order_no} (patch)", Auth::id()
+                            );
+                        } catch (\InvalidArgumentException $e) {
+                            DB::rollBack();
+                            return back()->withErrors(['status' => "Patch stock out failed: " . $e->getMessage()]);
+                        }
+                    }
+                }
+            }
 
-        OrderDraft::where('user_id', Auth::id())->where('order_id', $order->id)->delete();
+            if ($status === 'return' && $order->status !== 'return') {
+                foreach ($products as $item) {
+                    $product = Product::find($item['product_id']);
+                    if (!$product) continue;
+                    try {
+                        $this->stockService->stockIn(
+                            $product, $item['size'], (int) $item['quantity'],
+                            "Return: Order {$order->order_no}", Auth::id()
+                        );
+                    } catch (\InvalidArgumentException $e) {
+                        DB::rollBack();
+                        return back()->withErrors(['status' => "Stock in failed for {$product->product_name}: " . $e->getMessage()]);
+                    }
+                }
+                if ($request->boolean('patch')) {
+                    $patchProduct = Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
+                    if ($patchProduct) {
+                        try {
+                            $this->stockService->stockIn(
+                                $patchProduct, 'S', self::PATCH_STOCK_QUANTITY,
+                                "Return: Order {$order->order_no} (patch)", Auth::id()
+                            );
+                        } catch (\InvalidArgumentException $e) {
+                            DB::rollBack();
+                            return back()->withErrors(['status' => "Patch stock in failed: " . $e->getMessage()]);
+                        }
+                    }
+                }
+            }
+
+            $order->update([
+                'customer_name' => $validated['customer_name'],
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'products' => $products,
+                'dtf' => $request->boolean('dtf'),
+                'dtf_name' => $validated['dtf_name'] ?? null,
+                'dtf_number' => $validated['dtf_number'] ?? null,
+                'patch' => $request->boolean('patch'),
+                'patch_price' => $validated['patch_price'] ?? 0,
+                'total_amount' => $validated['total_amount'],
+                'advanced_payment' => $advancedPayment,
+                'pending_payment' => $pendingPayment,
+                'payment_method' => $validated['payment_method'],
+                'status' => $status,
+            ]);
+
+            OrderDraft::where('user_id', Auth::id())->where('order_id', $order->id)->delete();
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->withErrors(['status' => 'Failed to update order: ' . $e->getMessage()]);
+        }
 
         return redirect(admin_route('orders.show', $order->order_no))->with('success', "Order {$order->order_no} updated.");
     }
@@ -251,14 +326,18 @@ class OrderController extends Controller
     public function updateStatus(string $role, Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:on_hold,packed,picked,delivered',
+            'status' => 'required|in:on_hold,processing,picked,delivered,return',
         ]);
 
         $newStatus = $request->status;
 
+        if ($order->status === $newStatus) {
+            return back()->withErrors(['status' => "Order is already {$newStatus}."]);
+        }
+
         DB::beginTransaction();
         try {
-            if ($newStatus === 'picked') {
+            if ($newStatus === 'processing') {
                 $products = $order->products;
                 foreach ($products as $item) {
                     $product = Product::find($item['product_id']);
@@ -279,7 +358,7 @@ class OrderController extends Controller
                 }
 
                 if ($order->patch) {
-                    $patchProduct = Product::where('product_name', 'like', '%Patch%')->first();
+                    $patchProduct = Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
                     if (!$patchProduct) {
                         DB::rollBack();
                         Log::error("No patch product found for order {$order->order_no}. Create a product with 'Patch' in the name.");
@@ -290,13 +369,56 @@ class OrderController extends Controller
                         $this->stockService->stockOut(
                             $patchProduct,
                             'S',
-                            2,
+                            self::PATCH_STOCK_QUANTITY,
                             "Order {$order->order_no} (patch)",
                             Auth::id()
                         );
                     } catch (\InvalidArgumentException $e) {
                         DB::rollBack();
                         return back()->withErrors(['status' => "Patch stock out failed: " . $e->getMessage()]);
+                    }
+                }
+            }
+
+            if ($newStatus === 'return') {
+                $products = $order->products;
+                foreach ($products as $item) {
+                    $product = Product::find($item['product_id']);
+                    if (!$product) continue;
+
+                    try {
+                        $this->stockService->stockIn(
+                            $product,
+                            $item['size'],
+                            (int) $item['quantity'],
+                            "Return: Order {$order->order_no}",
+                            Auth::id()
+                        );
+                    } catch (\InvalidArgumentException $e) {
+                        DB::rollBack();
+                        return back()->withErrors(['status' => "Stock in failed for {$product->product_name} ({$item['size']}): " . $e->getMessage()]);
+                    }
+                }
+
+                if ($order->patch) {
+                    $patchProduct = Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
+                    if (!$patchProduct) {
+                        DB::rollBack();
+                        Log::error("No patch product found for return on order {$order->order_no}.");
+                        return back()->withErrors(['status' => 'No patch product found. Cannot process return.']);
+                    }
+
+                    try {
+                        $this->stockService->stockIn(
+                            $patchProduct,
+                            'S',
+                            self::PATCH_STOCK_QUANTITY,
+                            "Return: Order {$order->order_no} (patch)",
+                            Auth::id()
+                        );
+                    } catch (\InvalidArgumentException $e) {
+                        DB::rollBack();
+                        return back()->withErrors(['status' => "Patch stock in failed: " . $e->getMessage()]);
                     }
                 }
             }
