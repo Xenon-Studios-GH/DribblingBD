@@ -84,8 +84,6 @@ class StockInController extends Controller
             'price' => ['required_if:product_id,new', 'numeric', 'min:0'],
         ]);
 
-        $productId = $validated['product_id'] ?? null;
-
         try {
             $product = DB::transaction(function () use ($validated) {
                 if ($validated['product_id'] === 'new') {
@@ -114,7 +112,7 @@ class StockInController extends Controller
         } catch (\InvalidArgumentException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         } catch (\Throwable $e) {
-            Log::error('Stock in confirm failed', ['error' => $e->getMessage(), 'product_id' => $productId]);
+            Log::error('Stock in confirm failed', ['error' => $e->getMessage(), 'product_id' => $validated['product_id'] ?? null]);
             return response()->json(['success' => false, 'message' => 'An unexpected error occurred.'], 500);
         }
     }

@@ -23,15 +23,15 @@ class PurgeOldFinanceData extends Command
             return;
         }
 
-        $deletedTransactions = FinanceTransaction::onlyTrashed()
+        $transactionIds = FinanceTransaction::onlyTrashed()
             ->where('deleted_at', '<', $cutoff)
-            ->forceDelete();
+            ->pluck('id');
 
-        $deletedVersions = FinanceTransactionVersion::whereIn('transaction_id', function ($query) use ($cutoff) {
-            $query->select('id')
-                ->from('finance_transactions')
-                ->where('deleted_at', '<', $cutoff);
-        })->delete();
+        $deletedVersions = FinanceTransactionVersion::whereIn('transaction_id', $transactionIds)->delete();
+
+        $deletedTransactions = FinanceTransaction::onlyTrashed()
+            ->whereIn('id', $transactionIds)
+            ->forceDelete();
 
         $this->info("Purged {$deletedTransactions} transactions and {$deletedVersions} versions.");
     }

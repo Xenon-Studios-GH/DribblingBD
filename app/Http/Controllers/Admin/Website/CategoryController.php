@@ -56,6 +56,13 @@ class CategoryController extends Controller
                 ->with('error', 'Cannot delete category with existing projects.');
         }
 
+        $childrenWithProjects = WebsiteCategory::whereIn('id', $category->children()->pluck('id'))
+            ->whereHas('projects')->count();
+
+        if ($childrenWithProjects > 0) {
+            $category->children()->each(fn($child) => $child->projects()->update(['category_id' => null]));
+        }
+
         $category->children()->delete();
         $category->delete();
 

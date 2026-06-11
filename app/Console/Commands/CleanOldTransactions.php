@@ -29,8 +29,8 @@ class CleanOldTransactions extends Command
         $deletedLogs = LoginLog::where('login_at', '<', $cutoff)->delete();
         $this->info("Deleted {$deletedLogs} login log(s) older than {$days} days.");
 
-        $deletedWorkLogs = WorkLog::where('module', 'stock')
+        $deletedWorkLogs = WorkLog::whereIn('module', ['stock', 'finance', 'user', 'system'])
             ->where('created_at', '<', $cutoff)->delete();
-        $this->info("Deleted {$deletedWorkLogs} stock work log(s) older than {$days} days.");
+        $this->info("Deleted {$deletedWorkLogs} work log(s) older than {$days} days.");
     }
 }
