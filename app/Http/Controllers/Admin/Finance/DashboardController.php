@@ -42,13 +42,14 @@ class DashboardController extends Controller
             ->keyBy(fn($item) => $item->date instanceof \Carbon\Carbon ? $item->date->format('Y-m-d') : $item->date);
 
         $cashflow = collect();
-        for ($i = $days; $i >= 0; $i--) {
-            $day = now()->subDays($i)->format('Y-m-d');
-            $totals = $dailyTotals->get($day);
+        $period = new \DatePeriod($dateFrom, new \DateInterval('P1D'), now()->addDay());
+        foreach ($period as $date) {
+            $key = $date->format('Y-m-d');
+            $totals = $dailyTotals->get($key);
             $dayIncome = $totals ? (float) $totals->income : 0;
             $dayExpense = $totals ? (float) $totals->expense : 0;
             $cashflow->push([
-                'date' => $day,
+                'date' => $key,
                 'income' => $dayIncome,
                 'expense' => $dayExpense,
                 'net' => $dayIncome - $dayExpense,

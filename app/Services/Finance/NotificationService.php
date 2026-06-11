@@ -17,7 +17,7 @@ class NotificationService
             return;
         }
 
-        $notifications = $adminUserIds->map(fn($userId) => [
+        $adminUserIds->each(fn($userId) => Notification::create([
             'user_id' => $userId,
             'type' => $type,
             'title' => $title,
@@ -25,9 +25,6 @@ class NotificationService
             'related_type' => $relatedType,
             'related_id' => $relatedId,
             'is_read' => false,
-            'created_at' => now(),
-        ])->toArray();
-
-        Notification::insert($notifications);
+        ]));
     }
 }

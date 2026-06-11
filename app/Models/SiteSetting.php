@@ -11,13 +11,16 @@ class SiteSetting extends Model
 
     public static function getValue(string $key, mixed $default = null): mixed
     {
-        $setting = static::where('key', $key)->first();
-        return $setting ? $setting->value : $default;
+        return Cache::rememberForever("site_setting_{$key}", function () use ($key, $default) {
+            $setting = static::where('key', $key)->first();
+            return $setting ? $setting->value : $default;
+        });
     }
 
     public static function setValue(string $key, mixed $value): void
     {
         static::updateOrCreate(['key' => $key], ['value' => $value]);
+        Cache::forget("site_setting_{$key}");
         Cache::forget('site_settings');
     }
 }
