@@ -57,7 +57,7 @@
 
 @section('content')
 @php
-$shipping = $client && $client->shipping_address ? json_decode($client->shipping_address, true) : null;
+$shipping = $client && $client->shipping_address ? $client->shipping_address : null;
 @endphp
 <div x-data="{
     checkout: Alpine.$persist({

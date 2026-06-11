@@ -18,24 +18,24 @@
                         <i class="fas fa-truck text-xl text-[#E85D2C]"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-gray-900">96 Hours Home Delivery</h2>
-                        <p class="text-sm text-gray-500">Fast and reliable delivery across Bangladesh</p>
+                        <h2 class="text-lg font-bold text-gray-900">{{ $settings['delivery_heading'] ?? '96 Hours Home Delivery' }}</h2>
+                        <p class="text-sm text-gray-500">{{ $settings['delivery_subtitle'] ?? 'Fast and reliable delivery across Bangladesh' }}</p>
                     </div>
                 </div>
                 <div class="space-y-3 text-sm text-gray-600 leading-relaxed">
-                    <p>We deliver your order within <strong>96 hours</strong> (4 days) across Bangladesh. Our delivery partners ensure your package reaches you safely and on time.</p>
+                    <p>{{ $settings['delivery_desc'] ?? 'We deliver your order within <strong>96 hours</strong> (4 days) across Bangladesh. Our delivery partners ensure your package reaches you safely and on time.' }}</p>
                     <ul class="space-y-2">
                         <li class="flex items-start gap-3">
                             <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
-                            <span>Dhaka metro: 24–48 hours</span>
+                            <span>{{ $settings['delivery_dhaka'] ?? 'Dhaka metro: 24–48 hours' }}</span>
                         </li>
                         <li class="flex items-start gap-3">
                             <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
-                            <span>Division cities: 48–72 hours</span>
+                            <span>{{ $settings['delivery_division'] ?? 'Division cities: 48–72 hours' }}</span>
                         </li>
                         <li class="flex items-start gap-3">
                             <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
-                            <span>Other areas: 72–96 hours</span>
+                            <span>{{ $settings['delivery_other'] ?? 'Other areas: 72–96 hours' }}</span>
                         </li>
                     </ul>
                 </div>
@@ -54,16 +54,16 @@
                 </div>
                 <div class="space-y-4 text-sm text-gray-600 leading-relaxed">
                     <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Delivery Charge</h3>
-                        <p>Free delivery on all orders <span class="font-bold">above ৳3,000</span>. A flat rate of ৳120 applies for orders below ৳3,000.</p>
+                        <h3 class="font-semibold text-gray-900 mb-1">{{ $settings['shipping_charge_heading'] ?? 'Delivery Charge' }}</h3>
+                        <p>{{ $settings['shipping_charge_text'] ?? 'Free delivery on all orders <span class="font-bold">above ৳3,000</span>. A flat rate of ৳120 applies for orders below ৳3,000.' }}</p>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Cash on Delivery</h3>
-                        <p>Pay when your order arrives. <span class="font-bold">A small advance payment</span> is needed for COD orders.</p>
+                        <h3 class="font-semibold text-gray-900 mb-1">{{ $settings['shipping_cod_heading'] ?? 'Cash on Delivery' }}</h3>
+                        <p>{{ $settings['shipping_cod_text'] ?? 'Pay when your order arrives. <span class="font-bold">A small advance payment</span> is needed for COD orders.' }}</p>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Tracking</h3>
-                        <p>Once your order is dispatched, you will receive a tracking link via SMS to track your delivery in real time.</p>
+                        <h3 class="font-semibold text-gray-900 mb-1">{{ $settings['shipping_tracking_heading'] ?? 'Tracking' }}</h3>
+                        <p>{{ $settings['shipping_tracking_text'] ?? 'Once your order is dispatched, you will receive a tracking link via SMS to track your delivery in real time.' }}</p>
                     </div>
                 </div>
             </div>
@@ -83,29 +83,29 @@
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
                         <i class="fas fa-phone text-[#E85D2C] w-5 h-5"></i>
                         <div>
-                            <p class="font-medium text-gray-900">Phone</p>
-                            <a href="tel:01641857715" class="hover:text-[#E85D2C] transition-colors">01641857715</a>
+                            <p class="font-medium text-gray-900">{{ $settings['contact_phone_label'] ?? 'Phone' }}</p>
+                            <a href="tel:{{ $settings['contact_phone'] ?? '01641857715' }}" class="hover:text-[#E85D2C] transition-colors">{{ $settings['contact_phone'] ?? '01641857715' }}</a>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
                         <i class="fas fa-envelope text-[#E85D2C] w-5 h-5"></i>
                         <div>
-                            <p class="font-medium text-gray-900">Email</p>
-                            <a href="mailto:dribblingbd1@gmail.com" class="hover:text-[#E85D2C] transition-colors">dribblingbd1@gmail.com</a>
+                            <p class="font-medium text-gray-900">{{ $settings['contact_email_label'] ?? 'Email' }}</p>
+                            <a href="mailto:{{ $settings['contact_email'] ?? 'dribblingbd1@gmail.com' }}" class="hover:text-[#E85D2C] transition-colors">{{ $settings['contact_email'] ?? 'dribblingbd1@gmail.com' }}</a>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
                         <i class="fas fa-map-marker-alt text-[#E85D2C] w-5 h-5"></i>
                         <div>
-                            <p class="font-medium text-gray-900">Address</p>
-                            <p class="text-gray-500">Farmgate, Dhaka, Bangladesh</p>
+                            <p class="font-medium text-gray-900">{{ $settings['contact_address_label'] ?? 'Address' }}</p>
+                            <p class="text-gray-500">{{ $settings['contact_address'] ?? 'Farmgate, Dhaka, Bangladesh' }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
                         <i class="fab fa-whatsapp text-[#25D366] w-5 h-5"></i>
                         <div>
-                            <p class="font-medium text-gray-900">WhatsApp</p>
-                            <a href="https://wa.me/8801641857715" target="_blank" class="hover:text-[#25D366] transition-colors">01641857715</a>
+                            <p class="font-medium text-gray-900">{{ $settings['contact_whatsapp_label'] ?? 'WhatsApp' }}</p>
+                            <a href="https://wa.me/{{ $settings['contact_whatsapp'] ?? config('shop.whatsapp_number') }}" target="_blank" class="hover:text-[#25D366] transition-colors">{{ $settings['contact_phone'] ?? config('shop.whatsapp_number') }}</a>
                         </div>
                     </div>
                 </div>

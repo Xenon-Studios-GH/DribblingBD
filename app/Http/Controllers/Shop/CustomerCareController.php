@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
+use App\Models\Inquiry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,8 +25,15 @@ class CustomerCareController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('customer-care', 'public');
+            $imagePath = $request->file('image')->store('inquiries', 'public');
         }
+
+        Inquiry::create([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'details' => $validated['details'],
+            'image' => $imagePath,
+        ]);
 
         return back()->with('success', 'Your inquiry has been submitted. We will get back to you shortly.');
     }
