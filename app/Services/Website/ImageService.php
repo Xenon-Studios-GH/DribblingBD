@@ -6,11 +6,11 @@ use App\Models\WebsiteProject;
 use App\Models\WebsiteProjectImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use InvalidArgumentException;
+use Illuminate\Validation\ValidationException;
 
 class ImageService
 {
-    private const ALLOWED_MIMES = ['image/png', 'image/webp'];
+    private const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     private const MAX_SIZE = 5120;
     private const MIN_IMAGES = 1;
     private const MAX_IMAGES = 4;
@@ -23,18 +23,26 @@ class ImageService
                 $filled++;
                 $mime = $file->getMimeType();
                 if (!in_array($mime, self::ALLOWED_MIMES, true)) {
-                    throw new InvalidArgumentException("Slot $slot: Only PNG and WebP images are allowed.");
+                    throw ValidationException::withMessages([
+                        'images.' . $slot => 'Slot ' . $slot . ': Only JPEG, PNG and WebP images are allowed.',
+                    ]);
                 }
                 if ($file->getSize() > self::MAX_SIZE * 1024) {
-                    throw new InvalidArgumentException("Slot $slot: Image must be under 5MB.");
+                    throw ValidationException::withMessages([
+                        'images.' . $slot => 'Slot ' . $slot . ': Image must be under 5MB.',
+                    ]);
                 }
             }
         }
         if ($filled < self::MIN_IMAGES) {
-            throw new InvalidArgumentException('At least 1 image is required.');
+            throw ValidationException::withMessages([
+                'images' => 'At least 1 image is required.',
+            ]);
         }
         if ($filled > self::MAX_IMAGES) {
-            throw new InvalidArgumentException('Maximum 4 images allowed.');
+            throw ValidationException::withMessages([
+                'images' => 'Maximum 4 images allowed.',
+            ]);
         }
     }
 

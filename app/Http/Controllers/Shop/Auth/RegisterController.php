@@ -44,6 +44,8 @@ class RegisterController extends Controller
             return $user;
         });
 
-        return redirect()->route('authentication');
+        Auth::login($user);
+
+        return redirect()->route('shop.home');
     }
 }
