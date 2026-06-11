@@ -4,6 +4,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
 use App\Console\Commands\PurgeOldFinanceData;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('app:clean-old-transactions --force')->daily()->withoutOverlapping();
