@@ -84,11 +84,6 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
                     <div class="absolute top-3 left-3 z-10 pointer-events-none">
                         <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 text-gray-800">{{ $product->product_code }}</span>
                     </div>
-                    @if ($hasOffer)
-                    <div class="absolute top-3 right-3 z-10 pointer-events-none">
-                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500 text-white">Sale</span>
-                    </div>
-                    @endif
                 </div>
                 @if ($images->count() >= 2)
                 <div class="gallery-thumbs">
@@ -108,11 +103,6 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
                     <div class="absolute top-3 left-3 z-10">
                         <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 text-gray-800">{{ $product->product_code }}</span>
                     </div>
-                    @if ($hasOffer)
-                    <div class="absolute top-3 right-3 z-10">
-                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500 text-white">Sale</span>
-                    </div>
-                    @endif
                 </div>
             </div>
             @else
@@ -168,7 +158,7 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
                 </div>
                 <div class="flex items-center gap-3 text-sm text-gray-600">
                     <i class="fas fa-sync-alt w-4 h-4 text-green-500"></i>
-                    72 Hours Home Delivery
+                    96 Hours Home Delivery
                 </div>
             </div>
         </div>

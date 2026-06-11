@@ -2,33 +2,32 @@
 
 @section('content')
     {{-- Hero Section --}}
-    <section class="relative min-h-screen bg-white flex items-center overflow-hidden">
-        <div class="w-full max-w-[1440px] mx-auto">
-            <div class="grid lg:grid-cols-[45%_55%] gap-8 lg:gap-16 items-center min-h-[calc(100vh-160px)]">
+    <section class="relative bg-white overflow-hidden">
+        <div class="w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-[80px] py-10 lg:py-14">
+            <div class="grid lg:grid-cols-[45%_55%] gap-8 lg:gap-16 items-center">
                 {{-- Left Content --}}
                 <div class="pb-16 lg:pb-0" x-data="heroAnimation()" x-init="init()">
                     {{-- Heading --}}
                     <h1 class="text-[42px] sm:text-[56px] lg:text-[72px] xl:text-[88px] font-black leading-[0.9] tracking-[-3px] text-black"
                         :class="loaded ? 'animate-fade-up' : 'opacity-0'">
-                        <span class="block">Your Identity.</span>
+                        <span class="block">{{ $settings['hero_heading_top'] ?? 'Your Identity.' }}</span>
                         <span class="block delay-200" :class="loaded ? 'animate-fade-up' : 'opacity-0'">
-                            <span class="text-[#E85D2C]">Your Jersey.</span>
-                            <span> Your Game.</span>
+                            <span class="text-[#E85D2C]">{{ $settings['hero_heading_middle'] ?? 'Your Jersey.' }}</span>
+                            <span> {{ $settings['hero_heading_bottom'] ?? 'Your Game.' }}</span>
                         </span>
                     </h1>
 
                     {{-- Description --}}
                     <p class="mt-8 text-[18px] text-[#7A7A7A] leading-[1.8] max-w-[500px]"
                        :class="loaded ? 'animate-fade-up delay-500' : 'opacity-0'">
-                        Premium custom jerseys for clubs, tournaments, and champions.
-                        Design your look, own the pitch.
+                        {{ $settings['hero_subtitle'] ?? 'Premium custom jerseys for clubs, tournaments, and champions. Design your look, own the pitch.' }}
                     </p>
 
                     {{-- CTA --}}
                     <div class="mt-10" :class="loaded ? 'animate-scale-in delay-800' : 'opacity-0 scale-0'">
-                        <a href="{{ route('shop.products.index') }}"
+                        <a href="{{ $settings['hero_cta_link'] ?? route('shop.products.index') }}"
                            class="inline-flex items-center justify-center w-[180px] h-[58px] rounded-full bg-black text-white font-semibold text-sm hover:scale-105 transition-transform duration-300 shadow-[0_15px_40px_rgba(0,0,0,0.15)]">
-                            Shop Now
+                            {{ $settings['hero_cta_text'] ?? 'Shop Now' }}
                         </a>
                     </div>
                 </div>
@@ -54,12 +53,40 @@
         </div>
     </section>
 
+    {{-- Stats Section --}}
+    <section class="bg-gray-50 border-y border-gray-200/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-[80px] py-14 lg:py-16">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
+                <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
+                     x-data="counter($el, {{ $settings['stats_1_value'] ?? 100 }}, '{{ $settings['stats_1_suffix'] ?? '+' }}')" x-init="init()">
+                    <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
+                    <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_1_label'] ?? 'Premium Products' }}</p>
+                </div>
+                <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
+                     x-data="counter($el, {{ $settings['stats_2_value'] ?? 2000 }}, '{{ $settings['stats_2_suffix'] ?? '+' }}')" x-init="init()">
+                    <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
+                    <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_2_label'] ?? 'Happy Customers' }}</p>
+                </div>
+                <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
+                     x-data="counter($el, {{ $settings['stats_3_value'] ?? 7 }}, '')" x-init="init()">
+                    <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]">&lt;<span x-text="count">0</span>{{ $settings['stats_3_suffix'] ?? ' mins' }}</p>
+                    <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_3_label'] ?? 'Avg Reply Time' }}</p>
+                </div>
+                <div class="text-center px-6"
+                     x-data="counter($el, {{ $settings['stats_4_value'] ?? 96 }}, '')" x-init="init()">
+                    <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]"><span x-text="count">0</span>{{ $settings['stats_4_suffix'] ?? ' hours' }}</p>
+                    <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_4_label'] ?? 'Avg Delivery Time' }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="py-14 lg:py-18 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between mb-8">
                 <div>
-                    <span class="text-xs font-semibold text-[#E85D2C] uppercase tracking-widest">Latest</span>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">New Arrivals</h2>
+                    <span class="text-xs font-semibold text-[#E85D2C] uppercase tracking-widest">{{ $settings['new_arrivals_eyebrow'] ?? 'Latest' }}</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $settings['new_arrivals_heading'] ?? 'New Arrivals' }}</h2>
                 </div>
                 <a href="{{ route('shop.products.index') }}" class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-[#E85D2C] hover:text-[#d14d1f] transition-colors">
                     View All
@@ -113,11 +140,11 @@
     {{-- Banner Divider --}}
     <section class="bg-gradient-to-r from-[#E85D2C] to-[#F97316] py-14">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-2xl sm:text-3xl font-bold text-white">Custom Jersey Design</h2>
-            <p class="mt-2 text-orange-100 text-sm sm:text-base max-w-lg mx-auto">Design your team's unique look. Choose colors, patterns, and add your club name & number.</p>
-            <a href="https://wa.me/{{ config('shop.whatsapp_number') }}?text={{ urlencode('Hi, I want to design a custom jersey') }}" target="_blank" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#E85D2C] font-semibold text-sm hover:bg-orange-50 transition-colors">
+            <h2 class="text-2xl sm:text-3xl font-bold text-white">{{ $settings['banner_heading'] ?? 'Custom Jersey Design' }}</h2>
+            <p class="mt-2 text-orange-100 text-sm sm:text-base max-w-lg mx-auto">{{ $settings['banner_subtext'] ?? "Design your team's unique look. Choose colors, patterns, and add your club name & number." }}</p>
+            <a href="{{ $settings['banner_cta_link'] ?? 'https://wa.me/'.config('shop.whatsapp_number').'?text='.urlencode('Hi, I want to design a custom jersey') }}" target="_blank" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#E85D2C] font-semibold text-sm hover:bg-orange-50 transition-colors">
                 <i class="fab fa-whatsapp w-5 h-5"></i>
-                Design on WhatsApp
+                {{ $settings['banner_cta'] ?? 'Design on WhatsApp' }}
             </a>
         </div>
     </section>
@@ -127,8 +154,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between mb-8">
                 <div>
-                    <span class="text-xs font-semibold text-[#E85D2C] uppercase tracking-widest">Popular</span>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">Top Selling</h2>
+                    <span class="text-xs font-semibold text-[#E85D2C] uppercase tracking-widest">{{ $settings['top_selling_eyebrow'] ?? 'Popular' }}</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $settings['top_selling_heading'] ?? 'Top Selling' }}</h2>
                 </div>
                 <a href="{{ route('shop.products.index') }}" class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-[#E85D2C] hover:text-[#d14d1f] transition-colors">
                     View All
@@ -179,6 +206,47 @@
                 </a>
             </div>
         </div>
+    </section>
+
+    {{-- Reviews Carousel --}}
+    <section class="py-14 lg:py-18 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+            <div class="text-center">
+                <span class="text-xs font-semibold text-[#E85D2C] uppercase tracking-widest">{{ $settings['testimonials_eyebrow'] ?? 'Testimonials' }}</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $settings['testimonials_heading'] ?? 'What Our Customers Say' }}</h2>
+            </div>
+        </div>
+        @if ($testimonials->isNotEmpty())
+        <div class="flex animate-marquee whitespace-nowrap gap-6" style="animation-duration: 40s;">
+            <div class="flex gap-6">
+                @foreach ($testimonials as $t)
+                <div class="w-[320px] inline-flex flex-col shrink-0 bg-gray-50 rounded-2xl p-6 text-left">
+                    <div class="flex items-center gap-1 text-[#F59E0B] text-sm mb-3">
+                        @for ($i = 1; $i <= 5; $i++)
+                        <i class="fas fa-star{{ $i <= $t->rating ? '' : ' text-gray-300' }}"></i>
+                        @endfor
+                    </div>
+                    <p class="text-sm text-gray-600 leading-relaxed whitespace-normal">"{{ $t->content }}"</p>
+                    <p class="mt-3 text-sm font-semibold text-gray-900">— {{ $t->name }}{{ $t->designation ? ' ('.$t->designation.')' : '' }}</p>
+                </div>
+                @endforeach
+            </div>
+            {{-- Duplicate for seamless loop --}}
+            <div class="flex gap-6">
+                @foreach ($testimonials as $t)
+                <div class="w-[320px] inline-flex flex-col shrink-0 bg-gray-50 rounded-2xl p-6 text-left">
+                    <div class="flex items-center gap-1 text-[#F59E0B] text-sm mb-3">
+                        @for ($i = 1; $i <= 5; $i++)
+                        <i class="fas fa-star{{ $i <= $t->rating ? '' : ' text-gray-300' }}"></i>
+                        @endfor
+                    </div>
+                    <p class="text-sm text-gray-600 leading-relaxed whitespace-normal">"{{ $t->content }}"</p>
+                    <p class="mt-3 text-sm font-semibold text-gray-900">— {{ $t->name }}{{ $t->designation ? ' ('.$t->designation.')' : '' }}</p>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </section>
 
     @include('shop.components.features')

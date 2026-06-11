@@ -184,6 +184,39 @@
             }
         }
 
+        function counter(el, target, suffix) {
+            return {
+                count: 0,
+                target: target,
+                suffix: suffix || '',
+                visible: false,
+                init() {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting && !this.visible) {
+                                this.visible = true;
+                                this.animate();
+                                observer.disconnect();
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    observer.observe(el);
+                },
+                animate() {
+                    const duration = 2000;
+                    const start = performance.now();
+                    const step = (now) => {
+                        const elapsed = now - start;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const eased = 1 - Math.pow(1 - progress, 3);
+                        this.count = Math.floor(eased * this.target);
+                        if (progress < 1) requestAnimationFrame(step);
+                    };
+                    requestAnimationFrame(step);
+                }
+            }
+        }
+
         function liveSearch() {
             return {
                 query: '',

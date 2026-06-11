@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Testimonial;
 use App\Models\WebsiteProjectImage;
 
 class HomeController extends Controller
@@ -28,6 +29,8 @@ class HomeController extends Controller
             ->get()
             ->pluck('image_path');
 
-        return view('shop.home', compact('newArrivals', 'trending', 'heroImages'));
+        $testimonials = Testimonial::where('is_active', true)->orderBy('sort_order')->get();
+
+        return view('shop.home', compact('newArrivals', 'trending', 'heroImages', 'testimonials'));
     }
 }

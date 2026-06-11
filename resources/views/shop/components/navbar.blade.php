@@ -12,7 +12,7 @@
 
             {{-- Brand --}}
             <a href="/" class="flex-shrink-0">
-                <img src="{{ asset('images/logo.png') }}" alt="DribblingBD" class="h-24 w-auto">
+                <img src="{{ asset('images/logo.png') }}" alt="DribblingBD" class="h-16 w-auto">
             </a>
 
             {{-- Search bar (desktop) --}}
@@ -165,7 +165,7 @@
         <div class="absolute inset-0 bg-black/40" @click="mobileMenuOpen = false"></div>
         <div class="relative w-72 max-w-[80vw] h-full bg-white shadow-xl overflow-y-auto" @click.outside="mobileMenuOpen = false">
             <div class="flex items-center justify-between px-4 h-16 border-b border-gray-200">
-                <img src="{{ asset('images/logo.png') }}" alt="DribblingBD" class="h-24 w-auto">
+                <img src="{{ asset('images/logo.png') }}" alt="DribblingBD" class="h-16 w-auto">
                 <button @click="mobileMenuOpen = false" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100">
                     <i class="fas fa-times w-5 h-5"></i>
                 </button>
@@ -174,7 +174,7 @@
                 <a href="/" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-gray-900 hover:bg-gray-100">Home</a>
                 <a href="{{ route('shop.products.index') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Shop All</a>
                 <a href="{{ route('shop.products.index') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Custom Jerseys</a>
-                <a href="{{ route('shop.products.index') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Club Kits</a>
+                <a href="{{ route('shop.products.index') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">All Jerseys</a>
                 <a href="{{ route('shop.products.index') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Training Gear</a>
                 <hr class="my-3 border-gray-100">
                 @auth
