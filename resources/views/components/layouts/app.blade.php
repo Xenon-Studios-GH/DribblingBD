@@ -19,7 +19,7 @@
 
         <div class="flex flex-1 flex-col md:ml-16 lg:ml-64">
             <!-- Top Bar -->
-            <header class="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-[#232A36] bg-[#0F1117] px-4 md:px-8"
+            <header class="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-[#232A36] bg-[#0F1117] px-4 md:px-6"
                 x-data="{ scrolled: false }"
                 @scroll.window.passive="scrolled = window.scrollY > 0"
                 :class="scrolled && 'shadow-lg shadow-black/10'">
@@ -95,7 +95,7 @@
                 </div>
             </header>
 
-            <main class="flex-1 p-4 md:p-8">
+            <main class="flex-1 p-4 md:p-6">
                 {{ $slot }}
             </main>
         </div>
