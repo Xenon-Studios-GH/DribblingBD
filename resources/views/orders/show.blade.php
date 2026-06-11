@@ -12,16 +12,18 @@
             $statusColors = [
                 'out_of_stock' => 'text-[#EF4444] bg-[#EF4444]/10',
                 'on_hold' => 'text-[#F59E0B] bg-[#F59E0B]/10',
-                'packed' => 'text-[#3B82F6] bg-[#3B82F6]/10',
+                'processing' => 'text-[#3B82F6] bg-[#3B82F6]/10',
                 'picked' => 'text-[#A855F7] bg-[#A855F7]/10',
                 'delivered' => 'text-[#22C55E] bg-[#22C55E]/10',
+                'return' => 'text-[#EF4444] bg-[#EF4444]/10',
             ];
             $statusIcons = [
                 'out_of_stock' => 'fa-exclamation-circle',
                 'on_hold' => 'fa-pause-circle',
-                'packed' => 'fa-box',
+                'processing' => 'fa-spinner',
                 'picked' => 'fa-check-double',
                 'delivered' => 'fa-check-circle',
+                'return' => 'fa-undo',
             ];
             @endphp
             <span class="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium {{ $statusColors[$order->status] ?? 'text-[#94A3B8] bg-[#232A36]' }}">
@@ -141,9 +143,10 @@
                 <select name="status" required
                         class="rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
                     <option value="on_hold" @selected($order->status==='on_hold')>On Hold</option>
-                    <option value="packed" @selected($order->status==='packed')>Packed</option>
+                    <option value="processing" @selected($order->status==='processing')>Processing</option>
                     <option value="picked" @selected($order->status==='picked')>Picked</option>
                     <option value="delivered" @selected($order->status==='delivered')>Delivered</option>
+                    <option value="return" @selected($order->status==='return')>Return</option>
                 </select>
                 <button type="submit"
                         class="rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB] transition-colors">

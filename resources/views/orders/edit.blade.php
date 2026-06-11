@@ -299,9 +299,10 @@
                         <label class="text-sm font-medium text-[#E6EDF3]">Status</label>
                             <select name="status" x-model="status" class="rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
                                 <option value="on_hold">On Hold</option>
-                                <option value="packed">Packed</option>
+                                <option value="processing">Processing</option>
                                 <option value="picked">Picked</option>
                                 <option value="delivered">Delivered</option>
+                                <option value="return">Return</option>
                                 <option value="out_of_stock">Out Of Stock</option>
                             </select>
                     </div>

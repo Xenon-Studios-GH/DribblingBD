@@ -49,9 +49,10 @@
                             <option value="">All Status</option>
                             <option value="draft">Draft</option>
                             <option value="on_hold">On Hold</option>
-                            <option value="packed">Packed</option>
+                            <option value="processing">Processing</option>
                             <option value="picked">Picked</option>
                             <option value="delivered">Delivered</option>
+                            <option value="return">Return</option>
                             <option value="out_of_stock">Out of Stock</option>
                         </select>
                         <select x-model="filterPayment"
@@ -214,9 +215,10 @@
                     const map = {
                         out_of_stock: 'text-[#EF4444] bg-[#EF4444]/10',
                         on_hold: 'text-[#F59E0B] bg-[#F59E0B]/10',
-                        packed: 'text-[#3B82F6] bg-[#3B82F6]/10',
+                        processing: 'text-[#3B82F6] bg-[#3B82F6]/10',
                         picked: 'text-[#A855F7] bg-[#A855F7]/10',
                         delivered: 'text-[#22C55E] bg-[#22C55E]/10',
+                        return: 'text-[#EF4444] bg-[#EF4444]/10',
                         draft: 'text-[#6B7280] bg-[#232A36]',
                     };
                     return map[status] || 'text-[#94A3B8] bg-[#232A36]';
@@ -226,9 +228,10 @@
                     const map = {
                         out_of_stock: 'fa-exclamation-circle',
                         on_hold: 'fa-pause-circle',
-                        packed: 'fa-box',
+                        processing: 'fa-spinner',
                         picked: 'fa-check-double',
                         delivered: 'fa-check-circle',
+                        return: 'fa-undo',
                         draft: 'fa-pen',
                     };
                     return map[status] || 'fa-circle';
