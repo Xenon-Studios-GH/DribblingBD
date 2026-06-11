@@ -18,13 +18,14 @@ use App\Http\Controllers\Admin\LoginLogController;
 use App\Http\Controllers\Admin\WorkLogController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderDraftController;
+use App\Http\Controllers\Shop\Auth\RegisterController;
 
 Route::prefix('auth/dribblingbd')->middleware('guest')->group(function () {
-    Route::get('authentication', fn() => view('auth.authentication'))->name('authentication');
-    Route::get('login', fn() => redirect()->route('authentication'))->name('login');
+    Route::view('authentication', 'auth.authentication')->name('authentication');
+    Route::redirect('login', 'auth/dribblingbd/authentication');
     Route::post('login', [LoginController::class, 'store'])->name('login')->middleware('throttle:5,1');
-    Route::get('register', fn() => redirect()->route('authentication'))->name('register');
-    Route::post('register', [\App\Http\Controllers\Shop\Auth\RegisterController::class, 'store'])->middleware('throttle:5,10');
+    Route::redirect('register', 'auth/dribblingbd/authentication')->name('register');
+    Route::post('register', [RegisterController::class, 'store'])->middleware('throttle:5,10');
 });
 
 Route::middleware('guest')->group(function () {
