@@ -9,6 +9,17 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
+    public function home()
+    {
+        if (Auth::check()) {
+            $client = Auth::user()->client;
+            if ($client) {
+                return redirect()->route('shop.profile.index', $client->usercode);
+            }
+        }
+        return redirect()->route('authentication');
+    }
+
     public function index($usercode)
     {
         $client = Client::where('usercode', $usercode)->firstOrFail();
