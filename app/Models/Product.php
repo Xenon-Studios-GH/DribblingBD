@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasSeo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -9,7 +10,7 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSeo;
 
     protected $fillable = [
         'product_code',

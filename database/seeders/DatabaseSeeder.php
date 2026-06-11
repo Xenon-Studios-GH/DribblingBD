@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             FinanceCategorySeeder::class,
             WebsiteCustomizationSeeder::class,
+            SeoSeeder::class,
         ]);
     }
 }

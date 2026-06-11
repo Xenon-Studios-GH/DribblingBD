@@ -15,6 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>[x-cloak]{display:none!important}</style>
+    @stack('seo')
     @stack('styles')
 </head>
 

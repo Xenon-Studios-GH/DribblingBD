@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\SiteSetting;
 use App\Services\LoginLogService;
+use App\Services\SeoService;
 use App\Services\StockService;
 use App\Services\WorkLogService;
 use Illuminate\Support\Facades\Cache;
@@ -17,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(StockService::class);
         $this->app->singleton(WorkLogService::class);
         $this->app->singleton(LoginLogService::class);
+        $this->app->singleton(SeoService::class);
     }
 
     public function boot(): void

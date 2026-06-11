@@ -11,6 +11,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('meta')
 </head>
 
 <body class="min-h-screen bg-[#0F1117] text-[#E6EDF3] antialiased">

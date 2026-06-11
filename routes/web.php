@@ -105,4 +105,6 @@ require __DIR__.'/finance.php';
 
 require __DIR__.'/website.php';
 
+require __DIR__.'/seo.php';
+
 require __DIR__.'/shop.php';

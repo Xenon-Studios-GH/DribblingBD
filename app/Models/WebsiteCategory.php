@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasSeo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class WebsiteCategory extends Model
 {
+    use HasSeo;
     protected $fillable = ['name', 'slug', 'parent_id', 'description', 'is_active', 'created_by', 'updated_by'];
 
     protected function casts(): array

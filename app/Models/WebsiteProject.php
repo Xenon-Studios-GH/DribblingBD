@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasSeo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class WebsiteProject extends Model
 {
+    use HasSeo;
     protected $fillable = [
         'product_id', 'category_id', 'regular_price', 'offer_price',
         'details', 'slug', 'is_active', 'created_by', 'updated_by',

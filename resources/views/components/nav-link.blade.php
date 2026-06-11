@@ -49,6 +49,8 @@ $classes = $active
     <i class="fas fa-cog w-4 h-4"></i>
     @elseif ($icon === 'inquiry')
     <i class="fas fa-headset w-4 h-4"></i>
+    @elseif ($icon === 'seo')
+    <i class="fas fa-search w-4 h-4"></i>
     @endif
     <span>{{ $slot }}</span>
 </a>

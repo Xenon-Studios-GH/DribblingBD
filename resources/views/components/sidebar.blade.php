@@ -33,6 +33,15 @@
         </x-nav-link>
         @endif
 
+        @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+        <div class="my-2 border-t border-[#232A36]"></div>
+        <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">SEO</p>
+
+        <x-nav-link href="{{ admin_route('seo.index') }}" :active="request()->routeIs('seo*')" icon="seo">
+            SEO Management
+        </x-nav-link>
+        @endif
+
         <div class="my-2 border-t border-[#232A36]"></div>
         <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Stock</p>
 

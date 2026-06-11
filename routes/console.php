@@ -4,11 +4,13 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
 use App\Console\Commands\PurgeOldFinanceData;
+use App\Console\Commands\SeoAutoGenerateCommand;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('app:clean-old-transactions --force')->daily()->withoutOverlapping();
 Schedule::command(PurgeOldFinanceData::class, ['--force'])->daily()->withoutOverlapping();
+Schedule::command(SeoAutoGenerateCommand::class)->daily()->withoutOverlapping();
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
