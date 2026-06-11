@@ -61,13 +61,13 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
 @endphp
 <div x-data="{
     checkout: Alpine.$persist({
-        name: '{{ $client?->name ?? '' }}',
-        phone: '{{ $client?->phone ?? '' }}',
-        address: '{{ $client?->address ?? '' }}',
-        city: '{{ $client?->city ?? '' }}',
-        area: '{{ $shipping['area'] ?? '' }}',
-        postal: '{{ $shipping['postal'] ?? '' }}',
-        notes: '{{ $shipping['notes'] ?? '' }}',
+        name: @json($client?->name ?? ''),
+        phone: @json($client?->phone ?? ''),
+        address: @json($client?->address ?? ''),
+        city: @json($client?->city ?? ''),
+        area: @json($shipping['area'] ?? ''),
+        postal: @json($shipping['postal'] ?? ''),
+        notes: @json($shipping['notes'] ?? ''),
     }).as('shop_checkout'),
     _saveTimer: null,
     saveAddress() {

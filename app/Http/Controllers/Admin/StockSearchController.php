@@ -17,8 +17,9 @@ class StockSearchController extends Controller
                 ->latest('updated_at')
                 ->paginate(20);
         } else {
-            $products = Product::where('product_code', 'like', "%{$query}%")
-                ->orWhere('product_name', 'like', "%{$query}%")
+            $safeQuery = str_replace(['%', '_'], ['\\%', '\\_'], $query);
+            $products = Product::where('product_code', 'like', "%{$safeQuery}%")
+                ->orWhere('product_name', 'like', "%{$safeQuery}%")
                 ->with('stocks')
                 ->latest('updated_at')
                 ->paginate(20);

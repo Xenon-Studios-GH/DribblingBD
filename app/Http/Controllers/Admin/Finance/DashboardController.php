@@ -21,6 +21,7 @@ class DashboardController extends Controller
         };
 
         $dateFrom = now()->subDays($days)->startOfDay();
+        $dateFromImmutable = $dateFrom->copy();
 
         $income = FinanceTransaction::income()->where('date', '>=', $dateFrom)->sum('amount');
         $expense = FinanceTransaction::expense()->where('date', '>=', $dateFrom)->sum('amount');
@@ -42,8 +43,8 @@ class DashboardController extends Controller
             ->keyBy(fn($item) => $item->date instanceof \Carbon\Carbon ? $item->date->format('Y-m-d') : $item->date);
 
         $cashflow = collect();
-        $period = new \DatePeriod($dateFrom, new \DateInterval('P1D'), now()->addDay());
-        foreach ($period as $date) {
+        $dateRange = new \DatePeriod($dateFromImmutable, new \DateInterval('P1D'), now()->addDay());
+        foreach ($dateRange as $date) {
             $key = $date->format('Y-m-d');
             $totals = $dailyTotals->get($key);
             $dayIncome = $totals ? (float) $totals->income : 0;

@@ -18,9 +18,10 @@ class StockFilterController extends Controller
         $queryText = $request->get('q');
 
         if ($queryText) {
-            $query->where(function ($q) use ($queryText) {
-                $q->where('product_code', 'like', "%{$queryText}%")
-                  ->orWhere('product_name', 'like', "%{$queryText}%");
+            $safeQueryText = str_replace(['%', '_'], ['\\%', '\\_'], $queryText);
+            $query->where(function ($q) use ($safeQueryText) {
+                $q->where('product_code', 'like', "%{$safeQueryText}%")
+                  ->orWhere('product_name', 'like', "%{$safeQueryText}%");
             });
         }
 

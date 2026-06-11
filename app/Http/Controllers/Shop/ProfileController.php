@@ -23,6 +23,11 @@ class ProfileController extends Controller
     public function index($usercode)
     {
         $client = Client::where('usercode', $usercode)->firstOrFail();
+
+        if (!Auth::check() || Auth::id() !== $client->user_id) {
+            abort(403, 'You are not authorized to view this profile.');
+        }
+
         return view('shop.profile.index', compact('client'));
     }
 

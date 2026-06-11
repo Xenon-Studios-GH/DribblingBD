@@ -34,7 +34,7 @@ class ProductController extends Controller
             default => $query->latest(),
         };
 
-        $products = $query->with('project')->paginate(12)->withQueryString();
+        $products = $query->with(['project', 'stocks'])->paginate(12)->withQueryString();
 
         return view('shop.products.index', compact('products', 'sort', 'type', 'stock'));
     }
@@ -86,11 +86,12 @@ class ProductController extends Controller
             return response()->json([]);
         }
 
+        $safeQ = str_replace(['%', '_'], ['\\%', '\\_'], $q);
         $products = Product::with('project')
             ->where('is_active', true)
-            ->where(function ($query) use ($q) {
-                $query->where('product_name', 'like', "%{$q}%")
-                  ->orWhere('product_code', 'like', "%{$q}%");
+            ->where(function ($query) use ($safeQ) {
+                $query->where('product_name', 'like', "%{$safeQ}%")
+                  ->orWhere('product_code', 'like', "%{$safeQ}%");
             })
             ->take(8)
             ->get()

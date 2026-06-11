@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Order;
+use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,6 +35,22 @@ class CheckoutController extends Controller
             'payment_method' => ['required', 'string', 'in:bkash,nagad,rocket,cod,cash'],
         ]);
 
+        $products = json_decode($validated['products'], true);
+        if (!is_array($products) || empty($products)) {
+            return back()->withErrors(['products' => 'At least one product is required.'])->withInput();
+        }
+
+        $hasOutOfStock = false;
+        foreach ($products as $item) {
+            $stock = Stock::where('product_id', $item['product_id'] ?? 0)
+                ->where('size', $item['size'] ?? '')
+                ->first();
+            if (!$stock || $stock->quantity < (int) ($item['quantity'] ?? 0)) {
+                $hasOutOfStock = true;
+                break;
+            }
+        }
+
         $order = Order::create([
             'order_no' => Order::generateOrderNo(),
             'customer_name' => $validated['customer_name'],
@@ -47,7 +64,7 @@ class CheckoutController extends Controller
             'products' => json_decode($validated['products'], true),
             'total_amount' => $validated['total_amount'],
             'payment_method' => $validated['payment_method'],
-            'status' => 'on_hold',
+            'status' => $hasOutOfStock ? 'out_of_stock' : 'on_hold',
             'created_by' => Auth::id(),
         ]);
 

@@ -50,6 +50,11 @@ class Product extends Model
         return $this->hasOne(WebsiteProject::class);
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
     public function getSlugAttribute(): string
     {
         return $this->project?->slug ?? Str::slug($this->product_name);
