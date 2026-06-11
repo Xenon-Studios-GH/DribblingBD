@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\StockFilterController;
 use App\Http\Controllers\Admin\StockActivityController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WorkerController;
+use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\LoginLogController;
 use App\Http\Controllers\Admin\WorkLogController;
 use App\Http\Controllers\Admin\OrderController;
@@ -92,6 +93,9 @@ Route::middleware('auth')->group(function () {
             Route::post('workers/{worker}/toggle-status', [WorkerController::class, 'toggleStatus'])->name('workers.toggle-status');
             Route::get('login-logs', [LoginLogController::class, 'index'])->name('login-logs.index');
             Route::get('work-logs', [WorkLogController::class, 'index'])->name('work-logs.index');
+            Route::get('inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
+            Route::get('inquiries/{inquiry}', [InquiryController::class, 'show'])->name('inquiries.show');
+            Route::delete('inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
         });
 
     });

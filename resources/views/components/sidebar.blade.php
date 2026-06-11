@@ -28,6 +28,9 @@
         <x-nav-link href="{{ admin_route('work-logs.index') }}" :active="request()->routeIs('work-logs.*')" icon="activity">
             Work Logs
         </x-nav-link>
+        <x-nav-link href="{{ admin_route('inquiries.index') }}" :active="request()->routeIs('inquiries.*')" icon="inquiry">
+            Inquiries
+        </x-nav-link>
         @endif
 
         <div class="my-2 border-t border-[#232A36]"></div>
