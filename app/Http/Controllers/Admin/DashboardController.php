@@ -13,7 +13,7 @@ class DashboardController extends Controller
     public function __invoke()
     {
         $totalWorkers = User::whereIn('role', ['staff', 'admin', 'superadmin'])->count();
-        $recentLogs = WorkLog::with('user')->latest()->take(5)->get();
+        $recentLogs = WorkLog::latest()->take(5)->get();
 
         $totalStock = Stock::sum('quantity');
         $stockInToday = StockTransaction::where('type', 'in')

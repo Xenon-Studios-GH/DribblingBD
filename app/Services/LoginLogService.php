@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\LoginLog;
+use Illuminate\Support\Facades\DB;
 
 class LoginLogService
 {
@@ -31,11 +32,21 @@ class LoginLogService
 
     public function updateLogout(?int $userId): void
     {
-        LoginLog::where('user_id', $userId)
-            ->whereNull('logout_at')
-            ->latest('login_at')
-            ->limit(1)
-            ->update(['logout_at' => now(), 'status' => 'logout']);
+        if ($userId === null) {
+            return;
+        }
+
+        DB::transaction(function () use ($userId) {
+            $latest = LoginLog::where('user_id', $userId)
+                ->whereNull('logout_at')
+                ->latest('login_at')
+                ->lockForUpdate()
+                ->first();
+
+            if ($latest) {
+                $latest->update(['logout_at' => now(), 'status' => 'logout']);
+            }
+        });
     }
 
     public function getLogs(array $filters = [], int $days = 90)

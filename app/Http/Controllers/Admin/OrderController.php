@@ -17,8 +17,17 @@ class OrderController extends Controller
 {
     protected StockService $stockService;
 
+    private ?Product $patchProduct = null;
     private const PATCH_PRODUCT_QUERY = '%Patch%';
     private const PATCH_STOCK_QUANTITY = 2;
+
+    private function getPatchProduct(): ?Product
+    {
+        if ($this->patchProduct === null) {
+            $this->patchProduct = Product::where('product_name', 'like', '%Patch%')->first();
+        }
+        return $this->patchProduct;
+    }
 
     public function __construct(StockService $stockService)
     {
@@ -119,7 +128,7 @@ class OrderController extends Controller
                 return back()->withErrors(['products' => "Product ID {$item['product_id']} not found."])->withInput();
             }
             $item['product_name'] = $product->product_name;
-            $item['price'] = (float) ($item['price'] ?? $product->price);
+            $item['price'] = (float) $product->price;
 
             $stock = Stock::where('product_id', $product->id)->where('size', $item['size'])->first();
             if (!$stock || $stock->quantity < (int) $item['quantity']) {
@@ -129,7 +138,7 @@ class OrderController extends Controller
         unset($item);
 
         if ($request->boolean('patch')) {
-            $patchProduct = Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
+            $patchProduct = $this->getPatchProduct();
             if ($patchProduct) {
                 $patchStock = Stock::where('product_id', $patchProduct->id)->where('size', 'S')->first();
                 if (!$patchStock || $patchStock->quantity < self::PATCH_STOCK_QUANTITY) {
@@ -206,7 +215,7 @@ class OrderController extends Controller
                 return back()->withErrors(['products' => "Product ID {$item['product_id']} not found."])->withInput();
             }
             $item['product_name'] = $product->product_name;
-            $item['price'] = (float) ($item['price'] ?? $product->price);
+            $item['price'] = (float) $product->price;
 
             $stock = Stock::where('product_id', $product->id)->where('size', $item['size'])->first();
             if (!$stock || $stock->quantity < (int) $item['quantity']) {
@@ -215,8 +224,58 @@ class OrderController extends Controller
         }
         unset($item);
 
+        // Compute stock adjustments for added/removed products
+        $oldProducts = $order->products ?? [];
+        $newProducts = $products;
+
+        foreach ($oldProducts as $oldItem) {
+            $stillExists = false;
+            foreach ($newProducts as $newItem) {
+                if (($oldItem['product_id'] ?? null) === ($newItem['product_id'] ?? null) && 
+                    ($oldItem['size'] ?? '') === ($newItem['size'] ?? '')) {
+                    $stillExists = true;
+                    break;
+                }
+            }
+            if (!$stillExists && ($oldItem['product_id'] ?? null) && ($oldItem['size'] ?? '')) {
+                $removedProduct = Product::find($oldItem['product_id']);
+                if ($removedProduct) {
+                    $this->stockService->stockIn(
+                        $removedProduct,
+                        $oldItem['size'],
+                        (int) ($oldItem['quantity'] ?? 0),
+                        'Order #' . $order->order_no . ' item removed (edit)',
+                        auth()->id()
+                    );
+                }
+            }
+        }
+
+        foreach ($newProducts as $newItem) {
+            $existedBefore = false;
+            foreach ($oldProducts as $oldItem) {
+                if (($newItem['product_id'] ?? null) === ($oldItem['product_id'] ?? null) && 
+                    ($newItem['size'] ?? '') === ($oldItem['size'] ?? '')) {
+                    $existedBefore = true;
+                    break;
+                }
+            }
+            if (!$existedBefore && ($newItem['product_id'] ?? null) && ($newItem['size'] ?? '')) {
+                $addedProduct = Product::find($newItem['product_id']);
+                if ($addedProduct) {
+                    $this->stockService->stockOut(
+                        $addedProduct,
+                        $newItem['size'],
+                        (int) ($newItem['quantity'] ?? 0),
+                        'Order #' . $order->order_no . ' item added (edit)',
+                        auth()->id()
+                    );
+                }
+            }
+        }
+
         if ($request->boolean('patch')) {
-            $patchProduct = Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first();
+            $patchProduct = $this->getPatchProduct();
             if ($patchProduct) {
                 $patchStock = Stock::where('product_id', $patchProduct->id)->where('size', 'S')->first();
                 if (!$patchStock || $patchStock->quantity < self::PATCH_STOCK_QUANTITY) {
@@ -239,7 +298,7 @@ class OrderController extends Controller
         $productIds = collect($products)->pluck('product_id')->filter()->unique()->values()->all();
         $productMap = Product::whereIn('id', $productIds)->get()->keyBy('id');
         $patchProduct = $request->boolean('patch')
-            ? Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first()
+            ? $this->getPatchProduct()
             : null;
 
         DB::beginTransaction();
@@ -361,7 +420,7 @@ class OrderController extends Controller
         $productIds = collect($orderProducts)->pluck('product_id')->filter()->unique()->values()->all();
         $productMap = Product::whereIn('id', $productIds)->get()->keyBy('id');
         $patchProduct = $order->patch
-            ? Product::where('product_name', 'like', self::PATCH_PRODUCT_QUERY)->first()
+            ? $this->getPatchProduct()
             : null;
 
         DB::beginTransaction();

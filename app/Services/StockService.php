@@ -20,10 +20,13 @@ class StockService
 
     public function getOrCreateStock(Product $product, string $size): Stock
     {
-        return Stock::firstOrCreate(
-            ['product_id' => $product->id, 'size' => $size],
-            ['quantity' => 0]
-        );
+        return Stock::where('product_id', $product->id)
+            ->where('size', $size)
+            ->lockForUpdate()
+            ->firstOrCreate(
+                ['product_id' => $product->id, 'size' => $size],
+                ['quantity' => 0]
+            );
     }
 
     public function previewIn(Product $product, string $size, int $quantity): array
@@ -84,15 +87,10 @@ class StockService
             $stock = Stock::where('product_id', $product->id)
                 ->where('size', $size)
                 ->lockForUpdate()
-                ->first();
-
-            if (!$stock) {
-                $stock = Stock::create([
-                    'product_id' => $product->id,
-                    'size' => $size,
-                    'quantity' => 0,
-                ]);
-            }
+                ->firstOrCreate(
+                    ['product_id' => $product->id, 'size' => $size],
+                    ['quantity' => 0]
+                );
 
             $stockBefore = $stock->quantity;
             $stock->increment('quantity', $quantity);

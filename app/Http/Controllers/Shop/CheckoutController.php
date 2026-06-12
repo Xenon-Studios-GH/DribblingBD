@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
@@ -40,33 +41,45 @@ class CheckoutController extends Controller
             return back()->withErrors(['products' => 'At least one product is required.'])->withInput();
         }
 
-        $hasOutOfStock = false;
-        foreach ($products as $item) {
-            $stock = Stock::where('product_id', $item['product_id'] ?? 0)
-                ->where('size', $item['size'] ?? '')
-                ->first();
-            if (!$stock || $stock->quantity < (int) ($item['quantity'] ?? 0)) {
-                $hasOutOfStock = true;
-                break;
+        foreach ($products as $i => $item) {
+            $productId = $item['product_id'] ?? 0;
+            $size = $item['size'] ?? '';
+            $qty = (int) ($item['quantity'] ?? 0);
+            if (!$productId || !$size || $qty <= 0) {
+                return back()->withErrors(["products.$i" => 'Each product must have a valid product_id, size, and quantity.'])->withInput();
             }
         }
 
-        $order = Order::create([
-            'order_no' => Order::generateOrderNo(),
-            'customer_name' => $validated['customer_name'],
-            'phone' => $validated['phone'],
-            'address' => trim(implode(', ', array_filter([
+        $order = DB::transaction(function () use ($validated, $products) {
+            $hasOutOfStock = false;
+            foreach ($products as $item) {
+                $stock = Stock::where('product_id', $item['product_id'] ?? 0)
+                    ->where('size', $item['size'] ?? '')
+                    ->first();
+                if (!$stock || $stock->quantity < (int) ($item['quantity'] ?? 0)) {
+                    $hasOutOfStock = true;
+                }
+            }
+
+            $fullAddress = trim(implode(', ', array_filter([
                 $validated['address'],
                 $validated['city'],
                 $validated['area'] ?? null,
                 $validated['postal'] ?? null,
-            ])), ', '),
-            'products' => json_decode($validated['products'], true),
-            'total_amount' => $validated['total_amount'],
-            'payment_method' => $validated['payment_method'],
-            'status' => $hasOutOfStock ? 'out_of_stock' : 'on_hold',
-            'created_by' => Auth::id(),
-        ]);
+            ])), ', ');
+
+            return Order::create([
+                'order_no' => Order::generateOrderNo(),
+                'customer_name' => $validated['customer_name'],
+                'phone' => $validated['phone'],
+                'address' => $fullAddress,
+                'products' => $products,
+                'total_amount' => $validated['total_amount'],
+                'payment_method' => $validated['payment_method'],
+                'status' => $hasOutOfStock ? 'out_of_stock' : 'on_hold',
+                'created_by' => Auth::id(),
+            ]);
+        });
 
         return redirect(route('shop.checkout.processing'))
             ->with('order_no', $order->order_no);
