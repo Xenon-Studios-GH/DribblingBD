@@ -151,6 +151,15 @@
                 cartDropdownOpen: false,
                 mobileMenuOpen: false,
                 searchOpen: false,
+                init() {
+                    window.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            this.mobileMenuOpen = false;
+                            this.cartDropdownOpen = false;
+                            this.searchOpen = false;
+                        }
+                    });
+                }
             }
         }
 
@@ -240,6 +249,7 @@
             }
         }
     </script>
+    @stack('scripts')
 </body>
 
 </html>

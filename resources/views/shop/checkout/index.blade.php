@@ -4,7 +4,7 @@
 <style>
     .btn-cloud {
         font-family: inherit;
-        font-size: 20px;
+        font-size: clamp(16px, 4vw, 20px);
         background: #E85D2C;
         color: white;
         fill: rgba(255, 255, 255, 0.6);

@@ -8,22 +8,22 @@
         </div>
 
         {{-- Filters --}}
-        <form method="GET" class="flex flex-wrap gap-3">
-            <select name="type" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
+        <form method="GET" class="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+            <select name="type" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
                 <option value="">All Types</option>
                 <option value="income" {{ request('type') === 'income' ? 'selected' : '' }}>Income</option>
                 <option value="expense" {{ request('type') === 'expense' ? 'selected' : '' }}>Expense</option>
             </select>
-            <select name="category_id" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
+            <select name="category_id" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
                 <option value="">All Categories</option>
                 @foreach($categories as $cat)
                 <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                 @endforeach
             </select>
-            <input type="date" name="date_from" value="{{ request('date_from', now()->subYear()->format('Y-m-d')) }}" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
-            <input type="date" name="date_to" value="{{ request('date_to', now()->format('Y-m-d')) }}" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2 text-sm text-[#E6EDF3]">
-            <button type="submit" class="rounded-xl bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white">Filter</button>
-            <a href="{{ admin_route('finance.transactions') }}" class="rounded-xl border border-[#232A36] px-4 py-2 text-sm text-[#94A3B8]">Reset</a>
+            <input type="date" name="date_from" value="{{ request('date_from', now()->subYear()->format('Y-m-d')) }}" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
+            <input type="date" name="date_to" value="{{ request('date_to', now()->format('Y-m-d')) }}" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
+            <button type="submit" class="rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white">Filter</button>
+            <a href="{{ admin_route('finance.transactions') }}" class="rounded-xl border border-[#232A36] px-4 py-2.5 text-sm text-[#94A3B8]">Reset</a>
         </form>
 
         {{-- Table --}}

@@ -49,7 +49,7 @@ footer { display: none !important; }
 
 .btn {
     position: relative;
-    font-size: 17px;
+    font-size: clamp(14px, 3.5vw, 17px);
     text-transform: uppercase;
     text-decoration: none;
     padding: 1em 2.5em;
@@ -117,7 +117,7 @@ footer { display: none !important; }
         'Area: ' + (addr.area || 'N/A') + '%0A' +
         'Postal: ' + (addr.postal || 'N/A') + '%0A' +
         'Shipping Address: ' + (addr.address || 'N/A');
-    whatsappUrl = 'https://wa.me/8801641857715?text=' + msg;
+    whatsappUrl = 'https://wa.me/{{ config('shop.whatsapp_number') }}?text=' + msg;
 " class="processing-screen">
     <template x-if="!showConfirm">
         <div class="text-center">

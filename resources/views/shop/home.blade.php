@@ -1,5 +1,56 @@
 @extends('shop.layouts.shop', ['title' => 'Home'])
 
+@push('styles')
+<style>
+    .cta {
+        border: none;
+        background: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0;
+    }
+    .cta span {
+        padding-bottom: 7px;
+        letter-spacing: 4px;
+        font-size: 14px;
+        padding-right: 15px;
+        text-transform: uppercase;
+    }
+    .cta svg {
+        transform: translateX(-8px);
+        transition: all 0.3s ease;
+    }
+    .cta:hover svg {
+        transform: translateX(0);
+    }
+    .cta:active svg {
+        transform: scale(0.9);
+    }
+    .hover-underline-animation {
+        position: relative;
+        color: black;
+        padding-bottom: 20px;
+    }
+    .hover-underline-animation:after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: #000000;
+        transform-origin: bottom right;
+        transition: transform 0.25s ease-out;
+    }
+    .cta:hover .hover-underline-animation:after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }
+</style>
+@endpush
+
 @section('content')
     {{-- Hero Section --}}
     <section class="relative bg-white overflow-hidden">
@@ -8,7 +59,7 @@
                 {{-- Left Content --}}
                 <div class="pb-16 lg:pb-0" x-data="heroAnimation()" x-init="init()">
                     {{-- Heading --}}
-                    <h1 class="text-[42px] sm:text-[56px] lg:text-[72px] xl:text-[88px] font-black leading-[0.9] tracking-[-3px] text-black"
+                    <h1 class="text-[42px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[76px] font-black leading-[0.9] tracking-[-2px] sm:tracking-[-3px] text-black"
                         :class="loaded ? 'animate-fade-up' : 'opacity-0'">
                         <span class="block">{{ $settings['hero_heading_top'] ?? 'Your Identity.' }}</span>
                         <span class="block delay-200" :class="loaded ? 'animate-fade-up' : 'opacity-0'">
@@ -25,15 +76,17 @@
 
                     {{-- CTA --}}
                     <div class="mt-10" :class="loaded ? 'animate-scale-in delay-800' : 'opacity-0 scale-0'">
-                        <a href="{{ $settings['hero_cta_link'] ?? route('shop.products.index') }}"
-                           class="inline-flex items-center justify-center w-[180px] h-[58px] rounded-full bg-black text-white font-semibold text-sm hover:scale-105 transition-transform duration-300 shadow-[0_15px_40px_rgba(0,0,0,0.15)]">
-                            {{ $settings['hero_cta_text'] ?? 'Shop Now' }}
+                        <a href="{{ $settings['hero_cta_link'] ?? route('shop.products.index') }}" class="cta">
+                            <span class="hover-underline-animation">{{ $settings['hero_cta_text'] ?? 'Shop Now' }}</span>
+                            <svg id="arrow-horizontal" xmlns="http://www.w3.org/2000/svg" width="30" height="10" viewBox="0 0 46 16">
+                                <path id="Path_10" data-name="Path 10" d="M8,0,6.545,1.455l5.506,5.506H-30V9.039H12.052L6.545,14.545,8,16l8-8Z" transform="translate(30)"></path>
+                            </svg>
                         </a>
                     </div>
                 </div>
 
                 {{-- Right Image --}}
-                <div class="flex justify-center"
+                <div class="hidden sm:flex justify-center"
                      x-data="heroAnimation()" x-init="init()"
                      :class="loaded ? 'animate-slide-in-right' : 'opacity-0'">
                     <div class="max-w-[500px] rounded-3xl overflow-hidden bg-gray-100 shadow-lg">
@@ -58,22 +111,22 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-[80px] py-14 lg:py-16">
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
-                     x-data="counter($el, {{ $settings['stats_1_value'] ?? 100 }}, @json($settings['stats_1_suffix'] ?? '+'))" x-init="init()">
+                     x-data="counter($el, {{ $settings['stats_1_value'] ?? 100 }}, '{{ $settings['stats_1_suffix'] ?? '+' }}')" x-init="init()">
                     <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_1_label'] ?? 'Premium Products' }}</p>
                 </div>
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
-                     x-data="counter($el, {{ $settings['stats_2_value'] ?? 2000 }}, @json($settings['stats_2_suffix'] ?? '+'))" x-init="init()">
+                     x-data="counter($el, {{ $settings['stats_2_value'] ?? 2000 }}, '{{ $settings['stats_2_suffix'] ?? '+' }}')" x-init="init()">
                     <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_2_label'] ?? 'Happy Customers' }}</p>
                 </div>
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
-                     x-data="counter($el, {{ $settings['stats_3_value'] ?? 7 }}, @json($settings['stats_3_suffix'] ?? ' mins'))" x-init="init()">
+                     x-data="counter($el, {{ $settings['stats_3_value'] ?? 7 }}, '{{ $settings['stats_3_suffix'] ?? ' mins' }}')" x-init="init()">
                     <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]">&lt;<span x-text="count">0</span>{{ $settings['stats_3_suffix'] ?? ' mins' }}</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_3_label'] ?? 'Avg Reply Time' }}</p>
                 </div>
                 <div class="text-center px-6"
-                     x-data="counter($el, {{ $settings['stats_4_value'] ?? 96 }}, @json($settings['stats_4_suffix'] ?? ' hours'))" x-init="init()">
+                     x-data="counter($el, {{ $settings['stats_4_value'] ?? 96 }}, '{{ $settings['stats_4_suffix'] ?? ' hours' }}')" x-init="init()">
                     <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]"><span x-text="count">0</span>{{ $settings['stats_4_suffix'] ?? ' hours' }}</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_4_label'] ?? 'Avg Delivery Time' }}</p>
                 </div>
@@ -81,7 +134,7 @@
         </div>
     </section>
 
-    <section class="py-14 lg:py-18 bg-white">
+    <section class="py-14 lg:py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between mb-8">
                 <div>
@@ -103,7 +156,7 @@
                                 <span class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-white/90 text-gray-700">{{ $product->product_code }}</span>
                             </div>
                             @if ($firstImage)
-                            <img src="{{ asset('storage/' . $firstImage->image_path) }}" alt="{{ $product->product_name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <img src="{{ asset('storage/' . $firstImage->image_path) }}" alt="{{ $product->product_name }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                             @else
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-box w-16 h-16 text-gray-300 group-hover:text-gray-400 transition-colors"></i>
@@ -118,7 +171,7 @@
                             <div class="mt-1">
                                 <span class="text-base font-bold text-[#E85D2C]">৳{{ number_format($product->price) }}</span>
                             </div>
-                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : ""), code: @json($product->product_code), slug: @json($product->slug) }); setTimeout(() => added = false, 1500)'
+                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : "", JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                                 :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
                                 <span x-show="!added">Add to Cart</span>
@@ -150,7 +203,7 @@
     </section>
 
     {{-- Trending --}}
-    <section class="py-14 lg:py-18 bg-gray-50">
+    <section class="py-14 lg:py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between mb-8">
                 <div>
@@ -172,14 +225,14 @@
                                 <span class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-white/90 text-gray-700">{{ $product->product_code }}</span>
                             </div>
                             @if ($firstImage)
-                            <img src="{{ asset('storage/' . $firstImage->image_path) }}" alt="{{ $product->product_name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <img src="{{ asset('storage/' . $firstImage->image_path) }}" alt="{{ $product->product_name }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                             @else
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-box w-16 h-16 text-gray-300 group-hover:text-gray-400 transition-colors"></i>
                             </div>
                             @endif
                             <div class="absolute top-3 right-3 z-10">
-                                <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code), name: @json($product->product_name) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm">
+                                <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm" aria-label="Add to wishlist">
                                     <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : 'text-gray-400'"></i>
                                 </button>
                             </div>
@@ -189,7 +242,7 @@
                             <div class="mt-1">
                                 <span class="text-base font-bold text-[#E85D2C]">৳{{ number_format($product->price) }}</span>
                             </div>
-                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : ""), code: @json($product->product_code), slug: @json($product->slug) }); setTimeout(() => added = false, 1500)'
+                            <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : "", JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                                 :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
                                 <span x-show="!added">Add to Cart</span>
@@ -209,7 +262,7 @@
     </section>
 
     {{-- Reviews Carousel --}}
-    <section class="py-14 lg:py-18 bg-white overflow-hidden">
+    <section class="py-14 lg:py-20 bg-white overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
             <div class="text-center">
                 <span class="text-xs font-semibold text-[#E85D2C] uppercase tracking-widest">{{ $settings['testimonials_eyebrow'] ?? 'Testimonials' }}</span>

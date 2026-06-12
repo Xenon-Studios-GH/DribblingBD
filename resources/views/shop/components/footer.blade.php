@@ -27,13 +27,13 @@
                     Bangladesh's premier destination for premium jerseys. From national team classics to personalized designs, we bring the pitch to your doorstep.
                 </p>
                 <div class="flex items-center gap-3 mt-4">
-                    <a href="{{ $settings['social_facebook'] ?? 'https://www.facebook.com/dribblingbd' }}" target="_blank" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
+                    <a href="{{ $settings['social_facebook'] ?? 'https://www.facebook.com/dribblingbd' }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
                         <i class="fab fa-facebook w-4 h-4"></i>
                     </a>
-                    <a href="{{ $settings['social_instagram'] ?? 'https://www.instagram.com/dribbling_bd1' }}" target="_blank" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
+                    <a href="{{ $settings['social_instagram'] ?? 'https://www.instagram.com/dribbling_bd1' }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
                         <i class="fab fa-instagram w-4 h-4"></i>
                     </a>
-                    <a href="{{ $settings['social_whatsapp'] ?? 'https://wa.me/'.config('shop.whatsapp_number') }}" target="_blank" class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#25D366] hover:text-white transition-colors">
+                    <a href="{{ $settings['social_whatsapp'] ?? 'https://wa.me/'.config('shop.whatsapp_number') }}" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" class="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#25D366] hover:text-white transition-colors">
                         <i class="fab fa-whatsapp w-4 h-4"></i>
                     </a>
                 </div>

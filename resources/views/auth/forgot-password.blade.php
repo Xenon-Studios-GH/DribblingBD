@@ -37,7 +37,6 @@
 
                     @if (session('status'))
                     <p class="mt-4 text-sm text-[#22C55E]">{{ session('status') }}</p>
-                    <p class="mt-1 text-xs text-[#94A3B8]">(Email is logged to storage/logs since mail is in log mode)</p>
                     @endif
 
                     <button type="submit"

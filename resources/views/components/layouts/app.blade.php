@@ -11,6 +11,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>[x-cloak]{display:none!important}</style>
     @stack('meta')
 </head>
 
@@ -18,7 +19,7 @@
     <div class="flex min-h-screen" x-data="appLayout()" @keydown.escape.window="sidebarOpen = false">
         <x-sidebar />
 
-        <div class="flex flex-1 flex-col md:ml-16 lg:ml-64">
+        <div class="flex flex-1 flex-col md:ml-64">
             <!-- Top Bar -->
             <header class="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-[#232A36] bg-[#0F1117] px-4 md:px-6"
                 x-data="{ scrolled: false }"
@@ -46,7 +47,7 @@
                             x-text="unreadCount"></span>
                     </button>
                     <div x-show="open" @click.outside="open = false" x-transition
-                        class="absolute right-0 mt-2 w-80 rounded-xl border border-[#232A36] bg-[#161B22] py-2 shadow-xl max-h-96 overflow-y-auto">
+                        class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-[#232A36] bg-[#161B22] py-2 shadow-xl max-h-96 overflow-y-auto">
                         <div class="flex items-center justify-between px-4 pb-2 border-b border-[#232A36]">
                             <span class="text-sm font-semibold text-[#E6EDF3]">Notifications</span>
                             <a href="{{ admin_route('finance.notifications') }}" class="text-xs text-[#3B82F6] hover:underline">View all</a>
@@ -146,9 +147,11 @@
                 markRead(notif) {
                     if (!notif.is_read) {
                         fetch('{{ route('finance.notifications.read', ['role' => Auth::user()->role, 'notification' => '__ID__']) }}'.replace('__ID__', notif.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
+                            .then(() => {
+                                notif.is_read = true;
+                                this.unreadCount = Math.max(0, this.unreadCount - 1);
+                            })
                             .catch(e => console.error('Failed to mark notification as read:', e));
-                        notif.is_read = true;
-                        this.unreadCount = Math.max(0, this.unreadCount - 1);
                     }
                 },
             };

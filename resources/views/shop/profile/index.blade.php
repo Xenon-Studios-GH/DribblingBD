@@ -1,7 +1,7 @@
 @extends('shop.layouts.shop', ['title' => $client->name . ' — Profile'])
 
 @section('content')
-    <div class="max-w-5xl mx-auto px-4 py-8 sm:py-12" x-data="{ tab: 'personal' }">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" x-data="{ tab: 'personal' }">
         @if (session('success'))
             <div class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
                 {{ session('success') }}
@@ -218,12 +218,12 @@
                             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                                 <div class="p-6 sm:p-8">
                                     {{-- Wishlist --}}
-                                    <div x-show="tab === 'wishlist'" x-data="{ ids: (JSON.parse(localStorage.getItem('shop_wishlist') || '[]')).map(i => typeof i === 'object' ? i : { id: i }) }">
+                                    <div x-show="tab === 'wishlist'">
                                         <div class="flex items-center justify-between mb-5">
                                             <h3 class="text-lg font-bold text-gray-900">Wishlist</h3>
-                                            <span class="px-2.5 py-1 rounded-full bg-red-50 text-red-500 text-xs font-semibold" x-text="ids.length + ' items'"></span>
+                                            <span class="px-2.5 py-1 rounded-full bg-red-50 text-red-500 text-xs font-semibold" x-text="wishlist.length + ' items'"></span>
                                         </div>
-                                        <template x-if="ids.length === 0">
+                                        <template x-if="wishlist.length === 0">
                                             <div class="text-center py-16">
                                                 <div class="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
                                                     <i class="fas fa-heart text-2xl text-red-300"></i>
@@ -236,7 +236,7 @@
                                             </div>
                                         </template>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <template x-for="(item, index) in ids" :key="item.id ?? item">
+                                            <template x-for="(item, index) in wishlist" :key="item.id ?? item">
                                                 <div class="relative group rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all overflow-hidden bg-white">
                                                     <div class="flex gap-4 p-5">
                                                         <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-red-100 to-red-50 flex items-center justify-center flex-shrink-0">
@@ -252,7 +252,7 @@
                                                             </a>
                                                         </div>
                                                     </div>
-                                                    <button type="button" @click="ids.splice(index, 1); localStorage.setItem('shop_wishlist', JSON.stringify(ids))" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100">
+                                                    <button type="button" @click="wishlist.splice(index, 1)" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100">
                                                         <i class="fas fa-trash-alt text-xs"></i>
                                                     </button>
                                                 </div>
@@ -306,12 +306,12 @@
                                     </div>
 
                                     {{-- Cart --}}
-                                    <div x-show="tab === 'cart'" x-data="{ items: JSON.parse(localStorage.getItem('shop_cart') || '[]') }">
+                                    <div x-show="tab === 'cart'">
                                         <div class="flex items-center justify-between mb-5">
                                             <h3 class="text-lg font-bold text-gray-900">Cart</h3>
-                                            <span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-500 text-xs font-semibold" x-text="items.length + ' items'"></span>
+                                            <span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-500 text-xs font-semibold" x-text="cart.length + ' items'"></span>
                                         </div>
-                                        <template x-if="items.length === 0">
+                                        <template x-if="cart.length === 0">
                                             <div class="text-center py-16">
                                                 <div class="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-4">
                                                     <i class="fas fa-shopping-cart text-2xl text-orange-300"></i>
@@ -324,7 +324,7 @@
                                             </div>
                                         </template>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <template x-for="(item, index) in items" :key="index">
+                                            <template x-for="(item, index) in cart" :key="index">
                                                 <div class="relative group rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all overflow-hidden bg-white">
                                                     <div class="flex gap-4 p-5">
                                                         <template x-if="item.image">
@@ -350,17 +350,17 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <button type="button" @click="items.splice(index, 1); localStorage.setItem('shop_cart', JSON.stringify(items))" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100">
+                                                    <button type="button" @click="cart.splice(index, 1)" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100">
                                                         <i class="fas fa-trash-alt text-xs"></i>
                                                     </button>
                                                 </div>
                                             </template>
                                         </div>
-                                        <template x-if="items.length > 0">
+                                        <template x-if="cart.length > 0">
                                             <div class="mt-5 pt-5 border-t border-gray-100 flex items-center justify-between">
                                                 <div>
                                                     <p class="text-xs text-gray-500">Total</p>
-                                                    <p class="text-lg font-bold text-gray-900">৳<span x-text="items.reduce((sum, i) => sum + (i.price * i.quantity), 0).toLocaleString()"></span></p>
+                                                    <p class="text-lg font-bold text-gray-900">৳<span x-text="cart.reduce((sum, i) => sum + (i.price * i.quantity), 0).toLocaleString()"></span></p>
                                                 </div>
                                                 <a href="{{ route('shop.checkout.index') }}" class="px-6 py-3 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors inline-flex items-center gap-2 shadow-lg shadow-[#E85D2C]/20">
                                                     Proceed to Checkout <i class="fas fa-arrow-right text-xs"></i>

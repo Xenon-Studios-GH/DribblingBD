@@ -19,6 +19,9 @@
         display: flex;
         gap: 8px;
         margin-top: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
     }
     .gallery-thumbs button {
         flex: 1;

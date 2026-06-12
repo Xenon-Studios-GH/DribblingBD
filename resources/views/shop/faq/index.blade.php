@@ -32,7 +32,6 @@
                         </div>
                     </div>
                 </div>
-                @endforeach
                 @empty
                 <p class="text-sm text-gray-500">No product FAQs available yet.</p>
                 @endforelse
@@ -63,7 +62,6 @@
                         </div>
                     </div>
                 </div>
-                @endforeach
                 @empty
                 <p class="text-sm text-gray-500">No order FAQs available yet.</p>
                 @endforelse

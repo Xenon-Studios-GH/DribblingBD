@@ -45,8 +45,8 @@
 
         <!-- Search + Actions Bar (sticky below top bar) -->
         <div class="sticky top-16 z-20 -mx-4 -mt-2 bg-[#0F1117] px-4 pb-4 pt-4 md:-mx-8 md:px-8">
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="relative flex-1 min-w-0 sm:min-w-[200px]">
                     <i class="fas fa-search pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]"></i>
                     <input type="text" id="stockSearch" placeholder="Search product or code..." autocomplete="off"
                         class="w-full rounded-xl border border-[#232A36] bg-[#161B22] pl-10 pr-4 py-2.5 text-sm text-[#E6EDF3] placeholder-[#94A3B8] transition-colors focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
@@ -59,11 +59,11 @@
                 </select>
                 <a href="{{ admin_route('stock.in') }}" class="flex items-center gap-2 rounded-xl bg-[#22C55E] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#16A34A] shadow-lg shadow-[#22C55E]/20" aria-label="Stock In">
                     <i class="fas fa-plus h-4 w-4"></i>
-                    <span>In</span>
+                    <span class="hidden sm:inline">In</span>
                 </a>
                 <a href="{{ admin_route('stock.out') }}" class="flex items-center gap-2 rounded-xl bg-[#EF4444] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#DC2626] shadow-lg shadow-[#EF4444]/20" aria-label="Stock Out">
                     <i class="fas fa-minus h-4 w-4"></i>
-                    <span>Out</span>
+                    <span class="hidden sm:inline">Out</span>
                 </a>
             </div>
         </div>
@@ -91,7 +91,7 @@
 
             function loadTable(params) {
                 tableContainer.classList.add('opacity-50');
-                fetch(`{{ admin_route('stock.filter') }}?${params}`)
+                fetch(`{{ admin_route('stock.filter') }}?${params}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(r => r.json())
                     .then(data => {
                         tableContainer.innerHTML = data.html;

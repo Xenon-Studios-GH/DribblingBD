@@ -60,11 +60,11 @@
                                     <canvas id="incomePieChart"></canvas>
                                 </div>
                                 <div class="space-y-1.5 min-w-0 flex-1">
+                                    @php $incomeTotal = $incomeByCategory->sum('total'); @endphp
                                     @forelse($incomeByCategory as $item)
                                     @php
                                     $idx = $loop->index % count($chartColors);
-                                    $total = $incomeByCategory->sum('total');
-                                    $pct = $total > 0 ? round($item['total'] / $total * 100, 1) : 0;
+                                    $pct = $incomeTotal > 0 ? round($item['total'] / $incomeTotal * 100, 1) : 0;
                                     @endphp
                                     <div class="flex items-center gap-2 text-xs">
                                         <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: {{ $chartColors[$idx] }}"></span>
@@ -85,11 +85,11 @@
                                     <canvas id="expensePieChart"></canvas>
                                 </div>
                                 <div class="space-y-1.5 min-w-0 flex-1">
+                                    @php $expenseTotal = $expenseByCategory->sum('total'); @endphp
                                     @forelse($expenseByCategory as $item)
                                     @php
                                     $idx = $loop->index % count($chartColors);
-                                    $total = $expenseByCategory->sum('total');
-                                    $pct = $total > 0 ? round($item['total'] / $total * 100, 1) : 0;
+                                    $pct = $expenseTotal > 0 ? round($item['total'] / $expenseTotal * 100, 1) : 0;
                                     @endphp
                                     <div class="flex items-center gap-2 text-xs">
                                         <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: {{ $chartColors[$idx] }}"></span>
@@ -110,52 +110,52 @@
                 <div x-show="hologram" x-cloak x-transition.opacity.duration.300ms
                     @click.self="destroyHologramCharts(); hologram = false"
                     @keydown.escape.window="destroyHologramCharts(); hologram = false"
-                    class="fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">
-                    <div class="relative w-[90vw] h-[85vh] max-w-6xl bg-[#0F1117] rounded-2xl border border-[#232A36] p-6 flex flex-col">
+                    class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">
+                    <div class="relative w-full h-[90vh] sm:h-[85vh] max-w-6xl bg-[#0F1117] rounded-2xl border border-[#232A36] p-3 sm:p-6 flex flex-col overflow-hidden">
                         {{-- Close --}}
-                        <button @click="destroyHologramCharts(); hologram = false" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-[#232A36] hover:bg-[#EF4444] text-[#94A3B8] hover:text-white transition-colors z-10">
+                        <button @click="destroyHologramCharts(); hologram = false" class="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 flex items-center justify-center rounded-full bg-[#232A36] hover:bg-[#EF4444] text-[#94A3B8] hover:text-white transition-colors z-10" aria-label="Close hologram view">
                             <i class="fas fa-times text-sm"></i>
                         </button>
 
                         {{-- Top Stats --}}
-                        <div class="grid grid-cols-3 gap-4 mb-4 flex-shrink-0">
-                            <div class="text-center p-3 rounded-lg bg-[#1A1F2E]">
-                                <p class="text-xs text-[#94A3B8]">Income</p>
-                                <p class="text-lg font-bold text-[#22C55E]">৳{{ number_format($income, 2) }}</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-3 sm:mb-4 flex-shrink-0">
+                            <div class="text-center p-2 sm:p-3 rounded-lg bg-[#1A1F2E]">
+                                <p class="text-[10px] sm:text-xs text-[#94A3B8]">Income</p>
+                                <p class="text-sm sm:text-lg font-bold text-[#22C55E]">৳{{ number_format($income, 2) }}</p>
                             </div>
-                            <div class="text-center p-3 rounded-lg bg-[#1A1F2E]">
-                                <p class="text-xs text-[#94A3B8]">Expense</p>
-                                <p class="text-lg font-bold text-[#EF4444]">৳{{ number_format($expense, 2) }}</p>
+                            <div class="text-center p-2 sm:p-3 rounded-lg bg-[#1A1F2E]">
+                                <p class="text-[10px] sm:text-xs text-[#94A3B8]">Expense</p>
+                                <p class="text-sm sm:text-lg font-bold text-[#EF4444]">৳{{ number_format($expense, 2) }}</p>
                             </div>
-                            <div class="text-center p-3 rounded-lg bg-[#1A1F2E]">
-                                <p class="text-xs text-[#94A3B8]">Profit</p>
-                                <p class="text-lg font-bold {{ $balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">৳{{ number_format($balance, 2) }}</p>
+                            <div class="text-center p-2 sm:p-3 rounded-lg bg-[#1A1F2E]">
+                                <p class="text-[10px] sm:text-xs text-[#94A3B8]">Profit</p>
+                                <p class="text-sm sm:text-lg font-bold {{ $balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">৳{{ number_format($balance, 2) }}</p>
                             </div>
                         </div>
 
                         {{-- Charts Area --}}
-                        <div class="flex-1 grid grid-cols-[1fr_auto] gap-4 min-h-0">
+                        <div class="flex-1 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 sm:gap-4 min-h-0 overflow-hidden">
                             {{-- Debit/Credit Table --}}
                             <div class="min-h-0 overflow-hidden rounded-lg border border-[#232A36] flex flex-col">
-                                <div class="flex-shrink-0 flex items-center text-xs font-medium text-[#94A3B8] bg-[#1A1F2E] border-b border-[#232A36]">
-                                    <span class="flex-1 px-3 py-2 text-left">Description</span>
-                                    <span class="w-36 px-3 py-2 text-right text-[#22C55E] border-l border-[#232A36]">Credit (IN)</span>
-                                    <span class="w-36 px-3 py-2 text-right text-[#EF4444] border-l border-[#232A36]">Debit (OUT)</span>
-                                    <span class="w-36 px-3 py-2 text-right border-l border-[#232A36]">Balance</span>
+                                <div class="flex-shrink-0 flex items-center text-[10px] sm:text-xs font-medium text-[#94A3B8] bg-[#1A1F2E] border-b border-[#232A36]">
+                                    <span class="flex-1 px-2 sm:px-3 py-2 text-left">Description</span>
+                                    <span class="w-20 sm:w-36 px-2 sm:px-3 py-2 text-right text-[#22C55E] border-l border-[#232A36]">Credit</span>
+                                    <span class="w-20 sm:w-36 px-2 sm:px-3 py-2 text-right text-[#EF4444] border-l border-[#232A36]">Debit</span>
+                                    <span class="w-20 sm:w-36 px-2 sm:px-3 py-2 text-right border-l border-[#232A36] hidden sm:block">Balance</span>
                                 </div>
-                                <div class="flex-1 overflow-y-auto text-xs">
+                                <div class="flex-1 overflow-y-auto text-[10px] sm:text-xs">
                                     @foreach($cashflowWithBalance as $row)
                                     <div class="flex items-center border-b border-[#232A36]/50 last:border-0 hover:bg-[#1C2333] transition-colors">
-                                        <span class="flex-1 px-3 py-1.5 text-[#6B7280]">{{ \Carbon\Carbon::parse($row['date'])->format('M d') }} <span class="text-[#4A5568]">{{ \Carbon\Carbon::parse($row['date'])->format('D') }}</span></span>
-                                        <span class="w-36 px-3 py-1.5 text-right text-[#22C55E] font-medium border-l border-[#232A36]/50">{{ $row['income'] > 0 ? '৳'.number_format($row['income']) : '—' }}</span>
-                                        <span class="w-36 px-3 py-1.5 text-right text-[#EF4444] font-medium border-l border-[#232A36]/50">{{ $row['expense'] > 0 ? '৳'.number_format($row['expense']) : '—' }}</span>
-                                        <span class="w-36 px-3 py-1.5 text-right text-[#E6EDF3] font-medium border-l border-[#232A36]/50">৳{{ number_format($row['running_balance']) }}</span>
+                                        <span class="flex-1 px-2 sm:px-3 py-1.5 text-[#6B7280]">{{ \Carbon\Carbon::parse($row['date'])->format('M d') }}</span>
+                                        <span class="w-20 sm:w-36 px-2 sm:px-3 py-1.5 text-right text-[#22C55E] font-medium border-l border-[#232A36]/50">{{ $row['income'] > 0 ? '৳'.number_format($row['income']) : '—' }}</span>
+                                        <span class="w-20 sm:w-36 px-2 sm:px-3 py-1.5 text-right text-[#EF4444] font-medium border-l border-[#232A36]/50">{{ $row['expense'] > 0 ? '৳'.number_format($row['expense']) : '—' }}</span>
+                                        <span class="w-20 sm:w-36 px-2 sm:px-3 py-1.5 text-right text-[#E6EDF3] font-medium border-l border-[#232A36]/50 hidden sm:block">৳{{ number_format($row['running_balance']) }}</span>
                                     </div>
                                     @endforeach
                                 </div>
                             </div>
                             {{-- Pies side by side --}}
-                            <div class="w-56 flex-shrink-0 bg-[#1A1F2E] rounded-lg p-3 flex flex-col items-center justify-center gap-4">
+                            <div class="hidden sm:flex w-56 flex-shrink-0 bg-[#1A1F2E] rounded-lg p-3 flex-col items-center justify-center gap-4">
                                 <div class="flex flex-col items-center gap-2">
                                     <p class="text-xs text-[#22C55E] font-medium">Income</p>
                                     <div class="w-20 h-20"><canvas id="hologramIncomePie"></canvas></div>
@@ -218,7 +218,7 @@ new Chart(document.getElementById('incomePieChart'), {
         responsive: true, maintainAspectRatio: true, cutout: '65%',
         plugins: {
             legend: { display: false },
-            datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, formatter: (val, ctx) => { let t = ctx.dataset.data.reduce((a,b) => a+b, 0); return (val/t*100).toFixed(1)+'%'; } },
+            datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, formatter: (val, ctx) => { let t = ctx.dataset.data.reduce((a,b) => a+b, 0); return t ? (val/t*100).toFixed(1)+'%' : null; } },
             tooltip: { callbacks: { label: (ctx) => ' ৳' + Number(ctx.raw).toLocaleString(undefined, {minimumFractionDigits: 2}) } },
         },
     },
@@ -239,7 +239,7 @@ new Chart(document.getElementById('expensePieChart'), {
         responsive: true, maintainAspectRatio: true, cutout: '65%',
         plugins: {
             legend: { display: false },
-            datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, formatter: (val, ctx) => { let t = ctx.dataset.data.reduce((a,b) => a+b, 0); return (val/t*100).toFixed(1)+'%'; } },
+            datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, formatter: (val, ctx) => { let t = ctx.dataset.data.reduce((a,b) => a+b, 0); return t ? (val/t*100).toFixed(1)+'%' : null; } },
             tooltip: { callbacks: { label: (ctx) => ' ৳' + Number(ctx.raw).toLocaleString(undefined, {minimumFractionDigits: 2}) } },
         },
     },
@@ -265,7 +265,7 @@ hc.push(new Chart(document.getElementById('hologramIncomePie'), {
     options: {
         responsive: true, maintainAspectRatio: true, cutout: '60%',
         animation: { duration: 2000, easing: 'easeOutQuart' },
-        plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 9 }, formatter: (v,ctx) => { var t = ctx.dataset.data.reduce((a,b)=>a+b,0); return t ? (v/t*100).toFixed(0)+'%' : ''; } } },
+        plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 9 }, formatter: (v,ctx) => { var t = ctx.dataset.data.reduce((a,b)=>a+b,0); return t ? (v/t*100).toFixed(0)+'%' : null; } } },
     },
 }));
 hc.push(new Chart(document.getElementById('hologramExpensePie'), {
@@ -277,7 +277,7 @@ hc.push(new Chart(document.getElementById('hologramExpensePie'), {
     options: {
         responsive: true, maintainAspectRatio: true, cutout: '60%',
         animation: { duration: 2000, easing: 'easeOutQuart' },
-        plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 9 }, formatter: (v,ctx) => { var t = ctx.dataset.data.reduce((a,b)=>a+b,0); return t ? (v/t*100).toFixed(0)+'%' : ''; } } },
+        plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 9 }, formatter: (v,ctx) => { var t = ctx.dataset.data.reduce((a,b)=>a+b,0); return t ? (v/t*100).toFixed(0)+'%' : null; } } },
     },
 }));
 } catch (e) { console.error('Hologram chart init failed:', e); }

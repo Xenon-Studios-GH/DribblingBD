@@ -17,7 +17,7 @@
             <a href="{{ route('shop.category', $project->category->slug) }}" class="hover:text-[#E85D2C]">{{ $project->category->name }}</a>
             <span>/</span>
             @endif
-            <span class="text-gray-900">{{ $project->product->product_name }}</span>
+            <span class="text-gray-900 truncate">{{ $project->product->product_name }}</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -32,10 +32,10 @@
                     <img src="{{ asset('storage/' . $mainImage->image_path) }}" alt="{{ $project->product->product_name }}" class="w-full h-full object-cover">
                 </div>
                 @if($images->count() > 1)
-                <div class="grid grid-cols-4 gap-2">
+                <div class="grid grid-cols-4 gap-2" style="overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin;">
                     @foreach($images as $img)
-                    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 border-transparent hover:border-[#E85D2C] transition-colors">
-                        <img src="{{ asset('storage/' . $img->image_path) }}" alt="" class="w-full h-full object-cover">
+                    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 border-transparent hover:border-[#E85D2C] transition-colors flex-shrink-0">
+                        <img src="{{ asset('storage/' . $img->image_path) }}" alt="" loading="lazy" class="w-full h-full object-cover">
                     </div>
                     @endforeach
                 </div>

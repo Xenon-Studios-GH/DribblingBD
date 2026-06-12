@@ -23,14 +23,17 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            min-height: 100dvh;
             background: #25252b;
-            overflow: hidden;
+            overflow-x: hidden;
+            padding: 16px;
         }
 
         .container {
             position: relative;
-            width: 820px;
-            height: 500px;
+            width: 100%;
+            max-width: 820px;
+            min-height: 500px;
             border: 2px solid #e46033;
             box-shadow: 0 0 25px #e46033;
             overflow: hidden;
@@ -276,7 +279,7 @@
             transform: translateX(-120%);
             transition: .7s ease;
             opacity: 0;
-            filter: blur(10PX);
+            filter: blur(10px);
             transition-delay: calc(.1s * var(--S));
         }
 
@@ -366,6 +369,110 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        .info-panel { display: none; }
+
+        @media (max-width: 820px) {
+            body { padding: 0; align-items: stretch; }
+
+            .container {
+                max-width: 100%;
+                min-height: 100vh;
+                min-height: 100dvh;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .container .form-box {
+                position: relative;
+                width: 100%;
+                height: auto;
+                min-height: 100vh;
+                min-height: 100dvh;
+                padding: 60px 24px 40px;
+            }
+
+            .form-box.Login { left: auto; }
+            .form-box.Register { right: auto; }
+
+            .form-box.Login .animation,
+            .container.active .form-box.Login .animation {
+                transform: none;
+                opacity: 1;
+                filter: none;
+                transition-delay: 0s;
+            }
+
+            .form-box.Register .animation,
+            .container.active .form-box.Register .animation {
+                transform: none;
+                opacity: 1;
+                filter: none;
+                transition-delay: 0s;
+            }
+
+            .form-box h2 { font-size: 28px; }
+            .form-box.Register h2 { font-size: 22px; }
+
+            .info-panel { display: none !important; }
+
+            .container .curved-shape,
+            .container .curved-shape2,
+            .info-content { display: none; }
+
+            .container.active .form-box.Login .animation {
+                transform: none;
+                opacity: 0;
+                position: absolute;
+                pointer-events: none;
+            }
+
+            .container.active .form-box.Register .animation {
+                transform: none;
+                opacity: 1;
+                position: relative;
+                pointer-events: auto;
+            }
+
+            .form-box.Register {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+
+            .container.active .form-box.Register {
+                opacity: 1;
+                pointer-events: auto;
+                position: relative;
+            }
+
+            .form-box.Login {
+                position: relative;
+                opacity: 1;
+                transition: opacity 0.3s ease;
+            }
+
+            .container.active .form-box.Login {
+                opacity: 0;
+                position: absolute;
+                pointer-events: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-box { padding: 50px 20px 30px; }
+            .form-box h2 { font-size: 24px; }
+            .form-box.Register h2 { font-size: 20px; }
+            .input-box input { font-size: 15px; }
+            .input-box label { font-size: 15px; }
+            .btn { font-size: 15px; height: 46px; }
+        }
     </style>
 </head>
 
@@ -417,8 +524,8 @@
             </form>
         </div>
 
-        {{-- Login Info --}}
-        <div class="info-content Login">
+        {{-- Login Info (desktop only) --}}
+        <div class="info-content Login info-panel">
             <h2 class="animation" style="--D:0; --S:20">WELCOME BACK!</h2>
             <p class="animation" style="--D:1; --S:21">We are happy to have you with us again. If you need anything, we are here to help.</p>
         </div>
@@ -481,8 +588,8 @@
             </form>
         </div>
 
-        {{-- Register Info --}}
-        <div class="info-content Register">
+        {{-- Register Info (desktop only) --}}
+        <div class="info-content Register info-panel">
             <h2 class="animation" style="--li:17; --S:0">WELCOME!</h2>
             <p class="animation" style="--li:18; --S:1">We're delighted to have you here. If you need any assistance, feel free to reach out.</p>
         </div>

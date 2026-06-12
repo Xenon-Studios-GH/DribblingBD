@@ -14,14 +14,14 @@
         @endif
 
         {{-- Tab nav --}}
-        <div class="mb-6 flex flex-wrap gap-1 border-b border-[#232A36]">
-            <button @click="tab = 'faqs'" :class="tab === 'faqs' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="px-4 py-3 text-sm font-medium transition-colors">
+        <div class="mb-6 flex gap-1 border-b border-[#232A36] overflow-x-auto">
+            <button @click="tab = 'faqs'" :class="tab === 'faqs' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="whitespace-nowrap px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors">
                 <i class="fas fa-question-circle mr-1.5"></i>FAQs
             </button>
-            <button @click="tab = 'testimonials'" :class="tab === 'testimonials' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="px-4 py-3 text-sm font-medium transition-colors">
+            <button @click="tab = 'testimonials'" :class="tab === 'testimonials' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="whitespace-nowrap px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors">
                 <i class="fas fa-star mr-1.5"></i>Testimonials
             </button>
-            <button @click="tab = 'settings'" :class="tab === 'settings' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="px-4 py-3 text-sm font-medium transition-colors">
+            <button @click="tab = 'settings'" :class="tab === 'settings' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="whitespace-nowrap px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors">
                 <i class="fas fa-cog mr-1.5"></i>Site Settings
             </button>
         </div>
@@ -96,7 +96,7 @@
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <button @click="fetch('/{{ request()->segment(2) }}/website/customization/testimonials/{{ $t->id }}').then(r=>r.json()).then(d=>{ let f=document.querySelector('#testimonial-form'); f.querySelector('[name=name]').value=d.name; f.querySelector('[name=designation]').value=d.designation||''; f.querySelector('[name=content]').value=d.content; f.querySelector('[name=rating]').value=d.rating; f.querySelector('[name=sort_order]').value=d.sort_order; f.action='{{ admin_route('website.customization.testimonials.update', $t) }}'; let m=f.querySelector('input[name=_method]'); if(!m){m=document.createElement('input'); m.type='hidden'; m.name='_method'; f.appendChild(m)} m.value='POST'; document.querySelector('#testimonial-modal-title').textContent='Edit Testimonial'; document.querySelector('#testimonial-modal').classList.remove('hidden'); })" class="text-[#3B82F6] hover:text-[#2563EB] text-xs"><i class="fas fa-edit"></i></button>
+                            <button @click="fetch('/{{ request()->segment(2) }}/website/customization/testimonials/{{ $t->id }}').then(r=>r.json()).then(d=>{ let f=document.querySelector('#testimonial-form'); f.querySelector('[name=name]').value=d.name; f.querySelector('[name=designation]').value=d.designation||''; f.querySelector('[name=content]').value=d.content; f.querySelector('[name=rating]').value=d.rating; f.querySelector('[name=sort_order]').value=d.sort_order; f.action='{{ admin_route('website.customization.testimonials.update', $t) }}'; let m=f.querySelector('input[name=_method]'); if(!m){m=document.createElement('input'); m.type='hidden'; m.name='_method'; f.appendChild(m)} m.value='PUT'; document.querySelector('#testimonial-modal-title').textContent='Edit Testimonial'; document.querySelector('#testimonial-modal').classList.remove('hidden'); })" class="text-[#3B82F6] hover:text-[#2563EB] text-xs"><i class="fas fa-edit"></i></button>
                             <form method="POST" action="{{ admin_route('website.customization.testimonials.destroy', $t) }}" onsubmit="return confirm('Delete this testimonial?')">
                                 @csrf @method('DELETE')
                                 <button class="text-[#EF4444] hover:text-[#DC2626] text-xs"><i class="fas fa-trash"></i></button>
@@ -149,7 +149,7 @@
                             <label class="mb-1 block text-xs text-[#94A3B8]">Subtitle</label>
                             <textarea name="hero_subtitle" rows="2" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['hero_subtitle'] ?? 'Premium custom jerseys for clubs, tournaments, and champions. Design your look, own the pitch.' }}</textarea>
                         </div>
-                        <div class="mt-3 grid grid-cols-2 gap-4">
+                        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="mb-1 block text-xs text-[#94A3B8]">CTA Text</label>
                                 <input name="hero_cta_text" value="{{ $settings['hero_cta_text'] ?? 'Shop Now' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
@@ -171,10 +171,10 @@
                             @foreach ([1 => 'Premium Products', 2 => 'Happy Customers', 3 => 'Avg Reply Time', 4 => 'Avg Delivery Time'] as $i => $label)
                             <div class="rounded-lg border border-[#232A36] bg-[#0F1117] p-3">
                                 <p class="text-xs text-[#94A3B8] mb-2">{{ $label }}</p>
-                                <div class="flex gap-2">
-                                    <input name="stats_{{ $i }}_value" value="{{ $settings['stats_'.$i.'_value'] ?? ($i === 1 ? '100' : ($i === 2 ? '2000' : ($i === 3 ? '7' : '96'))) }}" placeholder="Value" class="w-20 rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1.5 text-xs text-[#E6EDF3] text-center">
-                                    <input name="stats_{{ $i }}_label" value="{{ $settings['stats_'.$i.'_label'] ?? $label }}" placeholder="Label" class="flex-1 rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1.5 text-xs text-[#E6EDF3]">
-                                    <input name="stats_{{ $i }}_suffix" value="{{ $settings['stats_'.$i.'_suffix'] ?? ($i === 3 ? ' mins' : ($i === 4 ? ' hours' : '')) }}" placeholder="Suffix" class="w-16 rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1.5 text-xs text-[#E6EDF3] text-center">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <input name="stats_{{ $i }}_value" value="{{ $settings['stats_'.$i.'_value'] ?? ($i === 1 ? '100' : ($i === 2 ? '2000' : ($i === 3 ? '7' : '96'))) }}" placeholder="Value" class="rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1.5 text-xs text-[#E6EDF3] text-center">
+                                    <input name="stats_{{ $i }}_label" value="{{ $settings['stats_'.$i.'_label'] ?? $label }}" placeholder="Label" class="rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1.5 text-xs text-[#E6EDF3]">
+                                    <input name="stats_{{ $i }}_suffix" value="{{ $settings['stats_'.$i.'_suffix'] ?? ($i === 3 ? ' mins' : ($i === 4 ? ' hours' : '')) }}" placeholder="Suffix" class="rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1.5 text-xs text-[#E6EDF3] text-center">
                                 </div>
                             </div>
                             @endforeach
@@ -364,7 +364,7 @@
                 <form id="testimonial-form" method="POST" action="{{ admin_route('website.customization.testimonials.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="mb-1 block text-xs text-[#94A3B8]">Name</label>
                                 <input type="text" name="name" required class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
@@ -378,7 +378,7 @@
                             <label class="mb-1 block text-xs text-[#94A3B8]">Content</label>
                             <textarea name="content" rows="3" required class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]"></textarea>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="mb-1 block text-xs text-[#94A3B8]">Rating (1-5)</label>
                                 <select name="rating" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">

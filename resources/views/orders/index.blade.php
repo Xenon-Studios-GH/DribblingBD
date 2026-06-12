@@ -38,8 +38,8 @@
             <div>
                 <!-- Search + Filters -->
                 <div class="sticky top-16 z-20 -mx-4 -mt-2 bg-[#0F1117] px-4 pb-4 pt-4 md:-mx-8 md:px-8">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="relative flex-1 min-w-[200px]">
+                    <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
+                        <div class="relative flex-1 min-w-0 sm:min-w-[200px]">
                             <i class="fas fa-search pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]"></i>
                             <input type="text" x-model="search" placeholder="Search order no, customer, phone..."
                                    class="w-full rounded-xl border border-[#232A36] bg-[#161B22] pl-10 pr-4 py-2.5 text-sm text-[#E6EDF3] placeholder-[#94A3B8] transition-colors focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
@@ -82,8 +82,8 @@
                     </div>
                 </div>
 
-                <!-- Table -->
-                <x-card padding="p-0">
+                <!-- Table (Desktop) -->
+                <x-card padding="p-0" class="hidden lg:block">
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
@@ -169,6 +169,68 @@
                         </table>
                     </div>
                 </x-card>
+
+                <!-- Cards (Mobile) -->
+                <div class="lg:hidden space-y-3">
+                    <template x-for="order in filteredOrders" :key="order.id">
+                        <div class="rounded-xl border border-[#232A36] bg-[#161B22] p-4"
+                             x-bind:class="order.is_draft ? 'opacity-60' : ''">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <a x-bind:href="order.show_url" class="font-medium hover:underline"
+                                       x-bind:class="order.is_draft ? 'text-[#A855F7]' : 'text-[#3B82F6]'"
+                                       x-text="order.order_no"></a>
+                                    <div class="text-[10px] text-[#6B7280]" x-text="order.date_formatted"></div>
+                                </div>
+                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                      x-bind:class="statusClass(order.status)">
+                                    <i class="fas" x-bind:class="statusIcon(order.status)"></i>
+                                    <span x-text="statusLabel(order.status)"></span>
+                                </span>
+                            </div>
+                            <div class="mt-2 text-xs text-[#E6EDF3]" x-text="order.customer_name"></div>
+                            <div class="text-[11px] text-[#6B7280]" x-text="order.phone"></div>
+                            <div class="mt-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-semibold text-[#E6EDF3]" x-text="'৳' + order.total"></span>
+                                    <span class="text-[10px] text-[#22C55E]" x-text="'৳' + order.paid + ' paid'"></span>
+                                    <span x-show="order.due > 0" class="text-[10px] text-[#EF4444]" x-text="'৳' + order.due + ' due'"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <template x-if="order.dtf">
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-[#A855F7]/10 px-1.5 py-0.5 text-[10px] text-[#A855F7]">
+                                            <i class="fas fa-print"></i> DTF
+                                        </span>
+                                    </template>
+                                    <template x-if="order.patch">
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-1.5 py-0.5 text-[10px] text-[#F59E0B]">
+                                            <i class="fas fa-tshirt"></i> Patch
+                                        </span>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between">
+                                <span class="text-[10px] font-medium capitalize text-[#94A3B8]" x-text="order.payment_method"></span>
+                                <template x-if="!order.is_draft">
+                                    <a x-bind:href="order.edit_url"
+                                       class="inline-flex items-center gap-1.5 rounded-xl bg-[#3B82F6]/10 px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/20 transition-colors">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </template>
+                                <template x-if="order.is_draft">
+                                    <a x-bind:href="order.edit_url"
+                                       class="inline-flex items-center gap-1.5 rounded-xl bg-[#A855F7]/10 px-3 py-1.5 text-xs font-medium text-[#A855F7] hover:bg-[#A855F7]/20 transition-colors">
+                                        <i class="fas fa-pen"></i> Continue
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="filteredOrders.length === 0" class="py-12 text-center text-sm text-[#94A3B8]">
+                        <i class="fas fa-search mb-2 text-lg"></i><br>
+                        No orders match your filters.
+                    </div>
+                </div>
             </div>
         </template>
     </div>

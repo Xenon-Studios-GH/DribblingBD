@@ -72,7 +72,7 @@
                     </div>
                     <div>
                         <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Phone Number</label>
-                        <input type="number" name="phone" x-model="phone" required
+                        <input type="tel" name="phone" x-model="phone" required
                                class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#3B82F6] focus:outline-none">
                     </div>
                     <div>

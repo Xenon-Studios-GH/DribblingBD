@@ -90,14 +90,14 @@ $title = 'Player Edition';
                             <span class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-white/90 text-gray-700">{{ $product->product_code }}</span>
                         </div>
                         @if ($firstImage)
-                        <img src="{{ asset('storage/' . $firstImage->image_path) }}" alt="{{ $product->product_name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img src="{{ asset('storage/' . $firstImage->image_path) }}" alt="{{ $product->product_name }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         @else
                         <div class="absolute inset-0 flex items-center justify-center">
                             <i class="fas fa-box w-16 h-16 text-gray-300 group-hover:text-gray-400 transition-colors"></i>
                         </div>
                         @endif
                         <div class="absolute top-3 right-3 z-10">
-                            <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code), name: @json($product->product_name) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm">
+                            <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm" aria-label="Add to wishlist">
                                 <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : 'text-gray-400'"></i>
                             </button>
                         </div>
@@ -107,7 +107,7 @@ $title = 'Player Edition';
                         <div class="mt-1 flex items-center justify-between">
                             <span class="text-base font-bold text-[#E85D2C]">৳{{ number_format($product->price) }}</span>
                         </div>
-                        <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? 'storage/' . $firstImage->image_path : ''), code: @json($product->product_code), slug: @json($product->slug) }); setTimeout(() => added = false, 1500)'
+                        <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? 'storage/' . $firstImage->image_path : '', JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                             class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                             :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
                             <span x-show="!added">Add to Cart</span>
