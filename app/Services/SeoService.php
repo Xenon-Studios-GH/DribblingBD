@@ -168,10 +168,10 @@ class SeoService
     {
         $project = $model->project;
         if ($project) {
-            $category = $project->category?->slug ?? '';
+            $category = $project->category?->slug;
             $slug = $project->slug;
 
-            return url("/{$category}/{$slug}");
+            return $category ? url("/{$category}/{$slug}") : url("/{$slug}");
         }
 
         return url('/'.Str::slug($model->product_name));
