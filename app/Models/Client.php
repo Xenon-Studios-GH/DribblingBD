@@ -33,6 +33,7 @@ class Client extends Model
         'last_login_at',
     ];
 
+
     protected function casts(): array
     {
         return [

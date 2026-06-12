@@ -16,6 +16,7 @@ class FinanceCategory extends Model
     protected function casts(): array
     {
         return [
+            'type' => \App\Enums\FinanceType::class,
             'is_active' => 'boolean',
         ];
     }

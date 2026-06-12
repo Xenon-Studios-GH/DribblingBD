@@ -19,6 +19,7 @@ class FinanceTransaction extends Model
     protected function casts(): array
     {
         return [
+            'type' => \App\Enums\FinanceType::class,
             'date' => 'date',
             'amount' => 'decimal:2',
         ];

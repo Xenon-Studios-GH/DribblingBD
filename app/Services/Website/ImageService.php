@@ -4,16 +4,32 @@ namespace App\Services\Website;
 
 use App\Models\WebsiteProject;
 use App\Models\WebsiteProjectImage;
+use App\Services\WorkLogService;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class ImageService
 {
     private const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    private const ALLOWED_EXTENSIONS = [
+        'image/jpeg' => 'jpg',
+        'image/jpg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
     private const MAX_SIZE = 5120;
     private const MIN_IMAGES = 1;
     private const MAX_IMAGES = 4;
+
+    private WorkLogService $workLogService;
+
+    public function __construct(WorkLogService $workLogService)
+    {
+        $this->workLogService = $workLogService;
+    }
 
     public function validateImages(array $images): void
     {
@@ -49,32 +65,53 @@ class ImageService
     public function syncImages(WebsiteProject $project, array $slots, array $removeSlots = []): void
     {
         $path = 'website/projects/' . $project->id;
+        $deletedFiles = [];
+        $createdImages = [];
 
-        foreach ($removeSlots as $sortOrder) {
-            $existing = $project->images()->where('sort_order', $sortOrder)->first();
-            if ($existing) {
-                Storage::disk('public')->delete($existing->image_path);
-                $existing->delete();
-            }
-        }
-
-        foreach ($slots as $sortOrder => $file) {
-            if ($file instanceof UploadedFile) {
-                $existing = $project->images()->where('sort_order', $sortOrder)->first();
+        DB::transaction(function () use ($project, $slots, $removeSlots, $path, &$deletedFiles, &$createdImages) {
+            // Remove images specified for deletion
+            foreach ($removeSlots as $sortOrder) {
+                $existing = $project->images()->where('sort_order', $sortOrder)->lockForUpdate()->first();
                 if ($existing) {
-                    Storage::disk('public')->delete($existing->image_path);
+                    $deletedFiles[] = $existing->image_path;
                     $existing->delete();
                 }
-
-                $filename = $sortOrder . '_' . time() . '.' . $file->extension();
-                $filePath = $file->storeAs($path, $filename, 'public');
-
-                WebsiteProjectImage::create([
-                    'project_id' => $project->id,
-                    'image_path' => $filePath,
-                    'sort_order' => $sortOrder,
-                ]);
             }
+
+            // Process each slot
+            foreach ($slots as $sortOrder => $file) {
+                if ($file instanceof UploadedFile) {
+                    // Delete existing image for this slot
+                    $existing = $project->images()->where('sort_order', $sortOrder)->lockForUpdate()->first();
+                    if ($existing) {
+                        $deletedFiles[] = $existing->image_path;
+                        $existing->delete();
+                    }
+
+                    $extension = $this->getSecureExtension($file->getMimeType());
+                    $filename = $sortOrder . '_' . time() . '_' . Str::random(4) . '.' . $extension;
+                    $filePath = $file->storeAs($path, $filename, 'public');
+
+                    $createdImages[] = WebsiteProjectImage::create([
+                        'project_id' => $project->id,
+                        'image_path' => $filePath,
+                        'sort_order' => $sortOrder,
+                    ]);
+                }
+            }
+
+            // Log the operation
+            $this->workLogService->log(
+                'Project Images Synced',
+                'website',
+                $project->id,
+                'Synced images for project: ' . ($project->product?->product_name ?? $project->slug)
+            );
+        });
+
+        // Clean up deleted files after successful transaction
+        foreach ($deletedFiles as $filePath) {
+            Storage::disk('public')->delete($filePath);
         }
     }
 
@@ -83,5 +120,17 @@ class ImageService
         $dir = 'website/projects/' . $project->id;
         Storage::disk('public')->deleteDirectory($dir);
         $project->images()->delete();
+
+        $this->workLogService->log(
+            'Project Images Deleted',
+            'website',
+            $project->id,
+            'Deleted all images for project: ' . ($project->product?->product_name ?? $project->slug)
+        );
+    }
+
+    private function getSecureExtension(string $mime): string
+    {
+        return self::ALLOWED_EXTENSIONS[$mime] ?? 'bin';
     }
 }

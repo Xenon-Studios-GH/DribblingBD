@@ -11,11 +11,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -25,21 +20,11 @@ class User extends Authenticatable
         'status',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -52,5 +37,40 @@ class User extends Authenticatable
     public function client()
     {
         return $this->hasOne(Client::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'created_by');
+    }
+
+    public function loginLogs()
+    {
+        return $this->hasMany(LoginLog::class);
+    }
+
+    public function workLogs()
+    {
+        return $this->hasMany(WorkLog::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function stockTransactions()
+    {
+        return $this->hasMany(StockTransaction::class);
+    }
+
+    public function financeTransactions()
+    {
+        return $this->hasMany(FinanceTransaction::class, 'created_by');
+    }
+
+    public function orderDrafts()
+    {
+        return $this->hasMany(OrderDraft::class);
     }
 }

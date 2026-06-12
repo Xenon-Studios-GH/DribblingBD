@@ -47,6 +47,8 @@ class Order extends Model
         return 'order_no';
     }
 
+    // NOTE: Callers must wrap order creation in a DB transaction with lockForUpdate
+    // to prevent race conditions between generateOrderNo() and the INSERT.
     public static function generateOrderNo(): string
     {
         return DB::transaction(function () {

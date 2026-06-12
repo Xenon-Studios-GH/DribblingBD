@@ -27,6 +27,8 @@ class Product extends Model
         ];
     }
 
+    // NOTE: Callers must wrap product creation in a DB transaction with lockForUpdate
+    // to prevent race conditions between generateProductCode() and the INSERT.
     public static function generateProductCode(): string
     {
         return DB::transaction(function () {
