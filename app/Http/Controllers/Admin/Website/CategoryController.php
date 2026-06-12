@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Admin\Website;
 
 use App\Http\Controllers\Controller;
 use App\Models\WebsiteCategory;
+use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
+    protected WorkLogService $workLogService;
+
+    public function __construct(WorkLogService $workLogService)
+    {
+        $this->workLogService = $workLogService;
+    }
+
     public function index()
     {
         $categories = WebsiteCategory::with('parent', 'children')
@@ -28,7 +36,9 @@ class CategoryController extends Controller
         ]);
 
         $validated['created_by'] = Auth::id();
-        WebsiteCategory::create($validated);
+        $category = WebsiteCategory::create($validated);
+
+        $this->workLogService->log('Category Created', 'website', $category->id, "Website category '{$category->name}' created");
 
         return redirect(admin_route('website.categories'))->with('success', 'Category created.');
     }
@@ -45,6 +55,8 @@ class CategoryController extends Controller
 
         $validated['updated_by'] = Auth::id();
         $category->update($validated);
+
+        $this->workLogService->log('Category Updated', 'website', $category->id, "Website category '{$category->name}' updated");
 
         return redirect(admin_route('website.categories'))->with('success', 'Category updated.');
     }
@@ -63,8 +75,11 @@ class CategoryController extends Controller
             $category->children()->each(fn($child) => $child->projects()->update(['category_id' => null]));
         }
 
+        $name = $category->name;
         $category->children()->delete();
         $category->delete();
+
+        $this->workLogService->log('Category Deleted', 'website', $category->id, "Website category '{$name}' deleted");
 
         return redirect(admin_route('website.categories'))->with('success', 'Category deleted.');
     }

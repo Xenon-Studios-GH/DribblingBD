@@ -5,16 +5,19 @@ namespace App\Http\Controllers\Admin\Finance;
 use App\Http\Controllers\Controller;
 use App\Models\FinanceCategory;
 use App\Services\Finance\NotificationService;
+use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
     protected NotificationService $notifications;
+    protected WorkLogService $workLogService;
 
-    public function __construct(NotificationService $notifications)
+    public function __construct(NotificationService $notifications, WorkLogService $workLogService)
     {
         $this->notifications = $notifications;
+        $this->workLogService = $workLogService;
     }
 
     public function index()
@@ -33,12 +36,14 @@ class CategoryController extends Controller
         ]);
 
         $validated['created_by'] = Auth::id();
-        FinanceCategory::create($validated);
+        $category = FinanceCategory::create($validated);
+
+        $this->workLogService->log('Category Created', 'finance', $category->id, "{$category->type} category '{$category->name}' created");
 
         $this->notifications->notifyAdmins(
             'category.created',
             'New Category',
-            Auth::user()->name . ' created a new ' . $validated['type'] . ' category: ' . $validated['name'],
+            Auth::user()->name . ' created a new ' . $category->type . ' category: ' . $category->name,
             'category',
             null
         );
@@ -57,13 +62,17 @@ class CategoryController extends Controller
         $validated['updated_by'] = Auth::id();
         $category->update($validated);
 
+        $this->workLogService->log('Category Updated', 'finance', $category->id, "Category '{$category->name}' updated");
+
         return redirect(admin_route('finance.categories'))->with('success', 'Category updated.');
     }
 
     public function destroy(string $role, FinanceCategory $category)
     {
+        $name = $category->name;
         $category->transactions()->update(['category_id' => null]);
         $category->delete();
+        $this->workLogService->log('Category Deleted', 'finance', $category->id, "Category '{$name}' deleted");
         return redirect(admin_route('finance.categories'))->with('success', 'Category deleted.');
     }
 }

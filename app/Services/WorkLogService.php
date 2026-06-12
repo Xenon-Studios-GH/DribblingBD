@@ -34,6 +34,15 @@ class WorkLogService
             $query->where('action', 'like', '%' . $filters['action'] . '%');
         }
 
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('action', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('module', 'like', "%{$search}%");
+            });
+        }
+
         if (!empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
