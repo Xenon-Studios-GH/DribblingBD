@@ -31,7 +31,7 @@
                         </template>
                     </div>
                     <div x-show="query.length > 0 && !loading && results.length === 0" x-cloak class="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl border border-gray-200 shadow-xl z-50 p-4 text-center text-sm text-gray-500">
-                        <span x-text="'{{ $settings['ui_no_results_for'] ?? 'No jerseys found for' }}' + ' \"' + query + '\"'"></span>
+                        <span x-text="'{{ $settings['ui_no_results_for'] ?? 'No jerseys found for' }} &quot;' + query + '&quot;'"></span>
                     </div>
                 </div>
             </div>

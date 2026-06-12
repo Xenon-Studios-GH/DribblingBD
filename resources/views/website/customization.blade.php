@@ -904,6 +904,36 @@
                         </div>
                     </x-card>
 
+                    {{-- SEO Settings --}}
+                    <x-card>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#22C55E]/10"><i class="fas fa-search text-[#22C55E] text-xs"></i></div>
+                            <h3 class="text-sm font-semibold text-[#E6EDF3]">SEO Settings</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Site Name</label>
+                                <input name="site_name" value="{{ $settings['site_name'] ?? 'DribblingBD' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Default Robots</label>
+                                <input name="seo_default_robots" value="{{ $settings['seo_default_robots'] ?? 'index,follow' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Default OG Image Path</label>
+                                <input name="seo_default_og_image" value="{{ $settings['seo_default_og_image'] ?? 'images/og-default.jpg' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Canonical Base URL</label>
+                                <input name="seo_canonical_base" value="{{ $settings['seo_canonical_base'] ?? 'https://dribblingbd.com' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Site Description</label>
+                                <textarea name="site_description" rows="2" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['site_description'] ?? 'DribblingBD is a professional web design and development agency in Bangladesh. We offer custom web solutions, e-commerce, SEO, and digital marketing services.' }}</textarea>
+                            </div>
+                        </div>
+                    </x-card>
+
                     {{-- Shipping Settings --}}
                     <x-card>
                         <div class="flex items-center gap-3 mb-4">

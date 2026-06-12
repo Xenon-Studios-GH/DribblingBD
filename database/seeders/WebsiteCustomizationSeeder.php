@@ -92,6 +92,13 @@ class WebsiteCustomizationSeeder extends Seeder
             'shipping_dhaka_rate' => '100',
             'shipping_outside_rate' => '120',
             'shipping_free_threshold' => '3000',
+
+            // SEO settings
+            'site_name' => 'DribblingBD',
+            'site_description' => 'DribblingBD is a professional web design and development agency in Bangladesh. We offer custom web solutions, e-commerce, SEO, and digital marketing services.',
+            'seo_default_robots' => 'index,follow',
+            'seo_default_og_image' => 'images/og-default.jpg',
+            'seo_canonical_base' => 'https://dribblingbd.com',
         ];
 
         foreach ($settings as $key => $value) {

@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\SeoMeta;
+use App\Models\SiteSetting;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait HasSeo
@@ -16,20 +17,20 @@ trait HasSeo
     {
         $meta = $this->seoMeta;
         if (! $meta) {
-            return config('app.name');
+            return SiteSetting::getValue('site_name', config('app.name'));
         }
 
-        return $meta->meta_title ?: config('app.name');
+        return $meta->meta_title ?: SiteSetting::getValue('site_name', config('app.name'));
     }
 
     public function getSeoDescriptionAttribute(): ?string
     {
         $meta = $this->seoMeta;
         if (! $meta) {
-            return config('app.description', '');
+            return SiteSetting::getValue('site_description', '');
         }
 
-        return $meta->meta_description ?: config('app.description', '');
+        return $meta->meta_description ?: SiteSetting::getValue('site_description', '');
     }
 
     public function getSeoKeywordsAttribute(): ?array
@@ -86,10 +87,10 @@ trait HasSeo
     {
         $meta = $this->seoMeta;
         if (! $meta) {
-            return 'index,follow';
+            return SiteSetting::getValue('seo_default_robots', 'index,follow');
         }
 
-        return $meta->robots ?? 'index,follow';
+        return $meta->robots ?? SiteSetting::getValue('seo_default_robots', 'index,follow');
     }
 
     public function getSeoMetaTagHtml(): string

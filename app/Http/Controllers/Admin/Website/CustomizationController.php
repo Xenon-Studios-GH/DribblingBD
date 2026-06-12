@@ -227,6 +227,13 @@ class CustomizationController extends Controller
 
             // Notifications
             'ui_notify_added_cart', 'ui_notify_saved_wishlist', 'ui_notify_removed_wishlist',
+
+            // SEO
+            'site_name',
+            'site_description',
+            'seo_default_robots',
+            'seo_default_og_image',
+            'seo_canonical_base',
         ];
 
         foreach ($allowed as $key) {

@@ -23,11 +23,11 @@
     <div class="mt-4">
         <label class="text-sm font-semibold text-gray-900">Quantity</label>
         <div class="flex items-center gap-3 mt-2">
-            <button @click="qty = Math.max(1, qty - 1)" :disabled="qty < 2" aria-label="Decrease quantity" class="w-11 h-11 rounded-xl border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+            <button @click="qty = Math.max(1, qty - 1)" :disabled="qty < 2" aria-label="Decrease quantity" class="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                 <i class="fas fa-minus w-4 h-4"></i>
             </button>
             <span class="w-12 text-center text-lg font-semibold text-gray-900" x-text="qty"></span>
-            <button @click="qty = Math.min(100, qty + 1)" :disabled="qty >= 100" aria-label="Increase quantity" class="w-11 h-11 rounded-xl border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+            <button @click="qty = Math.min(100, qty + 1)" :disabled="qty >= 100" aria-label="Increase quantity" class="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                 <i class="fas fa-plus w-4 h-4"></i>
             </button>
         </div>

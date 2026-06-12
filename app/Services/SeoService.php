@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\SiteSetting;
 use App\Models\WebsiteCategory;
 use App\Models\WebsiteProject;
 use Illuminate\Database\Eloquent\Model;
@@ -136,7 +137,7 @@ class SeoService
     protected function getVariables(Model $model): array
     {
         $variables = [
-            'site_name' => config('app.name'),
+            'site_name' => SiteSetting::getValue('site_name', config('app.name')),
             'current_year' => now()->format('Y'),
         ];
 
