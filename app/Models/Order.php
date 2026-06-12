@@ -15,6 +15,7 @@ class Order extends Model
         'customer_name',
         'phone',
         'address',
+        'city',
         'products',
         'dtf',
         'dtf_name',
@@ -24,6 +25,7 @@ class Order extends Model
         'total_amount',
         'advanced_payment',
         'pending_payment',
+        'delivery_charge',
         'payment_method',
         'status',
         'created_by',
@@ -39,6 +41,7 @@ class Order extends Model
             'advanced_payment' => 'decimal:2',
             'pending_payment' => 'decimal:2',
             'patch_price' => 'decimal:2',
+            'delivery_charge' => 'decimal:2',
         ];
     }
 
