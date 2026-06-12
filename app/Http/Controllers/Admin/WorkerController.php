@@ -72,11 +72,16 @@ class WorkerController extends Controller
             return redirect(admin_route('workers.index'))->with('error', 'You cannot change your own role.');
         }
 
+        $allowedRoles = ['staff', 'admin'];
+        if (auth()->user()->role === 'superadmin') {
+            $allowedRoles[] = 'superadmin';
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', Rule::unique('users')->ignore($worker->id)],
             'phone' => ['nullable', 'string', 'max:20'],
-            'role' => ['required', Rule::in(['staff', 'admin', 'superadmin'])],
+            'role' => ['required', Rule::in($allowedRoles)],
             'password' => ['nullable', 'string', 'min:8'],
         ]);
 

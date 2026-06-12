@@ -25,8 +25,8 @@ Route::prefix('auth/dribblingbd')->middleware('guest')->group(function () {
     Route::view('authentication', 'auth.authentication')->name('authentication');
     Route::redirect('login', 'auth/dribblingbd/authentication');
     Route::post('login', [LoginController::class, 'store'])->name('login')->middleware('throttle:5,1');
-    Route::redirect('register', 'auth/dribblingbd/authentication')->name('register');
-    Route::post('register', [RegisterController::class, 'store'])->middleware('throttle:5,10');
+    Route::redirect('register', 'auth/dribblingbd/authentication');
+    Route::post('register', [RegisterController::class, 'store'])->name('register')->middleware('throttle:5,10');
 });
 
 Route::middleware('guest')->group(function () {
@@ -80,8 +80,8 @@ Route::middleware('auth')->group(function () {
         // Product
         Route::middleware('role:superadmin,admin')->group(function () {
             Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
-            Route::post('stock/products', [ProductController::class, 'store'])->name('stock.products.store');
-            Route::put('stock/products/{product}', [ProductController::class, 'update'])->name('stock.products.update');
+            Route::post('products', [ProductController::class, 'store'])->name('stock.products.store');
+            Route::put('products/{product}', [ProductController::class, 'update'])->name('stock.products.update');
         });
 
         Route::middleware('role:superadmin')->group(function () {

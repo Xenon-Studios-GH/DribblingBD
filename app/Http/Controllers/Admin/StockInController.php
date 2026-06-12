@@ -10,6 +10,7 @@ use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class StockInController extends Controller
 {
@@ -77,7 +78,7 @@ class StockInController extends Controller
     public function confirm(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => ['required'],
+            'product_id' => ['required', Rule::when($request->product_id !== 'new', 'exists:products,id')],
             'size' => ['required', 'in:' . implode(',', StockSize::values())],
             'quantity' => ['required', 'integer', 'min:1'],
             'product_name' => ['required_if:product_id,new', 'string', 'max:255'],

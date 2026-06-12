@@ -11,21 +11,23 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $newArrivals = Product::with('project')
+        $newArrivals = Product::with('project.images')
             ->where('is_active', true)
             ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
             ->latest('updated_at')->take(8)->get();
 
-        $trending = Product::with('project')
+        $trending = Product::with('project.images')
             ->where('is_active', true)
             ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0))
-            ->latest('updated_at')
-            ->take(8)->get();
+            ->withCount('transactions')
+            ->orderBy('transactions_count', 'desc')
+            ->take(8)
+            ->get();
 
         $heroImages = WebsiteProjectImage::with('project.product')
             ->whereHas('project.product', fn($q) => $q->where('is_active', true))
             ->inRandomOrder()
-            ->take(5)
+            ->take(1)
             ->get()
             ->pluck('image_path');
 

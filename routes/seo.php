@@ -13,5 +13,5 @@ Route::middleware(['auth', 'role.match', 'role:superadmin,admin'])
     Route::put('{seoMeta}', [SeoController::class, 'update'])->name('update');
     Route::delete('{seoMeta}', [SeoController::class, 'destroy'])->name('destroy');
     Route::get('{seoMeta}/reset-template', [SeoController::class, 'resetTemplate'])->name('reset-template');
-    Route::get('auto-generate', [SeoController::class, 'autoGenerate'])->name('auto-generate');
+    Route::post('auto-generate', [SeoController::class, 'autoGenerate'])->name('auto-generate');
 });

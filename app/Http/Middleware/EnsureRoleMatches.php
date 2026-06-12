@@ -11,19 +11,13 @@ class EnsureRoleMatches
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-
-        if (!$user) {
+        if (!$user || !$user->status) {
             abort(403, 'Unauthorized access.');
         }
-
-        if (!$user->status) {
-            abort(403, 'Your account has been deactivated.');
-        }
-
-        if ($user->role !== $request->route('role')) {
+        $urlRole = $request->route('role');
+        if (!$urlRole || $user->role !== $urlRole) {
             abort(403, 'Unauthorized access.');
         }
-
         return $next($request);
     }
 }

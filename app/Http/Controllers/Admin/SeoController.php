@@ -121,7 +121,8 @@ class SeoController extends Controller
 
     public function autoGenerate(string $role)
     {
-        \Artisan::call('seo:auto-generate', ['--force' => true]);
+        $exitCode = \Artisan::call('seo:auto-generate', ['--force' => true]);
+        $output = \Artisan::output();
 
         return redirect(admin_route('seo.index'))
             ->with('success', 'Auto SEO generation completed. Check the command output for details.');
