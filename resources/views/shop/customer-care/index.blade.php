@@ -4,8 +4,8 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
     {{-- Header --}}
     <div class="text-center mb-12">
-        <h1 class="text-3xl lg:text-4xl font-bold text-gray-900">Customer Care</h1>
-        <p class="text-sm text-gray-500 mt-2">We're here to help you every step of the way</p>
+        <h1 class="text-3xl lg:text-4xl font-bold text-gray-900">{{ $settings['customer_care_heading'] ?? 'Customer Care' }}</h1>
+        <p class="text-sm text-gray-500 mt-2">{{ $settings['customer_care_subtitle'] ?? "We're here to help you every step of the way" }}</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12">
@@ -48,8 +48,8 @@
                         <i class="fas fa-shipping-fast text-xl text-blue-500"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-gray-900">Shipping & Delivery</h2>
-                        <p class="text-sm text-gray-500">Everything you need to know about shipping</p>
+                        <h2 class="text-lg font-bold text-gray-900">{{ $settings['customer_care_shipping_heading'] ?? 'Shipping & Delivery' }}</h2>
+                        <p class="text-sm text-gray-500">{{ $settings['customer_care_shipping_subtitle'] ?? 'Everything you need to know about shipping' }}</p>
                     </div>
                 </div>
                 <div class="space-y-4 text-sm text-gray-600 leading-relaxed">
@@ -75,8 +75,8 @@
                         <i class="fas fa-headset text-xl text-green-500"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-gray-900">Contact Us</h2>
-                        <p class="text-sm text-gray-500">Reach out to us anytime</p>
+                        <h2 class="text-lg font-bold text-gray-900">{{ $settings['customer_care_contact_heading'] ?? 'Contact Us' }}</h2>
+                        <p class="text-sm text-gray-500">{{ $settings['customer_care_contact_subtitle'] ?? 'Reach out to us anytime' }}</p>
                     </div>
                 </div>
                 <div class="space-y-4 text-sm text-gray-600">
@@ -105,7 +105,7 @@
                         <i class="fab fa-whatsapp text-[#25D366] w-5 h-5"></i>
                         <div>
                             <p class="font-medium text-gray-900">{{ $settings['contact_whatsapp_label'] ?? 'WhatsApp' }}</p>
-                            <a href="https://wa.me/{{ $settings['contact_whatsapp'] ?? config('shop.whatsapp_number') }}" target="_blank" class="hover:text-[#25D366] transition-colors">{{ $settings['contact_phone'] ?? config('shop.whatsapp_number') }}</a>
+                            <a href="https://wa.me/{{ $settings['contact_whatsapp'] ?? config('shop.whatsapp_number') }}" target="_blank" class="hover:text-[#25D366] transition-colors">{{ $settings['contact_whatsapp'] ?? config('shop.whatsapp_number') }}</a>
                         </div>
                     </div>
                 </div>
@@ -120,8 +120,8 @@
                         <i class="fas fa-paper-plane text-[#E85D2C]"></i>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-gray-900">Send Inquiry</h2>
-                        <p class="text-xs text-gray-500">We reply within 2 hours</p>
+                        <h2 class="text-base font-bold text-gray-900">{{ $settings['inquiry_heading'] ?? 'Send Inquiry' }}</h2>
+                        <p class="text-xs text-gray-500">{{ $settings['inquiry_subtitle'] ?? 'We reply within 2 hours' }}</p>
                     </div>
                 </div>
 
@@ -155,9 +155,9 @@
                             <div class="flex items-center gap-3">
                                 <button type="button" onclick="document.getElementById('image-upload').click()" class="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all">
                                     <i class="fas fa-camera"></i>
-                                    Choose Image
+                                    {{ $settings['inquiry_choose_image'] ?? 'Choose Image' }}
                                 </button>
-                                <span id="image-name" class="text-sm text-gray-400 truncate">No file selected</span>
+                                <span id="image-name" class="text-sm text-gray-400 truncate">{{ $settings['inquiry_no_file'] ?? 'No file selected' }}</span>
                             </div>
                         </div>
                         <p class="text-xs text-gray-400 mt-1.5">Accepted: JPEG, PNG, JPG, GIF, WebP only. Max 10MB.</p>
@@ -165,12 +165,12 @@
                     </div>
                     <button type="submit" class="w-full py-3 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-all shadow-lg shadow-[#E85D2C]/20 flex items-center justify-center gap-2">
                         <i class="fas fa-paper-plane"></i>
-                        Submit Inquiry
+                        {{ $settings['inquiry_submit_button'] ?? 'Submit Inquiry' }}
                     </button>
                 </form>
 
                 <p class="text-xs text-gray-400 text-center mt-4">
-                    <i class="fas fa-clock mr-1"></i> Average response time: 47 minutes
+                    <i class="fas fa-clock mr-1"></i> {{ $settings['inquiry_response_time'] ?? 'Average response time: 47 minutes' }}
                 </p>
             </div>
         </div>

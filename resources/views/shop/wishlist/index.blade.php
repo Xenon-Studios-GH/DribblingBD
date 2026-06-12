@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">My Wishlist</h1>
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">{{ $settings['ui_my_wishlist'] ?? 'My Wishlist' }}</h1>
 
         <div x-data="{
             get items() {
@@ -12,10 +12,10 @@
             <template x-if="items.length === 0">
                 <div class="text-center py-20">
                     <i class="fas fa-heart w-20 h-20 mx-auto text-gray-300"></i>
-                    <h3 class="mt-4 text-lg font-semibold text-gray-900">Your wishlist is empty</h3>
-                    <p class="mt-1 text-sm text-gray-500">Save your favorite jerseys here.</p>
+                    <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ $settings['ui_wishlist_empty'] ?? 'Your wishlist is empty' }}</h3>
+                    <p class="mt-1 text-sm text-gray-500">{{ $settings['ui_wishlist_empty_desc'] ?? 'Save your favorite jerseys here.' }}</p>
                     <a href="{{ route('shop.products.index') }}" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors">
-                        Browse Jerseys
+                        {{ $settings['ui_browse_jerseys'] ?? 'Browse Jerseys' }}
                         <i class="fas fa-arrow-right w-4 h-4"></i>
                     </a>
                 </div>
@@ -32,7 +32,7 @@
                         <div class="p-3">
                             <p class="text-sm font-semibold text-gray-900 truncate" x-text="item.name || 'Product #' + (item.id ?? item)"></p>
                             <button @click="toggleWishlist(item); wishlist.splice(wishlist.indexOf(item), 1)" class="mt-2 w-full py-2 rounded-xl text-xs font-semibold bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
-                                Remove
+                                {{ $settings['ui_remove'] ?? 'Remove' }}
                             </button>
                         </div>
                     </div>

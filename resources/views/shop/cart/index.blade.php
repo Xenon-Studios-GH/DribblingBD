@@ -2,16 +2,16 @@
 
 @section('content')
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">{{ $settings['ui_shopping_cart'] ?? 'Shopping Cart' }}</h1>
 
         <div>
             <template x-if="cart.length === 0">
                 <div class="text-center py-20">
                     <i class="fas fa-shopping-cart w-20 h-20 mx-auto text-gray-300"></i>
-                    <h3 class="mt-4 text-lg font-semibold text-gray-900">Your cart is empty</h3>
-                    <p class="mt-1 text-sm text-gray-500">Looks like you haven't added any jerseys yet.</p>
+                    <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ $settings['ui_cart_empty'] ?? 'Your cart is empty' }}</h3>
+                    <p class="mt-1 text-sm text-gray-500">{{ $settings['ui_cart_empty_desc'] ?? "Looks like you haven't added any jerseys yet." }}</p>
                     <a href="{{ route('shop.products.index') }}" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors">
-                        Start Shopping
+                        {{ $settings['ui_start_shopping'] ?? 'Start Shopping' }}
                         <i class="fas fa-arrow-right w-4 h-4"></i>
                     </a>
                 </div>
@@ -58,27 +58,27 @@
                     {{-- Cart summary --}}
                     <div class="mt-8 p-6 rounded-2xl bg-gray-50 border border-gray-200">
                         <div class="flex justify-between text-sm text-gray-600">
-                            <span>Subtotal</span>
+                            <span>{{ $settings['ui_subtotal'] ?? 'Subtotal' }}</span>
                             <span class="font-medium text-gray-900">৳<span x-text="cartTotal"></span></span>
                         </div>
                         <div class="flex justify-between text-sm text-gray-600 mt-2">
-                            <span>Shipping</span>
-                            <span class="font-medium text-green-600">Free</span>
+                            <span>{{ $settings['ui_shipping'] ?? 'Shipping' }}</span>
+                            <span class="font-medium text-green-600">{{ $settings['ui_free'] ?? 'Free' }}</span>
                         </div>
                         <hr class="my-3 border-gray-200">
                         <div class="flex justify-between text-base font-bold text-gray-900">
-                            <span>Total</span>
+                            <span>{{ $settings['ui_total'] ?? 'Total' }}</span>
                             <span>৳<span x-text="cartTotal"></span></span>
                         </div>
                         <a href="{{ route('shop.checkout.index') }}" class="mt-4 w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20 text-center block">
-                            Proceed to Checkout
+                            {{ $settings['ui_proceed_checkout'] ?? 'Proceed to Checkout' }}
                         </a>
                     </div>
 
                     <div class="mt-6 text-center">
                         <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-[#E85D2C] hover:text-[#d14d1f]">
                             <i class="fas fa-arrow-left w-4 h-4"></i>
-                            Continue Shopping
+                            {{ $settings['ui_continue_shopping'] ?? 'Continue Shopping' }}
                         </a>
                     </div>
                 </div>

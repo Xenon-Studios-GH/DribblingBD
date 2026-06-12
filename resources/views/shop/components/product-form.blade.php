@@ -15,7 +15,7 @@
         </div>
         <p class="mt-1.5 text-xs text-gray-500">
             <span x-show="stockQty > 0" x-cloak><span x-text="stockQty"></span> available</span>
-            <span x-show="stockQty < 1" x-cloak class="text-red-500">No stock for this size</span>
+            <span x-show="stockQty < 1" x-cloak class="text-red-500">{{ $settings['ui_no_stock'] ?? 'No stock for this size' }}</span>
         </p>
     </div>
 
@@ -37,18 +37,18 @@
     <div class="mt-6 flex flex-col sm:flex-row gap-3">
         <div x-show="stockQty > 0 && qty <= stockQty" x-cloak class="flex-1">
             <button @click='addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: selectedSize, quantity: qty, image: @json($product->project?->images->first()?->image_path ? 'storage/' . $product->project->images->first()->image_path : '', JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) })' class="w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20">
-                Add to Cart
+                {{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}
             </button>
         </div>
         <div x-show="stockQty < 1 || qty > stockQty" x-cloak class="flex-1">
             <a :href="whatsappUrl" class="w-full px-6 py-3 rounded-xl bg-yellow-500 text-white font-semibold text-sm hover:bg-yellow-600 transition-colors shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-2" target="_blank">
                 <i class="fab fa-whatsapp w-5 h-5"></i>
-                Contact for Stock
+                {{ $settings['ui_contact_stock'] ?? 'Contact for Stock' }}
             </a>
         </div>
         <button @click='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG) })' class="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold text-sm hover:border-red-300 hover:text-red-500 transition-colors flex items-center justify-center gap-2" aria-label="Add to wishlist">
             <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : ''"></i>
-            <span x-text="isInWishlist({{ $product->id }}) ? 'Saved' : 'Save'"></span>
+            <span x-text="isInWishlist({{ $product->id }}) ? '{{ $settings['ui_saved'] ?? 'Saved' }}' : '{{ $settings['ui_save'] ?? 'Save' }}'"></span>
         </button>
     </div>
 </div>

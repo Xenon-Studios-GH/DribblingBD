@@ -26,8 +26,8 @@ $title = 'Player Edition';
                     <div class="space-y-0.5">
                         @php
                         $types = [
-                        'all' => 'All Jerseys',
-                        'player' => 'Player Edition',
+                        'all' => $settings['ui_all_jerseys'] ?? 'All Jerseys',
+                        'player' => $settings['ui_player_edition'] ?? 'Player Edition',
                         ];
                         @endphp
                         @foreach ($types as $val => $label)
@@ -50,9 +50,9 @@ $title = 'Player Edition';
                     <div class="space-y-0.5">
                         @php
                         $stocks = [
-                        'all' => 'All',
-                        'in' => 'In Stock',
-                        'out' => 'Out of Stock',
+                        'all' => $settings['ui_all_label'] ?? 'All',
+                        'in' => $settings['ui_in_stock_filter'] ?? 'In Stock',
+                        'out' => $settings['ui_out_of_stock_filter'] ?? 'Out of Stock',
                         ];
                         @endphp
                         @foreach ($stocks as $val => $label)
@@ -110,8 +110,8 @@ $title = 'Player Edition';
                         <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? 'storage/' . $firstImage->image_path : '', JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                             class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                             :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
-                            <span x-show="!added">Add to Cart</span>
-                            <span x-show="added" x-cloak>✓ Added</span>
+                            <span x-show="!added">{{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}</span>
+                            <span x-show="added" x-cloak>✓ {{ $settings['ui_added'] ?? 'Added' }}</span>
                         </button>
                     </div>
                 </div>
@@ -125,10 +125,10 @@ $title = 'Player Edition';
             @else
             <div class="text-center py-20">
                 <i class="fas fa-box w-16 h-16 mx-auto text-gray-300"></i>
-                <h3 class="mt-4 text-lg font-semibold text-gray-900">No products yet</h3>
-                <p class="mt-1 text-sm text-gray-500">Jerseys will appear here once added to inventory.</p>
+                <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ $settings['ui_no_products_yet'] ?? 'No products yet' }}</h3>
+                <p class="mt-1 text-sm text-gray-500">{{ $settings['ui_no_products_desc'] ?? 'Jerseys will appear here once added to inventory.' }}</p>
                 <a href="{{ route('shop.home') }}" class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[#E85D2C] hover:text-[#d14d1f]">
-                    Back to Home
+                    {{ $settings['ui_back_to_home'] ?? 'Back to Home' }}
                     <i class="fas fa-arrow-left w-4 h-4"></i>
                 </a>
             </div>

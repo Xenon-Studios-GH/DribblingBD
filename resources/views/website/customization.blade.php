@@ -56,7 +56,7 @@
                                 <td class="px-3 py-2.5 text-center">{!! $faq->is_active ? '<i class="fas fa-check-circle text-[#22C55E]"></i>' : '<i class="fas fa-times-circle text-[#EF4444]"></i>' !!}</td>
                                 <td class="px-3 py-2.5 text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <button @click="fetch('/{{ request()->segment(2) }}/website/customization/faqs/{{ $faq->id }}').then(r=>r.json()).then(d=>{ let f=document.querySelector('#faq-form'); f.querySelector('[name=category]').value=d.category; f.querySelector('[name=question]').value=d.question; f.querySelector('[name=answer]').value=d.answer; f.querySelector('[name=sort_order]').value=d.sort_order; f.action='{{ admin_route('website.customization.faqs.update', $faq) }}'; let m=f.querySelector('input[name=_method]'); if(!m){m=document.createElement('input'); m.type='hidden'; m.name='_method'; f.appendChild(m)} m.value='PUT'; document.querySelector('#faq-modal-title').textContent='Edit FAQ'; document.querySelector('#faq-modal').classList.remove('hidden'); })" class="text-[#3B82F6] hover:text-[#2563EB] text-xs" title="Edit">
+                                        <button @click="fetch('{{ admin_route('website.customization.faqs.get', $faq) }}').then(r=>r.json()).then(d=>{ let f=document.querySelector('#faq-form'); f.querySelector('[name=category]').value=d.category; f.querySelector('[name=question]').value=d.question; f.querySelector('[name=answer]').value=d.answer; f.querySelector('[name=sort_order]').value=d.sort_order; f.querySelector('#faq-is-active').checked=d.is_active; f.action='{{ admin_route('website.customization.faqs.update', $faq) }}'; let m=f.querySelector('input[name=_method]'); if(!m){m=document.createElement('input'); m.type='hidden'; m.name='_method'; f.appendChild(m)} m.value='PUT'; document.querySelector('#faq-modal-title').textContent='Edit FAQ'; document.querySelector('#faq-modal').classList.remove('hidden'); })" class="text-[#3B82F6] hover:text-[#2563EB] text-xs" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <form method="POST" action="{{ admin_route('website.customization.faqs.destroy', $faq) }}" onsubmit="return confirm('Delete this FAQ?')">
@@ -79,7 +79,7 @@
         <div x-show="tab === 'testimonials'">
             <div class="flex items-center justify-between mb-4">
                 <p class="text-sm text-[#94A3B8]">{{ $testimonials->count() }} testimonials</p>
-                <button @click="document.querySelector('#testimonial-form').reset(); document.querySelector('#testimonial-preview').classList.add('hidden'); document.querySelector('#testimonial-form').action='{{ admin_route('website.customization.testimonials.store') }}'; document.querySelector('#testimonial-form').querySelector('input[name=_method]')?.remove(); document.querySelector('#testimonial-modal').classList.remove('hidden'); document.querySelector('#testimonial-modal-title').textContent='New Testimonial'" class="flex items-center gap-2 rounded-xl bg-[#3B82F6] px-4 py-2 text-xs font-medium text-white hover:bg-[#2563EB] transition-colors">
+                <button @click="document.querySelector('#testimonial-form').reset(); document.querySelector('#testimonial-preview').classList.add('hidden'); document.querySelector('#testimonial-is-active').checked=true; document.querySelector('#testimonial-form').action='{{ admin_route('website.customization.testimonials.store') }}'; document.querySelector('#testimonial-form').querySelector('input[name=_method]')?.remove(); document.querySelector('#testimonial-modal').classList.remove('hidden'); document.querySelector('#testimonial-modal-title').textContent='New Testimonial'" class="flex items-center gap-2 rounded-xl bg-[#3B82F6] px-4 py-2 text-xs font-medium text-white hover:bg-[#2563EB] transition-colors">
                     <i class="fas fa-plus"></i> Add Testimonial
                 </button>
             </div>
@@ -96,7 +96,7 @@
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <button @click="fetch('/{{ request()->segment(2) }}/website/customization/testimonials/{{ $t->id }}').then(r=>r.json()).then(d=>{ let f=document.querySelector('#testimonial-form'); f.querySelector('[name=name]').value=d.name; f.querySelector('[name=designation]').value=d.designation||''; f.querySelector('[name=content]').value=d.content; f.querySelector('[name=rating]').value=d.rating; f.querySelector('[name=sort_order]').value=d.sort_order; f.action='{{ admin_route('website.customization.testimonials.update', $t) }}'; let m=f.querySelector('input[name=_method]'); if(!m){m=document.createElement('input'); m.type='hidden'; m.name='_method'; f.appendChild(m)} m.value='PUT'; document.querySelector('#testimonial-modal-title').textContent='Edit Testimonial'; document.querySelector('#testimonial-modal').classList.remove('hidden'); })" class="text-[#3B82F6] hover:text-[#2563EB] text-xs"><i class="fas fa-edit"></i></button>
+                            <button @click="fetch('{{ admin_route('website.customization.testimonials.get', $t) }}').then(r=>r.json()).then(d=>{ let f=document.querySelector('#testimonial-form'); f.querySelector('[name=name]').value=d.name; f.querySelector('[name=designation]').value=d.designation||''; f.querySelector('[name=content]').value=d.content; f.querySelector('[name=rating]').value=d.rating; f.querySelector('[name=sort_order]').value=d.sort_order; f.querySelector('#testimonial-is-active').checked=d.is_active; let p=document.querySelector('#testimonial-preview'), pi=document.querySelector('#testimonial-preview-img'); if(d.image){ pi.src='/storage/'+d.image; p.classList.remove('hidden') }else{ p.classList.add('hidden') }; f.action='{{ admin_route('website.customization.testimonials.update', $t) }}'; let m=f.querySelector('input[name=_method]'); if(!m){m=document.createElement('input'); m.type='hidden'; m.name='_method'; f.appendChild(m)} m.value='PUT'; document.querySelector('#testimonial-modal-title').textContent='Edit Testimonial'; document.querySelector('#testimonial-modal').classList.remove('hidden'); })" class="text-[#3B82F6] hover:text-[#2563EB] text-xs"><i class="fas fa-edit"></i></button>
                             <form method="POST" action="{{ admin_route('website.customization.testimonials.destroy', $t) }}" onsubmit="return confirm('Delete this testimonial?')">
                                 @csrf @method('DELETE')
                                 <button class="text-[#EF4444] hover:text-[#DC2626] text-xs"><i class="fas fa-trash"></i></button>
@@ -331,6 +331,579 @@
                         </div>
                     </x-card>
 
+                    {{-- Customer Care --}}
+                    <x-card x-data="{ open: false }">
+                        <div class="flex items-center gap-3 mb-4 cursor-pointer" @click="open = !open">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#22C55E]/10"><i class="fas fa-headset text-[#22C55E] text-xs"></i></div>
+                            <h3 class="text-sm font-semibold text-[#E6EDF3] flex-1">Customer Care Page</h3>
+                            <i class="fas fa-chevron-down text-[#94A3B8] text-xs transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                        </div>
+                        <div x-show="open" x-collapse>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Page Heading</label>
+                                    <input name="customer_care_heading" value="{{ $settings['customer_care_heading'] ?? 'Customer Care' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Page Subtitle</label>
+                                    <input name="customer_care_subtitle" value="{{ $settings['customer_care_subtitle'] ?? "We're here to help you every step of the way" }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+                            <div class="mt-4 border-t border-[#232A36] pt-4">
+                                <p class="text-xs font-medium text-[#94A3B8] mb-3">Delivery Section</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Delivery Heading</label>
+                                        <input name="delivery_heading" value="{{ $settings['delivery_heading'] ?? '96 Hours Home Delivery' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Delivery Subtitle</label>
+                                        <input name="delivery_subtitle" value="{{ $settings['delivery_subtitle'] ?? 'Fast and reliable delivery across Bangladesh' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Delivery Description</label>
+                                    <textarea name="delivery_desc" rows="2" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['delivery_desc'] ?? 'We deliver your order within <strong>96 hours</strong> (4 days) across Bangladesh. Our delivery partners ensure your package reaches you safely and on time.' }}</textarea>
+                                </div>
+                                <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Dhaka Timeline</label>
+                                        <input name="delivery_dhaka" value="{{ $settings['delivery_dhaka'] ?? 'Dhaka metro: 24–48 hours' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Division Timeline</label>
+                                        <input name="delivery_division" value="{{ $settings['delivery_division'] ?? 'Division cities: 48–72 hours' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Other Areas Timeline</label>
+                                        <input name="delivery_other" value="{{ $settings['delivery_other'] ?? 'Other areas: 72–96 hours' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 border-t border-[#232A36] pt-4">
+                                <p class="text-xs font-medium text-[#94A3B8] mb-3">Shipping Info Section</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Section Heading</label>
+                                        <input name="customer_care_shipping_heading" value="{{ $settings['customer_care_shipping_heading'] ?? 'Shipping & Delivery' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Section Subtitle</label>
+                                        <input name="customer_care_shipping_subtitle" value="{{ $settings['customer_care_shipping_subtitle'] ?? 'Everything you need to know about shipping' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                </div>
+                                <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Delivery Charge Heading</label>
+                                        <input name="shipping_charge_heading" value="{{ $settings['shipping_charge_heading'] ?? 'Delivery Charge' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                        <textarea name="shipping_charge_text" rows="2" class="mt-2 w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['shipping_charge_text'] ?? 'Free delivery on all orders <span class="font-bold">above ৳3,000</span>. A flat rate of ৳120 applies for orders below ৳3,000.' }}</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">COD Heading</label>
+                                        <input name="shipping_cod_heading" value="{{ $settings['shipping_cod_heading'] ?? 'Cash on Delivery' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                        <textarea name="shipping_cod_text" rows="2" class="mt-2 w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['shipping_cod_text'] ?? 'Pay when your order arrives. <span class="font-bold">A small advance payment</span> is needed for COD orders.' }}</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Tracking Heading</label>
+                                        <input name="shipping_tracking_heading" value="{{ $settings['shipping_tracking_heading'] ?? 'Tracking' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                        <textarea name="shipping_tracking_text" rows="2" class="mt-2 w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['shipping_tracking_text'] ?? 'Once your order is dispatched, you will receive a tracking link via SMS to track your delivery in real time.' }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 border-t border-[#232A36] pt-4">
+                                <p class="text-xs font-medium text-[#94A3B8] mb-3">Contact Section</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Section Heading</label>
+                                        <input name="customer_care_contact_heading" value="{{ $settings['customer_care_contact_heading'] ?? 'Contact Us' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Section Subtitle</label>
+                                        <input name="customer_care_contact_subtitle" value="{{ $settings['customer_care_contact_subtitle'] ?? 'Reach out to us anytime' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                </div>
+                                <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Phone Label</label>
+                                        <input name="contact_phone_label" value="{{ $settings['contact_phone_label'] ?? 'Phone' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Email Label</label>
+                                        <input name="contact_email_label" value="{{ $settings['contact_email_label'] ?? 'Email' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Address Label</label>
+                                        <input name="contact_address_label" value="{{ $settings['contact_address_label'] ?? 'Address' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">WhatsApp Label</label>
+                                        <input name="contact_whatsapp_label" value="{{ $settings['contact_whatsapp_label'] ?? 'WhatsApp' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                </div>
+                                <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">WhatsApp Number (with country code)</label>
+                                        <input name="contact_whatsapp" value="{{ $settings['contact_whatsapp'] ?? '8801641857715' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 border-t border-[#232A36] pt-4">
+                                <p class="text-xs font-medium text-[#94A3B8] mb-3">Inquiry Form</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Form Heading</label>
+                                        <input name="inquiry_heading" value="{{ $settings['inquiry_heading'] ?? 'Send Inquiry' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Form Subtitle</label>
+                                        <input name="inquiry_subtitle" value="{{ $settings['inquiry_subtitle'] ?? 'We reply within 2 hours' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Response Time Text</label>
+                                        <input name="inquiry_response_time" value="{{ $settings['inquiry_response_time'] ?? 'Average response time: 47 minutes' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Submit Button</label>
+                                        <input name="inquiry_submit_button" value="{{ $settings['inquiry_submit_button'] ?? 'Submit Inquiry' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">Choose Image Text</label>
+                                        <input name="inquiry_choose_image" value="{{ $settings['inquiry_choose_image'] ?? 'Choose Image' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-xs text-[#94A3B8]">No File Text</label>
+                                        <input name="inquiry_no_file" value="{{ $settings['inquiry_no_file'] ?? 'No file selected' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </x-card>
+
+                    {{-- Footer --}}
+                    <x-card x-data="{ open: false }">
+                        <div class="flex items-center gap-3 mb-4 cursor-pointer" @click="open = !open">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#A855F7]/10"><i class="fas fa-copyright text-[#A855F7] text-xs"></i></div>
+                            <h3 class="text-sm font-semibold text-[#E6EDF3] flex-1">Footer Content</h3>
+                            <i class="fas fa-chevron-down text-[#94A3B8] text-xs transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                        </div>
+                        <div x-show="open" x-collapse>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Newsletter Heading</label>
+                                    <input name="footer_newsletter_heading" value="{{ $settings['footer_newsletter_heading'] ?? 'Join the DribblingBD Community' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Newsletter Description</label>
+                                    <input name="footer_newsletter_desc" value="{{ $settings['footer_newsletter_desc'] ?? 'Get exclusive jersey drops and offers.' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Subscribe Button</label>
+                                    <input name="footer_subscribe_button" value="{{ $settings['footer_subscribe_button'] ?? 'Subscribe' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Copyright Text</label>
+                                    <input name="footer_copyright_text" value="{{ $settings['footer_copyright_text'] ?? 'DribblingBD. All rights reserved.' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Brand Description</label>
+                                <textarea name="footer_brand_description" rows="3" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['footer_brand_description'] ?? "Bangladesh's premier destination for premium jerseys. From national team classics to personalized designs, we bring the pitch to your doorstep." }}</textarea>
+                            </div>
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs text-[#94A3B8]">We Accept Text</label>
+                                <input name="footer_we_accept_text" value="{{ $settings['footer_we_accept_text'] ?? 'We Accept:' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                        </div>
+                    </x-card>
+
+                    {{-- FAQ Page --}}
+                    <x-card x-data="{ open: false }">
+                        <div class="flex items-center gap-3 mb-4 cursor-pointer" @click="open = !open">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F59E0B]/10"><i class="fas fa-question-circle text-[#F59E0B] text-xs"></i></div>
+                            <h3 class="text-sm font-semibold text-[#E6EDF3] flex-1">FAQ Page</h3>
+                            <i class="fas fa-chevron-down text-[#94A3B8] text-xs transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                        </div>
+                        <div x-show="open" x-collapse>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Page Heading</label>
+                                    <input name="faq_page_heading" value="{{ $settings['faq_page_heading'] ?? 'Frequently Asked Questions' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Page Subtitle</label>
+                                    <input name="faq_page_subtitle" value="{{ $settings['faq_page_subtitle'] ?? 'Everything you need to know about DribblingBD' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Product Section Heading</label>
+                                    <input name="faq_product_heading" value="{{ $settings['faq_product_heading'] ?? 'About Product' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Product Empty Text</label>
+                                    <input name="faq_product_empty" value="{{ $settings['faq_product_empty'] ?? 'No product FAQs available yet.' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Order Section Heading</label>
+                                    <input name="faq_order_heading" value="{{ $settings['faq_order_heading'] ?? 'About Us & Orders' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Order Empty Text</label>
+                                    <input name="faq_order_empty" value="{{ $settings['faq_order_empty'] ?? 'No order FAQs available yet.' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+                        </div>
+                    </x-card>
+
+                    {{-- UI Labels --}}
+                    <x-card x-data="{ open: false }">
+                        <div class="flex items-center gap-3 mb-4 cursor-pointer" @click="open = !open">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B82F6]/10"><i class="fas fa-tag text-[#3B82F6] text-xs"></i></div>
+                            <h3 class="text-sm font-semibold text-[#E6EDF3] flex-1">UI Labels & Text</h3>
+                            <i class="fas fa-chevron-down text-[#94A3B8] text-xs transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                        </div>
+                        <div x-show="open" x-collapse>
+                            <p class="text-xs text-[#94A3B8] mb-4">Customize button labels, empty state messages, and other UI text across the store.</p>
+
+                            <p class="text-xs font-medium text-[#22C55E] mb-2">Homepage</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">View All</label>
+                                    <input name="ui_view_all" value="{{ $settings['ui_view_all'] ?? 'View All' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Quick View</label>
+                                    <input name="ui_quick_view" value="{{ $settings['ui_quick_view'] ?? 'Quick View' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">View All New Arrivals</label>
+                                    <input name="ui_view_all_new_arrivals" value="{{ $settings['ui_view_all_new_arrivals'] ?? 'View All New Arrivals' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">View All Top Selling</label>
+                                    <input name="ui_view_all_top_selling" value="{{ $settings['ui_view_all_top_selling'] ?? 'View All Top Selling' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#22C55E] mb-2">Product / Catalog</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Add to Cart</label>
+                                    <input name="ui_add_to_cart" value="{{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Added ✓</label>
+                                    <input name="ui_added" value="{{ $settings['ui_added'] ?? 'Added' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">You May Also Like</label>
+                                    <input name="ui_you_may_also_like" value="{{ $settings['ui_you_may_also_like'] ?? 'You May Also Like' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">In Stock</label>
+                                    <input name="ui_in_stock" value="{{ $settings['ui_in_stock'] ?? 'In Stock' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Out of Stock</label>
+                                    <input name="ui_out_of_stock" value="{{ $settings['ui_out_of_stock'] ?? 'Out of Stock' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">No Stock</label>
+                                    <input name="ui_no_stock" value="{{ $settings['ui_no_stock'] ?? 'No stock for this size' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Contact for Stock</label>
+                                    <input name="ui_contact_stock" value="{{ $settings['ui_contact_stock'] ?? 'Contact for Stock' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Free Shipping Text</label>
+                                    <input name="ui_free_shipping_text" value="{{ $settings['ui_free_shipping_text'] ?? 'Free shipping on orders over ৳3,000' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Delivery Time Text</label>
+                                    <input name="ui_delivery_time_text" value="{{ $settings['ui_delivery_time_text'] ?? '96 Hours Home Delivery' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Saved / Save</label>
+                                    <div class="flex gap-2">
+                                        <input name="ui_saved" value="{{ $settings['ui_saved'] ?? 'Saved' }}" placeholder="Saved" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                        <input name="ui_save" value="{{ $settings['ui_save'] ?? 'Save' }}" placeholder="Save" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#F59E0B] mb-2">Product Listing</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">All Jerseys</label>
+                                    <input name="ui_all_jerseys" value="{{ $settings['ui_all_jerseys'] ?? 'All Jerseys' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Player Edition</label>
+                                    <input name="ui_player_edition" value="{{ $settings['ui_player_edition'] ?? 'Player Edition' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">All Filter</label>
+                                    <input name="ui_all_label" value="{{ $settings['ui_all_label'] ?? 'All' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">In Stock Filter</label>
+                                    <input name="ui_in_stock_filter" value="{{ $settings['ui_in_stock_filter'] ?? 'In Stock' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Out of Stock Filter</label>
+                                    <input name="ui_out_of_stock_filter" value="{{ $settings['ui_out_of_stock_filter'] ?? 'Out of Stock' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">No Products Yet</label>
+                                    <input name="ui_no_products_yet" value="{{ $settings['ui_no_products_yet'] ?? 'No products yet' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">No Products Desc</label>
+                                    <input name="ui_no_products_desc" value="{{ $settings['ui_no_products_desc'] ?? 'Jerseys will appear here once added to inventory.' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">No Projects Text</label>
+                                    <input name="ui_no_projects" value="{{ $settings['ui_no_projects'] ?? 'No projects found in this category.' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#3B82F6] mb-2">Search</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Placeholder</label>
+                                    <input name="ui_search_placeholder" value="{{ $settings['ui_search_placeholder'] ?? 'Search jerseys...' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">No Results For</label>
+                                    <input name="ui_no_results_for" value="{{ $settings['ui_no_results_for'] ?? 'No jerseys found for' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#EF4444] mb-2">Cart</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Shopping Cart Title</label>
+                                    <input name="ui_shopping_cart" value="{{ $settings['ui_shopping_cart'] ?? 'Shopping Cart' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Cart Empty</label>
+                                    <input name="ui_cart_empty" value="{{ $settings['ui_cart_empty'] ?? 'Your cart is empty' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Cart Empty Desc</label>
+                                    <input name="ui_cart_empty_desc" value="{{ $settings['ui_cart_empty_desc'] ?? "Looks like you haven't added any jerseys yet." }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Subtotal</label>
+                                    <input name="ui_subtotal" value="{{ $settings['ui_subtotal'] ?? 'Subtotal' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Shipping</label>
+                                    <input name="ui_shipping" value="{{ $settings['ui_shipping'] ?? 'Shipping' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Free</label>
+                                    <input name="ui_free" value="{{ $settings['ui_free'] ?? 'Free' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Total</label>
+                                    <input name="ui_total" value="{{ $settings['ui_total'] ?? 'Total' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Proceed to Checkout</label>
+                                    <input name="ui_proceed_checkout" value="{{ $settings['ui_proceed_checkout'] ?? 'Proceed to Checkout' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Continue Shopping</label>
+                                    <input name="ui_continue_shopping" value="{{ $settings['ui_continue_shopping'] ?? 'Continue Shopping' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">View Cart</label>
+                                    <input name="ui_view_cart" value="{{ $settings['ui_view_cart'] ?? 'View Cart' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#EF4444] mb-2">Checkout</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Checkout Title</label>
+                                    <input name="ui_checkout" value="{{ $settings['ui_checkout'] ?? 'Checkout' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Checkout Desc</label>
+                                    <input name="ui_checkout_desc" value="{{ $settings['ui_checkout_desc'] ?? 'Review your order and complete the purchase' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Empty Checkout</label>
+                                    <input name="ui_checkout_empty" value="{{ $settings['ui_checkout_empty'] ?? 'Nothing to checkout' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Empty Checkout Desc</label>
+                                    <input name="ui_checkout_empty_desc" value="{{ $settings['ui_checkout_empty_desc'] ?? 'Add some items to your cart first.' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Products Label</label>
+                                    <input name="ui_products_label" value="{{ $settings['ui_products_label'] ?? 'Products' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Shipping Address</label>
+                                    <input name="ui_shipping_address" value="{{ $settings['ui_shipping_address'] ?? 'Shipping Address' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Summary</label>
+                                    <input name="ui_summary" value="{{ $settings['ui_summary'] ?? 'Summary' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Place Order</label>
+                                    <input name="ui_place_order" value="{{ $settings['ui_place_order'] ?? 'Place Order' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Back to Cart</label>
+                                    <input name="ui_back_to_cart" value="{{ $settings['ui_back_to_cart'] ?? 'Back to Cart' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#A855F7] mb-2">Order Processing</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Processing Title</label>
+                                    <input name="ui_processing_order" value="{{ $settings['ui_processing_order'] ?? 'Processing Your Order' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Processing Desc</label>
+                                    <input name="ui_processing_order_desc" value="{{ $settings['ui_processing_order_desc'] ?? 'Please wait while we hand over your order...' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Handed Over Title</label>
+                                    <input name="ui_order_handed_over" value="{{ $settings['ui_order_handed_over'] ?? 'Order Handed Over!' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Handed Over Desc</label>
+                                    <textarea name="ui_order_handed_over_desc" rows="2" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['ui_order_handed_over_desc'] ?? 'Your order is handed over to the Dribbling BD WhatsApp team. Please confirm your order via WhatsApp. Thank you for shopping with us!' }}</textarea>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Confirm on WhatsApp</label>
+                                    <input name="ui_confirm_whatsapp" value="{{ $settings['ui_confirm_whatsapp'] ?? 'Confirm on WhatsApp' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Back to Home</label>
+                                    <input name="ui_back_to_home" value="{{ $settings['ui_back_to_home'] ?? 'Back to Home' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#EF4444] mb-2">Wishlist</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">My Wishlist Title</label>
+                                    <input name="ui_my_wishlist" value="{{ $settings['ui_my_wishlist'] ?? 'My Wishlist' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Wishlist Empty</label>
+                                    <input name="ui_wishlist_empty" value="{{ $settings['ui_wishlist_empty'] ?? 'Your wishlist is empty' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Wishlist Empty Desc</label>
+                                    <input name="ui_wishlist_empty_desc" value="{{ $settings['ui_wishlist_empty_desc'] ?? 'Save your favorite jerseys here.' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Browse Jerseys</label>
+                                    <input name="ui_browse_jerseys" value="{{ $settings['ui_browse_jerseys'] ?? 'Browse Jerseys' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Remove</label>
+                                    <input name="ui_remove" value="{{ $settings['ui_remove'] ?? 'Remove' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#F59E0B] mb-2">Profile / Account</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Personal Info</label>
+                                    <input name="ui_personal_info" value="{{ $settings['ui_personal_info'] ?? 'Personal Info' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Address</label>
+                                    <input name="ui_address_label" value="{{ $settings['ui_address_label'] ?? 'Address' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Preferences</label>
+                                    <input name="ui_preferences" value="{{ $settings['ui_preferences'] ?? 'Preferences' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Save Changes</label>
+                                    <input name="ui_save_changes" value="{{ $settings['ui_save_changes'] ?? 'Save Changes' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Order History</label>
+                                    <input name="ui_order_history" value="{{ $settings['ui_order_history'] ?? 'Order History' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Order #</label>
+                                    <input name="ui_order_number" value="{{ $settings['ui_order_number'] ?? 'Order #' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">No Orders Yet</label>
+                                    <input name="ui_no_orders_yet" value="{{ $settings['ui_no_orders_yet'] ?? 'No orders yet' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">No Orders Desc</label>
+                                    <input name="ui_no_orders_desc" value="{{ $settings['ui_no_orders_desc'] ?? 'Your orders will appear here' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Start Shopping</label>
+                                    <input name="ui_start_shopping" value="{{ $settings['ui_start_shopping'] ?? 'Start Shopping' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Wishlist Section</label>
+                                    <input name="ui_wishlist_label" value="{{ $settings['ui_wishlist_label'] ?? 'Wishlist' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Wishlist Empty (Profile)</label>
+                                    <input name="ui_wishlist_empty_profile" value="{{ $settings['ui_wishlist_empty_profile'] ?? 'Your wishlist is empty' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Wishlist Empty Desc (Profile)</label>
+                                    <input name="ui_wishlist_empty_profile_desc" value="{{ $settings['ui_wishlist_empty_profile_desc'] ?? 'Save your favourite jerseys here' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Browse Products</label>
+                                    <input name="ui_browse_products" value="{{ $settings['ui_browse_products'] ?? 'Browse Products' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">View</label>
+                                    <input name="ui_view" value="{{ $settings['ui_view'] ?? 'View' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Cart Section</label>
+                                    <input name="ui_cart_label" value="{{ $settings['ui_cart_label'] ?? 'Cart' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Cart Empty (Profile)</label>
+                                    <input name="ui_cart_empty_profile" value="{{ $settings['ui_cart_empty_profile'] ?? 'Your cart is empty' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Cart Empty Desc (Profile)</label>
+                                    <input name="ui_cart_empty_profile_desc" value="{{ $settings['ui_cart_empty_profile_desc'] ?? 'Add some jerseys to get started' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+
+                            <p class="text-xs font-medium text-[#22C55E] mb-2">Notifications</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Added to Cart</label>
+                                    <input name="ui_notify_added_cart" value="{{ $settings['ui_notify_added_cart'] ?? 'Added to cart!' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Saved to Wishlist</label>
+                                    <input name="ui_notify_saved_wishlist" value="{{ $settings['ui_notify_saved_wishlist'] ?? 'Saved to wishlist!' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Removed from Wishlist</label>
+                                    <input name="ui_notify_removed_wishlist" value="{{ $settings['ui_notify_removed_wishlist'] ?? 'Removed from wishlist' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                </div>
+                            </div>
+                        </div>
+                    </x-card>
+
                     {{-- Shipping Settings --}}
                     <x-card>
                         <div class="flex items-center gap-3 mb-4">
@@ -390,6 +963,11 @@
                             <label class="mb-1 block text-xs text-[#94A3B8]">Answer</label>
                             <textarea name="answer" rows="4" required class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]"></textarea>
                         </div>
+                        <div class="flex items-center gap-2">
+                            <input type="hidden" name="is_active" value="0">
+                            <input type="checkbox" name="is_active" id="faq-is-active" value="1" checked class="rounded border-[#232A36] bg-[#0F1117] text-[#3B82F6]">
+                            <label for="faq-is-active" class="text-xs text-[#94A3B8]">Active</label>
+                        </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-6">
                         <button type="button" @click="$el.closest('#faq-modal').classList.add('hidden')" class="rounded-lg border border-[#232A36] px-4 py-2 text-xs text-[#94A3B8] hover:bg-[#1C2333]">Cancel</button>
@@ -437,7 +1015,16 @@
                         </div>
                         <div>
                             <label class="mb-1 block text-xs text-[#94A3B8]">Image (optional)</label>
-                            <input type="file" name="image" accept="image/*" class="w-full text-xs text-[#94A3B8] file:mr-3 file:rounded-lg file:border-0 file:bg-[#3B82F6] file:px-3 file:py-1.5 file:text-xs file:text-white">
+                            <div id="testimonial-preview" class="hidden mb-2 relative w-20 h-20">
+                                <img id="testimonial-preview-img" src="" class="w-full h-full object-cover rounded-lg border border-[#232A36]">
+                                <button type="button" onclick="document.getElementById('testimonial-preview').classList.add('hidden'); document.getElementById('testimonial-image-input').value=''" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#EF4444] text-white text-[10px] flex items-center justify-center hover:bg-[#DC2626]">&times;</button>
+                            </div>
+                            <input id="testimonial-image-input" type="file" name="image" accept="image/*" class="w-full text-xs text-[#94A3B8] file:mr-3 file:rounded-lg file:border-0 file:bg-[#3B82F6] file:px-3 file:py-1.5 file:text-xs file:text-white">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="hidden" name="is_active" value="0">
+                            <input type="checkbox" name="is_active" id="testimonial-is-active" value="1" checked class="rounded border-[#232A36] bg-[#0F1117] text-[#3B82F6]">
+                            <label for="testimonial-is-active" class="text-xs text-[#94A3B8]">Active</label>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-6">

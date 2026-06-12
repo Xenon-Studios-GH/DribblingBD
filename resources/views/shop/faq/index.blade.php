@@ -3,8 +3,8 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
     <div class="text-center mb-12">
-        <h1 class="text-3xl lg:text-4xl font-bold text-gray-900">Frequently Asked Questions</h1>
-        <p class="text-sm text-gray-500 mt-2">Everything you need to know about DribblingBD</p>
+        <h1 class="text-3xl lg:text-4xl font-bold text-gray-900">{{ $settings['faq_page_heading'] ?? 'Frequently Asked Questions' }}</h1>
+        <p class="text-sm text-gray-500 mt-2">{{ $settings['faq_page_subtitle'] ?? 'Everything you need to know about DribblingBD' }}</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
@@ -14,7 +14,7 @@
                 <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
                     <i class="fas fa-tshirt text-[#E85D2C]"></i>
                 </div>
-                <h2 class="text-lg font-bold text-gray-900">About Product</h2>
+                <h2 class="text-lg font-bold text-gray-900">{{ $settings['faq_product_heading'] ?? 'About Product' }}</h2>
             </div>
             <div class="space-y-3" x-data="{ open: null }">
                 @forelse ($productFaqs as $i => $faq)
@@ -33,7 +33,7 @@
                     </div>
                 </div>
                 @empty
-                <p class="text-sm text-gray-500">No product FAQs available yet.</p>
+                <p class="text-sm text-gray-500">{{ $settings['faq_product_empty'] ?? 'No product FAQs available yet.' }}</p>
                 @endforelse
             </div>
         </div>
@@ -44,7 +44,7 @@
                 <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
                     <i class="fas fa-shopping-bag text-blue-500"></i>
                 </div>
-                <h2 class="text-lg font-bold text-gray-900">About Us & Orders</h2>
+                <h2 class="text-lg font-bold text-gray-900">{{ $settings['faq_order_heading'] ?? 'About Us & Orders' }}</h2>
             </div>
             <div class="space-y-3" x-data="{ open: null }">
                 @forelse ($orderFaqs as $i => $faq)
@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 @empty
-                <p class="text-sm text-gray-500">No order FAQs available yet.</p>
+                <p class="text-sm text-gray-500">{{ $settings['faq_order_empty'] ?? 'No order FAQs available yet.' }}</p>
                 @endforelse
             </div>
         </div>

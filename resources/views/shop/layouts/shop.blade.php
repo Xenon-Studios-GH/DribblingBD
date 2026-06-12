@@ -35,6 +35,11 @@
     </div>
 
     <script>
+        const uiLabels = {
+            addedCart: '{{ $settings["ui_notify_added_cart"] ?? "Added to cart!" }}',
+            savedWishlist: '{{ $settings["ui_notify_saved_wishlist"] ?? "Saved to wishlist!" }}',
+            removedWishlist: '{{ $settings["ui_notify_removed_wishlist"] ?? "Removed from wishlist" }}',
+        };
         function shopStore() {
             return {
                 cart: Alpine.$persist([]).as('shop_cart'),
@@ -66,7 +71,7 @@
                             slug: product.slug || '',
                         });
                     }
-                    this.notify('Added to cart!');
+                    this.notify(uiLabels.addedCart);
                 },
 
                 removeFromCart(index) {
@@ -87,10 +92,10 @@
                     const idx = this.wishlist.findIndex(item => (item.id ?? item) === id);
                     if (idx === -1) {
                         this.wishlist.push(typeof product === 'object' ? product : { id: product });
-                        this.notify('Saved to wishlist!');
+                        this.notify(uiLabels.savedWishlist);
                     } else {
                         this.wishlist.splice(idx, 1);
-                        this.notify('Removed from wishlist', 'info');
+                        this.notify(uiLabels.removedWishlist, 'info');
                     }
                 },
 

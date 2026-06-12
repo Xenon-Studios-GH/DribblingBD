@@ -133,8 +133,8 @@ footer { display: none !important; }
             <div class="spinner">
                 <span class="text-3xl font-bold text-[#E85D2C]" x-text="countdown"></span>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Processing Your Order</h3>
-            <p class="text-sm text-gray-500">Please wait while we hand over your order...</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $settings['ui_processing_order'] ?? 'Processing Your Order' }}</h3>
+            <p class="text-sm text-gray-500">{{ $settings['ui_processing_order_desc'] ?? 'Please wait while we hand over your order...' }}</p>
             <div class="dot-bounce">
                 <span></span><span></span><span></span>
             </div>
@@ -146,18 +146,17 @@ footer { display: none !important; }
             <div class="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-check text-3xl text-green-500"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-3">Order Handed Over!</h3>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ $settings['ui_order_handed_over'] ?? 'Order Handed Over!' }}</h3>
             <p class="text-sm text-gray-600 leading-relaxed mb-6">
-                Your order is handed over to the Dribbling BD WhatsApp team.<br>
-                Please confirm your order via WhatsApp. Thank you for shopping with us!
+                {{ $settings['ui_order_handed_over_desc'] ?? 'Your order is handed over to the Dribbling BD WhatsApp team.<br>Please confirm your order via WhatsApp. Thank you for shopping with us!' }}
             </p>
             <div class="flex flex-col items-center gap-3">
                 <a :href="whatsappUrl" target="_blank" class="btn">
                     <i class="fab fa-whatsapp" style="margin-right: 8px; font-size: 20px;"></i>
-                    Confirm on WhatsApp
+                    {{ $settings['ui_confirm_whatsapp'] ?? 'Confirm on WhatsApp' }}
                 </a>
                 <a href="{{ route('shop.home') }}" class="text-sm font-medium text-gray-500 hover:text-[#E85D2C] transition-colors">
-                    Back to Home
+                    {{ $settings['ui_back_to_home'] ?? 'Back to Home' }}
                 </a>
             </div>
         </div>

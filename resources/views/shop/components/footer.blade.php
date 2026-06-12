@@ -4,13 +4,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
             <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
                 <div>
-                    <h3 class="text-lg font-bold text-white">Join the DribblingBD Community</h3>
-                    <p class="text-sm text-gray-400 mt-1">Get exclusive jersey drops and offers.</p>
+                    <h3 class="text-lg font-bold text-white">{{ $settings['footer_newsletter_heading'] ?? 'Join the DribblingBD Community' }}</h3>
+                    <p class="text-sm text-gray-400 mt-1">{{ $settings['footer_newsletter_desc'] ?? 'Get exclusive jersey drops and offers.' }}</p>
                 </div>
                 <form class="flex w-full lg:w-auto gap-2" @submit.prevent="alert('Subscribed! (Demo)')">
                     <input type="email" placeholder="Enter your email" required class="flex-1 lg:w-72 px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-800 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E85D2C]/50 focus:border-[#E85D2C]">
                     <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#E85D2C] text-white text-sm font-medium hover:bg-[#d14d1f] transition-colors whitespace-nowrap">
-                        Subscribe
+                        {{ $settings['footer_subscribe_button'] ?? 'Subscribe' }}
                     </button>
                 </form>
             </div>
@@ -24,7 +24,7 @@
             <div class="sm:col-span-2 lg:col-span-1">
                 <span class="text-2xl font-bold tracking-tight"><span class="text-white">Dribbling</span><span class="text-[#E85D2C]">BD</span></span>
                 <p class="mt-3 text-sm text-gray-400 leading-relaxed">
-                    Bangladesh's premier destination for premium jerseys. From national team classics to personalized designs, we bring the pitch to your doorstep.
+                    {{ $settings['footer_brand_description'] ?? "Bangladesh's premier destination for premium jerseys. From national team classics to personalized designs, we bring the pitch to your doorstep." }}
                 </p>
                 <div class="flex items-center gap-3 mt-4">
                     <a href="{{ $settings['social_facebook'] ?? 'https://www.facebook.com/dribblingbd' }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-800 text-gray-400 hover:bg-[#E85D2C] hover:text-white transition-colors">
@@ -87,9 +87,9 @@
     {{-- Bottom bar --}}
     <div class="border-t border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p class="text-xs text-gray-500">&copy; {{ date('Y') }} DribblingBD. All rights reserved.</p>
+            <p class="text-xs text-gray-500">&copy; {{ date('Y') }} {{ $settings['footer_copyright_text'] ?? 'DribblingBD. All rights reserved.' }}</p>
             <div class="flex items-center gap-3">
-                <span class="text-xs text-gray-600">We Accept:</span>
+                <span class="text-xs text-gray-600">{{ $settings['footer_we_accept_text'] ?? 'We Accept:' }}</span>
                 <div class="flex items-center gap-2">
                     <span class="px-2 py-1 rounded text-[10px] font-bold bg-gray-800 text-gray-300">VISA</span>
                     <span class="px-2 py-1 rounded text-[10px] font-bold bg-gray-800 text-gray-300">MC</span>

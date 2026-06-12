@@ -65,8 +65,8 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
             <i class="fas fa-credit-card text-[#E85D2C]"></i>
         </div>
         <div>
-            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">Checkout</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Review your order and complete the purchase</p>
+            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">{{ $settings['ui_checkout'] ?? 'Checkout' }}</h1>
+            <p class="text-sm text-gray-500 mt-0.5">{{ $settings['ui_checkout_desc'] ?? 'Review your order and complete the purchase' }}</p>
         </div>
     </div>
 
@@ -75,11 +75,11 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
             <div class="w-20 h-20 rounded-3xl bg-gray-50 flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-shopping-bag text-3xl text-gray-300"></i>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">Nothing to checkout</h3>
-            <p class="text-sm text-gray-500 mt-1">Add some items to your cart first.</p>
+            <h3 class="text-lg font-semibold text-gray-900">{{ $settings['ui_checkout_empty'] ?? 'Nothing to checkout' }}</h3>
+            <p class="text-sm text-gray-500 mt-1">{{ $settings['ui_checkout_empty_desc'] ?? 'Add some items to your cart first.' }}</p>
             <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-all shadow-lg shadow-[#E85D2C]/20">
                 <i class="fas fa-arrow-left text-xs"></i>
-                Continue Shopping
+                {{ $settings['ui_continue_shopping'] ?? 'Continue Shopping' }}
             </a>
         </div>
     </template>
@@ -95,7 +95,7 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                             <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
                                 <i class="fas fa-box text-sm text-orange-500"></i>
                             </div>
-                            <h2 class="text-base font-bold text-gray-900">Products</h2>
+                            <h2 class="text-base font-bold text-gray-900">{{ $settings['ui_products_label'] ?? 'Products' }}</h2>
                         </div>
                         <span class="text-sm text-gray-500" x-text="cart.length + ' item' + (cart.length > 1 ? 's' : '')"></span>
                     </div>
@@ -137,7 +137,7 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                         <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                             <i class="fas fa-map-marker-alt text-sm text-blue-500"></i>
                         </div>
-                        <h2 class="text-base font-bold text-gray-900">Shipping Address</h2>
+                        <h2 class="text-base font-bold text-gray-900">{{ $settings['ui_shipping_address'] ?? 'Shipping Address' }}</h2>
                     </div>
                     <div class="px-6 sm:px-8 py-6 space-y-5">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -189,20 +189,20 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                         <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
                             <i class="fas fa-receipt text-sm text-green-500"></i>
                         </div>
-                        <h2 class="text-base font-bold text-gray-900">Summary</h2>
+                        <h2 class="text-base font-bold text-gray-900">{{ $settings['ui_summary'] ?? 'Summary' }}</h2>
                     </div>
                     <div class="px-6 sm:px-8 py-6 space-y-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Subtotal</span>
+                            <span class="text-sm text-gray-600">{{ $settings['ui_subtotal'] ?? 'Subtotal' }}</span>
                             <span class="text-sm font-semibold text-gray-900">৳<span x-text="cartTotal.toLocaleString()"></span></span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Shipping</span>
+                            <span class="text-sm text-gray-600">{{ $settings['ui_shipping'] ?? 'Shipping' }}</span>
                             <span class="text-sm font-semibold" :class="shippingCharge === 0 ? 'text-green-600' : 'text-[#E85D2C]'" x-text="shippingCharge === 0 ? 'Free' : '৳' + shippingCharge.toLocaleString()"></span>
                         </div>
                         <hr class="border-gray-100">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-bold text-gray-900">Total</span>
+                            <span class="text-sm font-bold text-gray-900">{{ $settings['ui_total'] ?? 'Total' }}</span>
                             <span class="text-lg font-bold text-[#E85D2C]">৳<span x-text="grandTotal.toLocaleString()"></span></span>
                         </div>
 
@@ -213,14 +213,14 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                                         <i class="fas fa-shopping-cart icon"></i>
                                     </div>
                                 </div>
-                                <span>Place Order</span>
+                                <span>{{ $settings['ui_place_order'] ?? 'Place Order' }}</span>
                             </button>
                         </div>
 
                         <div class="pt-4 border-t border-gray-100">
                             <a href="{{ route('shop.cart.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#E85D2C] transition-colors">
                                 <i class="fas fa-arrow-left text-xs"></i>
-                                Back to Cart
+                                {{ $settings['ui_back_to_cart'] ?? 'Back to Cart' }}
                             </a>
                         </div>
                     </div>

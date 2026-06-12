@@ -150,7 +150,7 @@
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $settings['new_arrivals_heading'] ?? 'New Arrivals' }}</h2>
                 </div>
                 <a href="{{ route('shop.products.index') }}" class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-[#E85D2C] hover:text-[#d14d1f] transition-colors">
-                    View All
+                    {{ $settings['ui_view_all'] ?? 'View All' }}
                     <i class="fas fa-chevron-right w-4 h-4"></i>
                 </a>
             </div>
@@ -171,7 +171,7 @@
                             </div>
                             @endif
                             <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span class="text-xs font-medium text-white">Quick View</span>
+                                <span class="text-xs font-medium text-white">{{ $settings['ui_quick_view'] ?? 'Quick View' }}</span>
                             </div>
                         </a>
                         <div class="p-3 sm:p-4">
@@ -182,8 +182,8 @@
                             <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : "", JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                                 :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
-                                <span x-show="!added">Add to Cart</span>
-                                <span x-show="added" x-cloak>✓ Added</span>
+                                <span x-show="!added">{{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}</span>
+                                <span x-show="added" x-cloak>{{ $settings['ui_added'] ?? 'Added' }} ✓</span>
                             </button>
                         </div>
                     </div>
@@ -191,7 +191,7 @@
             </div>
             <div class="mt-6 text-center sm:hidden">
                 <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-[#E85D2C]">
-                    View All New Arrivals
+                    {{ $settings['ui_view_all_new_arrivals'] ?? 'View All New Arrivals' }}
                     <i class="fas fa-chevron-right w-4 h-4"></i>
                 </a>
             </div>
@@ -203,7 +203,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl sm:text-3xl font-bold text-white">{{ $settings['banner_heading'] ?? 'Custom Jersey Design' }}</h2>
             <p class="mt-2 text-orange-100 text-sm sm:text-base max-w-lg mx-auto">{{ $settings['banner_subtext'] ?? "Design your team's unique look. Choose colors, patterns, and add your club name & number." }}</p>
-            <a href="{{ $settings['banner_cta_link'] ?? 'https://wa.me/'.config('shop.whatsapp_number').'?text='.urlencode('Hi, I want to design a custom jersey') }}" target="_blank" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#E85D2C] font-semibold text-sm hover:bg-orange-50 transition-colors">
+             <a href="{{ $settings['banner_cta_link'] ?? 'https://wa.me/'.config('shop.whatsapp_number') }}" target="_blank" class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#E85D2C] font-semibold text-sm hover:bg-orange-50 transition-colors">
                 <i class="fab fa-whatsapp w-5 h-5"></i>
                 {{ $settings['banner_cta'] ?? 'Design on WhatsApp' }}
             </a>
@@ -219,7 +219,7 @@
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{{ $settings['top_selling_heading'] ?? 'Top Selling' }}</h2>
                 </div>
                 <a href="{{ route('shop.products.index') }}" class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-[#E85D2C] hover:text-[#d14d1f] transition-colors">
-                    View All
+                    {{ $settings['ui_view_all'] ?? 'View All' }}
                     <i class="fas fa-chevron-right w-4 h-4"></i>
                 </a>
             </div>
@@ -253,8 +253,8 @@
                             <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : "", JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                                 :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
-                                <span x-show="!added">Add to Cart</span>
-                                <span x-show="added" x-cloak>✓ Added</span>
+                                <span x-show="!added">{{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}</span>
+                                <span x-show="added" x-cloak>{{ $settings['ui_added'] ?? 'Added' }} ✓</span>
                             </button>
                         </div>
                     </div>
@@ -262,7 +262,7 @@
             </div>
             <div class="mt-6 text-center sm:hidden">
                 <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-[#E85D2C]">
-                    View All Top Selling
+                    {{ $settings['ui_view_all_top_selling'] ?? 'View All Top Selling' }}
                     <i class="fas fa-chevron-right w-4 h-4"></i>
                 </a>
             </div>

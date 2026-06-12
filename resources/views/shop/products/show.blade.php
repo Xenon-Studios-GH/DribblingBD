@@ -150,18 +150,18 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
                     $totalStock = $product->stocks->sum('quantity');
                     @endphp
                     @if ($totalStock > 0)
-                    In Stock
+                    {{ $settings['ui_in_stock'] ?? 'In Stock' }}
                     @else
-                    <span class="text-red-500">Out of Stock</span>
+                    <span class="text-red-500">{{ $settings['ui_out_of_stock'] ?? 'Out of Stock' }}</span>
                     @endif
                 </div>
                 <div class="flex items-center gap-3 text-sm text-gray-600">
                     <i class="fas fa-shopping-bag w-4 h-4 text-green-500"></i>
-                    Free shipping on orders over ৳3,000
+                    {{ $settings['ui_free_shipping_text'] ?? 'Free shipping on orders over ৳3,000' }}
                 </div>
                 <div class="flex items-center gap-3 text-sm text-gray-600">
                     <i class="fas fa-sync-alt w-4 h-4 text-green-500"></i>
-                    96 Hours Home Delivery
+                    {{ $settings['ui_delivery_time_text'] ?? '96 Hours Home Delivery' }}
                 </div>
             </div>
         </div>
@@ -170,7 +170,7 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
     {{-- Related Products --}}
     @if ($related->count() > 0)
     <section class="mt-16 pt-12 border-t border-gray-200">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">You May Also Like</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ $settings['ui_you_may_also_like'] ?? 'You May Also Like' }}</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             @foreach ($related as $rel)
             @php $relImage = $rel->project?->images->first(); @endphp

@@ -25,21 +25,21 @@
 
                             <button type="button" @click="tab = 'personal'" :class="tab === 'personal' ? 'bg-[#E85D2C] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'" class="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-left">
                                 <i class="fas fa-user w-4 shrink-0 text-center"></i>
-                                Personal Info
+                                {{ $settings['ui_personal_info'] ?? 'Personal Info' }}
                             </button>
                             <button type="button" @click="tab = 'address'" :class="tab === 'address' ? 'bg-[#E85D2C] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'" class="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-left">
                                 <i class="fas fa-map-marker-alt w-4 shrink-0 text-center"></i>
-                                Address
+                                {{ $settings['ui_address_label'] ?? 'Address' }}
                             </button>
                             <button type="button" @click="tab = 'preferences'" :class="tab === 'preferences' ? 'bg-[#E85D2C] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'" class="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-left">
                                 <i class="fas fa-cog w-4 shrink-0 text-center"></i>
-                                Preferences
+                                {{ $settings['ui_preferences'] ?? 'Preferences' }}
                             </button>
                             <div class="my-2 border-t border-gray-100"></div>
                             <p class="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-gray-400">Activity</p>
                             <button type="button" @click="tab = 'wishlist'" :class="tab === 'wishlist' ? 'bg-[#E85D2C] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'" class="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-left">
                                 <i class="fas fa-heart w-4 shrink-0 text-center"></i>
-                                Wishlist
+                                {{ $settings['ui_wishlist_label'] ?? 'Wishlist' }}
                             </button>
                             <button type="button" @click="tab = 'orders'" :class="tab === 'orders' ? 'bg-[#E85D2C] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'" class="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-left">
                                 <i class="fas fa-clipboard-list w-4 shrink-0 text-center"></i>
@@ -66,7 +66,7 @@
 
                             {{-- Personal Info --}}
                             <div x-show="tab === 'personal'" class="space-y-5">
-                                <h3 class="text-lg font-semibold text-gray-900">Personal Info</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ $settings['ui_personal_info'] ?? 'Personal Info' }}</h3>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
@@ -116,14 +116,14 @@
                                     <p class="text-xs text-gray-400">Member since {{ $client->created_at->format('F Y') }}</p>
                                     <button type="submit"
                                         class="rounded-lg bg-[#E85D2C] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#d14d1f] focus:outline-none focus:ring-2 focus:ring-[#E85D2C] focus:ring-offset-2">
-                                        Save Changes
+                                        {{ $settings['ui_save_changes'] ?? 'Save Changes' }}
                                     </button>
                                 </div>
                             </div>
 
                             {{-- Address --}}
                             <div x-show="tab === 'address'" x-cloak class="space-y-5">
-                                <h3 class="text-lg font-semibold text-gray-900">Address</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ $settings['ui_address_label'] ?? 'Address' }}</h3>
 
                                 <div>
                                     <label for="address" class="block text-sm font-medium text-gray-700 mb-1.5">Billing Address</label>
@@ -157,14 +157,14 @@
                                     <p class="text-xs text-gray-400">Member since {{ $client->created_at->format('F Y') }}</p>
                                     <button type="submit"
                                         class="rounded-lg bg-[#E85D2C] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#d14d1f] focus:outline-none focus:ring-2 focus:ring-[#E85D2C] focus:ring-offset-2">
-                                        Save Changes
+                                        {{ $settings['ui_save_changes'] ?? 'Save Changes' }}
                                     </button>
                                 </div>
                             </div>
 
                             {{-- Preferences --}}
                             <div x-show="tab === 'preferences'" x-cloak class="space-y-5">
-                                <h3 class="text-lg font-semibold text-gray-900">Preferences</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ $settings['ui_preferences'] ?? 'Preferences' }}</h3>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
@@ -207,7 +207,7 @@
                                     <p class="text-xs text-gray-400">Member since {{ $client->created_at->format('F Y') }}</p>
                                     <button type="submit"
                                         class="rounded-lg bg-[#E85D2C] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#d14d1f] focus:outline-none focus:ring-2 focus:ring-[#E85D2C] focus:ring-offset-2">
-                                        Save Changes
+                                        {{ $settings['ui_save_changes'] ?? 'Save Changes' }}
                                     </button>
                                 </div>
                             </div>
@@ -220,7 +220,7 @@
                                     {{-- Wishlist --}}
                                     <div x-show="tab === 'wishlist'">
                                         <div class="flex items-center justify-between mb-5">
-                                            <h3 class="text-lg font-bold text-gray-900">Wishlist</h3>
+                                            <h3 class="text-lg font-bold text-gray-900">{{ $settings['ui_wishlist_label'] ?? 'Wishlist' }}</h3>
                                             <span class="px-2.5 py-1 rounded-full bg-red-50 text-red-500 text-xs font-semibold" x-text="wishlist.length + ' items'"></span>
                                         </div>
                                         <template x-if="wishlist.length === 0">
@@ -228,10 +228,10 @@
                                                 <div class="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
                                                     <i class="fas fa-heart text-2xl text-red-300"></i>
                                                 </div>
-                                                <p class="text-gray-500 text-sm font-medium">Your wishlist is empty</p>
-                                                <p class="text-xs text-gray-400 mt-1">Save your favourite jerseys here</p>
+                                                <p class="text-gray-500 text-sm font-medium">{{ $settings['ui_wishlist_empty_profile'] ?? 'Your wishlist is empty' }}</p>
+                                                <p class="text-xs text-gray-400 mt-1">{{ $settings['ui_wishlist_empty_profile_desc'] ?? 'Save your favourite jerseys here' }}</p>
                                                 <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors">
-                                                    Browse Products <i class="fas fa-arrow-right text-xs"></i>
+                                                    {{ $settings['ui_browse_products'] ?? 'Browse Products' }} <i class="fas fa-arrow-right text-xs"></i>
                                                 </a>
                                             </div>
                                         </template>
@@ -248,7 +248,7 @@
                                                                 <p class="text-xs text-gray-400 mt-1 truncate" x-text="item.code ? 'Code: ' + item.code : ''"></p>
                                                             </div>
                                                             <a :href="'/shop/' + (item.code ?? item.id) + '/' + (item.slug ?? '')" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#E85D2C] hover:text-[#d14d1f] transition-colors mt-2">
-                                                                View <i class="fas fa-arrow-right text-[10px]"></i>
+                                                                {{ $settings['ui_view'] ?? 'View' }} <i class="fas fa-arrow-right text-[10px]"></i>
                                                             </a>
                                                         </div>
                                                     </div>
@@ -263,7 +263,7 @@
                                     {{-- Orders --}}
                                     <div x-show="tab === 'orders'">
                                         <div class="flex items-center justify-between mb-5">
-                                            <h3 class="text-lg font-bold text-gray-900">Order History</h3>
+                                            <h3 class="text-lg font-bold text-gray-900">{{ $settings['ui_order_history'] ?? 'Order History' }}</h3>
                                             @if ($client->orders && count($client->orders) > 0)
                                                 <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-500 text-xs font-semibold">{{ count($client->orders) }} orders</span>
                                             @endif
@@ -278,7 +278,7 @@
                                                             </div>
                                                             <div class="flex-1 min-w-0 flex flex-col justify-between">
                                                                 <div>
-                                                                    <p class="text-sm font-bold text-gray-900">Order #{{ is_array($order) ? ($order['id'] ?? 'N/A') : $order }}</p>
+                                                                     <p class="text-sm font-bold text-gray-900">{{ $settings['ui_order_number'] ?? 'Order #' }}{{ is_array($order) ? ($order['id'] ?? 'N/A') : $order }}</p>
                                                                     @if (is_array($order) && isset($order['date']))
                                                                         <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
                                                                             <i class="fas fa-calendar-alt text-gray-400"></i> {{ $order['date'] }}
@@ -296,10 +296,10 @@
                                                 <div class="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
                                                     <i class="fas fa-clipboard-list text-2xl text-blue-300"></i>
                                                 </div>
-                                                <p class="text-gray-500 text-sm font-medium">No orders yet</p>
-                                                <p class="text-xs text-gray-400 mt-1">Your orders will appear here</p>
+                                                <p class="text-gray-500 text-sm font-medium">{{ $settings['ui_no_orders_yet'] ?? 'No orders yet' }}</p>
+                                                <p class="text-xs text-gray-400 mt-1">{{ $settings['ui_no_orders_desc'] ?? 'Your orders will appear here' }}</p>
                                                 <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors">
-                                                    Start Shopping <i class="fas fa-arrow-right text-xs"></i>
+                                                    {{ $settings['ui_start_shopping'] ?? 'Start Shopping' }} <i class="fas fa-arrow-right text-xs"></i>
                                                 </a>
                                             </div>
                                         @endif
@@ -308,7 +308,7 @@
                                     {{-- Cart --}}
                                     <div x-show="tab === 'cart'">
                                         <div class="flex items-center justify-between mb-5">
-                                            <h3 class="text-lg font-bold text-gray-900">Cart</h3>
+                                            <h3 class="text-lg font-bold text-gray-900">{{ $settings['ui_cart_label'] ?? 'Cart' }}</h3>
                                             <span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-500 text-xs font-semibold" x-text="cart.length + ' items'"></span>
                                         </div>
                                         <template x-if="cart.length === 0">
@@ -316,10 +316,10 @@
                                                 <div class="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-4">
                                                     <i class="fas fa-shopping-cart text-2xl text-orange-300"></i>
                                                 </div>
-                                                <p class="text-gray-500 text-sm font-medium">Your cart is empty</p>
-                                                <p class="text-xs text-gray-400 mt-1">Add some jerseys to get started</p>
+                                                <p class="text-gray-500 text-sm font-medium">{{ $settings['ui_cart_empty_profile'] ?? 'Your cart is empty' }}</p>
+                                                <p class="text-xs text-gray-400 mt-1">{{ $settings['ui_cart_empty_profile_desc'] ?? 'Add some jerseys to get started' }}</p>
                                                 <a href="{{ route('shop.products.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors">
-                                                    Browse Products <i class="fas fa-arrow-right text-xs"></i>
+                                                    {{ $settings['ui_browse_products'] ?? 'Browse Products' }} <i class="fas fa-arrow-right text-xs"></i>
                                                 </a>
                                             </div>
                                         </template>
@@ -359,11 +359,11 @@
                                         <template x-if="cart.length > 0">
                                             <div class="mt-5 pt-5 border-t border-gray-100 flex items-center justify-between">
                                                 <div>
-                                                    <p class="text-xs text-gray-500">Total</p>
+                                                    <p class="text-xs text-gray-500">{{ $settings['ui_total'] ?? 'Total' }}</p>
                                                     <p class="text-lg font-bold text-gray-900">৳<span x-text="cart.reduce((sum, i) => sum + (i.price * i.quantity), 0).toLocaleString()"></span></p>
                                                 </div>
                                                 <a href="{{ route('shop.checkout.index') }}" class="px-6 py-3 rounded-xl bg-[#E85D2C] text-white text-sm font-semibold hover:bg-[#d14d1f] transition-colors inline-flex items-center gap-2 shadow-lg shadow-[#E85D2C]/20">
-                                                    Proceed to Checkout <i class="fas fa-arrow-right text-xs"></i>
+                                                    {{ $settings['ui_proceed_checkout'] ?? 'Proceed to Checkout' }} <i class="fas fa-arrow-right text-xs"></i>
                                                 </a>
                                             </div>
                                         </template>
