@@ -12,12 +12,13 @@ class WebsiteProjectController extends Controller
     {
         $projects = WebsiteProject::active()
             ->with(['product', 'category.parent', 'images'])
+            ->whereHas('product', fn($q) => $q->active())
             ->whereHas('images')
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
         $categories = WebsiteCategory::with('parent')
-            ->whereHas('projects', fn($q) => $q->active())
+            ->whereHas('projects', fn($q) => $q->active()->whereHas('product', fn($q) => $q->active()))
             ->orderBy('name')
             ->get();
 
@@ -28,6 +29,7 @@ class WebsiteProjectController extends Controller
     {
         $project = WebsiteProject::active()
             ->with(['product', 'category.parent', 'images' => fn($q) => $q->orderBy('sort_order')])
+            ->whereHas('product', fn($q) => $q->active())
             ->where('slug', $projectSlug)
             ->firstOrFail();
 
@@ -50,6 +52,7 @@ class WebsiteProjectController extends Controller
         $relatedProjects = WebsiteProject::active()
             ->where('category_id', $project->category_id)
             ->where('id', '!=', $project->id)
+            ->whereHas('product', fn($q) => $q->active())
             ->with(['images', 'product'])
             ->take(4)
             ->get();

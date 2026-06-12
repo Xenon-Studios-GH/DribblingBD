@@ -22,7 +22,8 @@ class WorkerController extends Controller
     {
         $workers = User::where('role', 'staff')->latest()->paginate(20);
         $admins = User::whereIn('role', ['superadmin', 'admin'])->latest()->paginate(20);
-        return view('workers.index', compact('workers', 'admins'));
+        $clients = User::where('role', 'customer')->latest()->paginate(20);
+        return view('workers.index', compact('workers', 'admins', 'clients'));
     }
 
     public function create()

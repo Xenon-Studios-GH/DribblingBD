@@ -21,7 +21,7 @@
                         <div class="flex items-center gap-3">
                             <i class="fas fa-folder text-[#F59E0B] w-4 h-4"></i>
                             <span class="text-sm font-medium text-[#E6EDF3]">{{ $cat->name }}</span>
-                            <span class="text-xs text-[#94A3B8]">({{ $cat->projects_count }} projects)</span>
+                            <span class="text-xs text-[#94A3B8]">({{ $cat->projects_count }} products)</span>
                             @if(!$cat->is_active)
                             <span class="text-xs bg-[#EF4444]/10 text-[#EF4444] px-2 py-0.5 rounded-full">Inactive</span>
                             @endif

@@ -1,7 +1,7 @@
-<x-layouts.app title="Website Projects">
+<x-layouts.app title="Website Products">
     <div class="space-y-6">
         <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-[#E6EDF3]">Projects</h1>
+            <h1 class="text-2xl font-bold text-[#E6EDF3]">Products</h1>
         </div>
 
         @if (session('success'))
@@ -81,13 +81,13 @@
                             @endif
                         </td>
                         <td class="py-3 text-right flex items-center justify-end gap-2">
-                            @if($proj)
-                            <form method="POST" action="{{ admin_route('website.projects.toggle-active', $proj) }}">
+                            <form method="POST" action="{{ admin_route('website.products.toggle-active', $product) }}">
                                 @csrf
-                                <button type="submit" class="text-xs font-medium {{ $proj->is_active ? 'text-[#22C55E]' : 'text-[#94A3B8]' }} hover:underline">
-                                    {{ $proj->is_active ? 'Active' : 'Inactive' }}
+                                <button type="submit" class="text-xs font-medium {{ $product->is_active ? 'text-[#22C55E]' : 'text-[#EF4444]' }} hover:underline">
+                                    {{ $product->is_active ? 'Active' : 'Inactive' }}
                                 </button>
                             </form>
+                            @if($proj)
                             <a href="{{ admin_route('website.projects.edit', $proj) }}" class="text-[#3B82F6] hover:underline text-xs">Edit</a>
                             @else
                             <a href="{{ admin_route('website.projects.create-from-product', $product) }}" class="text-[#22C55E] hover:underline text-xs">Add Details</a>

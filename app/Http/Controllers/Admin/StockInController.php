@@ -92,7 +92,6 @@ class StockInController extends Controller
                         'product_code' => Product::generateProductCode(),
                         'product_name' => $validated['product_name'],
                         'price' => $validated['price'],
-                        'is_active' => true,
                     ]);
 
                     $this->workLogService->log(

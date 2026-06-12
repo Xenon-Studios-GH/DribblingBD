@@ -19,6 +19,10 @@ class Product extends Model
         'is_active',
     ];
 
+    protected $attributes = [
+        'is_active' => false,
+    ];
+
     protected function casts(): array
     {
         return [

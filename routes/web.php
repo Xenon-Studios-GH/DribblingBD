@@ -85,12 +85,12 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::middleware('role:superadmin')->group(function () {
-            Route::get('workers', [WorkerController::class, 'index'])->name('workers.index');
-            Route::get('workers/create', [WorkerController::class, 'create'])->name('workers.create');
-            Route::post('workers', [WorkerController::class, 'store'])->name('workers.store');
-            Route::get('workers/{worker}/edit', [WorkerController::class, 'edit'])->name('workers.edit');
-            Route::put('workers/{worker}', [WorkerController::class, 'update'])->name('workers.update');
-            Route::post('workers/{worker}/toggle-status', [WorkerController::class, 'toggleStatus'])->name('workers.toggle-status');
+            Route::get('users', [WorkerController::class, 'index'])->name('workers.index');
+            Route::get('users/create', [WorkerController::class, 'create'])->name('workers.create');
+            Route::post('users', [WorkerController::class, 'store'])->name('workers.store');
+            Route::get('users/{worker}/edit', [WorkerController::class, 'edit'])->name('workers.edit');
+            Route::put('users/{worker}', [WorkerController::class, 'update'])->name('workers.update');
+            Route::post('users/{worker}/toggle-status', [WorkerController::class, 'toggleStatus'])->name('workers.toggle-status');
             Route::get('login-logs', [LoginLogController::class, 'index'])->name('login-logs.index');
             Route::get('work-logs', [WorkLogController::class, 'index'])->name('work-logs.index');
             Route::get('inquiries', [InquiryController::class, 'index'])->name('inquiries.index');

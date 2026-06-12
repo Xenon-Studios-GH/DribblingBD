@@ -105,7 +105,7 @@ class ProjectController extends Controller
 
         $this->imageService->syncImages($project, $slots, $removeImages);
 
-        return redirect(admin_route('website.projects'))->with('success', 'Project updated.');
+        return redirect(admin_route('website.projects'))->with('success', 'Product updated.');
     }
 
     public function toggleActive(string $role, WebsiteProject $project)
@@ -113,6 +113,14 @@ class ProjectController extends Controller
         $project->update(['is_active' => !$project->is_active]);
 
         $status = $project->is_active ? 'activated' : 'deactivated';
-        return back()->with('success', "Project {$status} successfully.");
+        return back()->with('success', "Product {$status} successfully.");
+    }
+
+    public function toggleProductActive(string $role, Product $product)
+    {
+        $product->update(['is_active' => !$product->is_active]);
+
+        $status = $product->is_active ? 'activated' : 'deactivated';
+        return back()->with('success', "Product {$status} successfully.");
     }
 }

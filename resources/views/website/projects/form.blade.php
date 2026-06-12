@@ -1,6 +1,6 @@
-<x-layouts.app title="Edit Project">
+<x-layouts.app title="Edit Product">
     <div class="max-w-3xl mx-auto">
-        <h1 class="text-2xl font-bold text-[#E6EDF3] mb-6">Edit Project: {{ $project->product->product_name }}</h1>
+        <h1 class="text-2xl font-bold text-[#E6EDF3] mb-6">Edit Product: {{ $project->product->product_name }}</h1>
 
         <form method="POST" action="{{ admin_route('website.projects.update', $project) }}" enctype="multipart/form-data" x-data="projectForm()" @submit.prevent="submit">
             @csrf
@@ -9,7 +9,7 @@
             <x-card class="space-y-6">
                 {{-- Images --}}
                 <div>
-                    <label class="block text-sm font-medium text-[#E6EDF3] mb-3">Project Images (PNG/WebP, max 5MB each)</label>
+                    <label class="block text-sm font-medium text-[#E6EDF3] mb-3">Product Images (PNG/WebP, max 5MB each)</label>
                     <template x-if="error">
                         <div class="mb-3 rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/10 px-4 py-3 text-sm text-[#EF4444]" x-text="error"></div>
                     </template>

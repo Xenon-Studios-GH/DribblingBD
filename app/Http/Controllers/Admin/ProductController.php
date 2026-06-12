@@ -29,8 +29,6 @@ class ProductController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $validated['is_active'] = true;
-
         $product = DB::transaction(function () use ($validated) {
             $validated['product_code'] = Product::generateProductCode();
 

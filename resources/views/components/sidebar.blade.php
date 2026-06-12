@@ -3,8 +3,11 @@
 <aside class="fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-[#232A36] bg-[#0F1117] transition-all duration-300 w-64 -translate-x-full md:translate-x-0" :class="{'translate-x-0': sidebarOpen}">
 
     <!-- Logo -->
-    <div class="flex min-h-14 shrink-0 items-center border-b border-[#232A36] lg:px-5">
-        <span class="text-lg font-bold tracking-tight"><span class="text-white">Dribbling</span><span class="text-[#E85D2C]">BD</span></span>
+    <div class="flex h-16 shrink-0 items-center gap-3 border-b border-[#232A36] px-4 lg:px-6">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3B82F6]">
+            <i class="fas fa-cubes text-2xl text-white"></i>
+        </div>
+        <span class="text-lg font-bold text-[#E6EDF3]">Dribbling Stock</span>
     </div>
 
     <!-- Navigation -->
@@ -20,7 +23,7 @@
         <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Administration</p>
 
         <x-nav-link href="{{ admin_route('workers.index') }}" :active="request()->routeIs('workers.*')" icon="users">
-            Workers
+            Users
         </x-nav-link>
         <x-nav-link href="{{ admin_route('login-logs.index') }}" :active="request()->routeIs('login-logs.*')" icon="login">
             Login Logs
@@ -93,7 +96,7 @@
             Dashboard
         </x-nav-link>
         <x-nav-link href="{{ admin_route('website.projects') }}" :active="request()->routeIs('website.projects*')" icon="project">
-            Projects
+            Products
         </x-nav-link>
         <x-nav-link href="{{ admin_route('website.categories') }}" :active="request()->routeIs('website.categories*')" icon="category">
             Categories
