@@ -181,7 +181,7 @@
                             </div>
                             <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : "", JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
-                                :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
+                                :class="added ? 'bg-green-500 text-white' : 'bg-[#E85D2C] text-white hover:bg-[#d14d1f]'">
                                 <span x-show="!added">{{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}</span>
                                 <span x-show="added" x-cloak>{{ $settings['ui_added'] ?? 'Added' }} ✓</span>
                             </button>
@@ -252,7 +252,7 @@
                             </div>
                             <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? "storage/" . $firstImage->image_path : "", JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                                 class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
-                                :class="added ? 'bg-green-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'">
+                                :class="added ? 'bg-green-500 text-white' : 'bg-[#E85D2C] text-white hover:bg-[#d14d1f]'">
                                 <span x-show="!added">{{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}</span>
                                 <span x-show="added" x-cloak>{{ $settings['ui_added'] ?? 'Added' }} ✓</span>
                             </button>
@@ -318,9 +318,11 @@
     function heroCarousel() {
         return {
             current: 0,
+            loaded: false,
             images: @json($heroImages->map(fn($p) => asset('storage/' . $p))),
             interval: null,
             init() {
+                this.loaded = true;
                 if (this.images.length < 2) return;
                 this.interval = setInterval(() => {
                     this.current = (this.current + 1) % this.images.length;
