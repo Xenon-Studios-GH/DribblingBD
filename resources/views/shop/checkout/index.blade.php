@@ -69,7 +69,57 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
         postal: @json($shipping['postal'] ?? ''),
         notes: @json($shipping['notes'] ?? ''),
     }).as('shop_checkout'),
+    shippingRates: {
+        dhaka: {{ $settings['shipping_dhaka_rate'] ?? 100 }},
+        outside: {{ $settings['shipping_outside_rate'] ?? 120 }},
+        freeThreshold: {{ $settings['shipping_free_threshold'] ?? 3000 }},
+    },
     _saveTimer: null,
+    get shippingCharge() {
+        const subtotal = this.cartTotal;
+        if (subtotal >= this.shippingRates.freeThreshold) return 0;
+        if (this.checkout.city?.toLowerCase() === 'dhaka') return this.shippingRates.dhaka;
+        return this.shippingRates.outside;
+    },
+    get grandTotal() {
+        return this.cartTotal + this.shippingCharge;
+    },
+    async placeOrder() {
+        const cart = JSON.parse(localStorage.getItem('shop_cart') || '[]');
+        const payload = {
+            customer_name: this.checkout.name,
+            phone: this.checkout.phone,
+            address: this.checkout.address,
+            city: this.checkout.city,
+            area: this.checkout.area,
+            postal: this.checkout.postal,
+            notes: this.checkout.notes,
+            products: JSON.stringify(cart),
+            total_amount: this.grandTotal,
+            payment_method: 'cod',
+        };
+        try {
+            const res = await fetch('{{ route('shop.checkout.store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.removeItem('shop_cart');
+                window.location.href = '{{ route('shop.checkout.processing') }}' + '?order_no=' + data.order_no;
+            } else {
+                const err = await res.json();
+                Swal.fire({ icon: 'error', title: 'Order Failed', text: Object.values(err.errors || {}).flat().join(', '), confirmButtonColor: '#E85D2C' });
+            }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#E85D2C' });
+        }
+    },
     saveAddress() {
         @auth
         if (this._saveTimer) clearTimeout(this._saveTimer);
@@ -188,7 +238,12 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">City</label>
-                                <input type="text" x-model="checkout.city" @input="saveAddress()" placeholder="Dhaka" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all hover:border-gray-300">
+                                <select x-model="checkout.city" @change="saveAddress()"
+                                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:ring-2 focus:ring-[#E85D2C]/20 focus:border-[#E85D2C] outline-none transition-all hover:border-gray-300">
+                                    <option value="">Select city...</option>
+                                    <option value="Dhaka">Dhaka</option>
+                                    <option value="Outside Dhaka">Outside Dhaka</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Area</label>
@@ -224,18 +279,16 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-600">Shipping</span>
-                            <span class="text-sm font-semibold text-green-600 flex items-center gap-1">
-                                <i class="fas fa-truck text-xs"></i> Free
-                            </span>
+                            <span class="text-sm font-semibold" :class="shippingCharge === 0 ? 'text-green-600' : 'text-[#E85D2C]'" x-text="shippingCharge === 0 ? 'Free' : '৳' + shippingCharge.toLocaleString()"></span>
                         </div>
                         <hr class="border-gray-100">
                         <div class="flex justify-between items-center">
                             <span class="text-sm font-bold text-gray-900">Total</span>
-                            <span class="text-lg font-bold text-[#E85D2C]">৳<span x-text="cartTotal.toLocaleString()"></span></span>
+                            <span class="text-lg font-bold text-[#E85D2C]">৳<span x-text="grandTotal.toLocaleString()"></span></span>
                         </div>
 
                         <div class="flex justify-center">
-                            <button class="btn-cloud" onclick="window.location.href='{{ route('shop.checkout.processing') }}'">
+                            <button @click="placeOrder()" class="btn-cloud">
                                 <div class="svg-wrapper-1">
                                     <div class="svg-wrapper">
                                         <i class="fas fa-shopping-cart icon"></i>
@@ -244,9 +297,6 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                                 <span>Place Order</span>
                             </button>
                         </div>
-                        <p class="text-xs text-gray-400 text-center leading-relaxed">
-                            Checkout system is under maintenance — this button will connect with Dribbling BD
-                        </p>
 
                         <div class="pt-4 border-t border-gray-100">
                             <a href="{{ route('shop.cart.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#E85D2C] transition-colors">

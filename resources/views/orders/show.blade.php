@@ -112,10 +112,19 @@
                 </div>
                 <h2 class="text-lg font-semibold text-[#E6EDF3]">Payment Summary</h2>
             </div>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-5">
                 <div class="rounded-lg border border-[#232A36] bg-[#0F1117] p-4">
                     <p class="text-xs text-[#94A3B8]">Total Amount</p>
                     <p class="mt-1 text-xl font-bold text-[#E6EDF3]">৳{{ number_format($order->total_amount, 2) }}</p>
+                </div>
+                <div class="rounded-lg border border-[#232A36] bg-[#0F1117] p-4">
+                    <p class="text-xs text-[#94A3B8]">Delivery Charge</p>
+                    <p class="mt-1 text-xl font-bold text-[#F59E0B]">
+                        ৳{{ number_format($order->delivery_charge, 2) }}
+                        @if ($order->delivery_charge > 0 && $order->city)
+                        <span class="text-xs font-normal text-[#94A3B8]">({{ $order->city }})</span>
+                        @endif
+                    </p>
                 </div>
                 <div class="rounded-lg border border-[#232A36] bg-[#0F1117] p-4">
                     <p class="text-xs text-[#94A3B8]">Advanced Payment</p>

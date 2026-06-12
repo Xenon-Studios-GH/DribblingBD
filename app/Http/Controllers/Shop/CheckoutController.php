@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Order;
+use App\Models\SiteSetting;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,18 +69,29 @@ class CheckoutController extends Controller
                 $validated['postal'] ?? null,
             ])), ', ');
 
+            $deliveryCharge = SiteSetting::calculateDeliveryCharge(
+                (float) $validated['total_amount'],
+                $validated['city']
+            );
+
             return Order::create([
                 'order_no' => Order::generateOrderNo(),
                 'customer_name' => $validated['customer_name'],
                 'phone' => $validated['phone'],
                 'address' => $fullAddress,
+                'city' => $validated['city'],
                 'products' => $products,
-                'total_amount' => $validated['total_amount'],
+                'total_amount' => (float) $validated['total_amount'] + $deliveryCharge,
+                'delivery_charge' => $deliveryCharge,
                 'payment_method' => $validated['payment_method'],
                 'status' => $hasOutOfStock ? 'out_of_stock' : 'on_hold',
                 'created_by' => Auth::id(),
             ]);
         });
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['order_no' => $order->order_no]);
+        }
 
         return redirect(route('shop.checkout.processing'))
             ->with('order_no', $order->order_no);

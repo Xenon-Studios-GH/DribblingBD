@@ -106,9 +106,18 @@ footer { display: none !important; }
         ' = ৳' + ((i.price || 0) * (i.quantity || 1)).toLocaleString()
     ).join('%0A');
     let subtotal = cart.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0);
+    let freeThreshold = {{ $settings['shipping_free_threshold'] ?? 3000 }};
+    let dhakaRate = {{ $settings['shipping_dhaka_rate'] ?? 100 }};
+    let outsideRate = {{ $settings['shipping_outside_rate'] ?? 120 }};
+    let shippingCharge = subtotal >= freeThreshold ? 0 : (addr.city?.toLowerCase() === 'dhaka' ? dhakaRate : outsideRate);
+    let grandTotal = subtotal + shippingCharge;
     let msg =
         'Hello Vaiya, I need This Product...%0A%0A' +
         '━━━ *Items* ━━━%0A' + items + '%0A%0A' +
+        '━━━ *Payment* ━━━%0A' +
+        'Subtotal: ৳' + subtotal.toLocaleString() + '%0A' +
+        'Shipping: ' + (shippingCharge === 0 ? 'Free' : '৳' + shippingCharge.toLocaleString()) + '%0A' +
+        'Total: ৳' + grandTotal.toLocaleString() + '%0A%0A' +
         '━━━ *Customer* ━━━%0A' +
         'Name: ' + (addr.name || 'N/A') + '%0A' +
         'Phone: ' + (addr.phone || 'N/A') + '%0A' +

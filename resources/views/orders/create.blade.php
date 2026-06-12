@@ -38,6 +38,9 @@
         </div>
 
         <form method="POST" action="{{ admin_route('orders.store') }}"
+              data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '100' }}"
+              data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '120' }}"
+              data-free-threshold="{{ $settings['shipping_free_threshold'] ?? '3000' }}"
               x-data="orderForm({{ Js::from($products->map(fn($p) => [
                   'id' => $p->id,
                   'name' => $p->product_name . ' (' . $p->product_code . ')',
@@ -79,6 +82,15 @@
                         <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Address</label>
                         <input type="text" name="address" x-model="address" required
                                class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#3B82F6] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">City</label>
+                        <select name="city" x-model="city" @change="calcDeliveryCharge()" required
+                                class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                            <option value="">Select city...</option>
+                            <option value="Dhaka">Dhaka</option>
+                            <option value="Outside Dhaka">Outside Dhaka</option>
+                        </select>
                     </div>
                 </div>
             </x-card>
@@ -344,6 +356,8 @@
                 customer_name: '',
                 phone: '',
                 address: '',
+                city: '',
+                delivery_charge: 0,
                 products: [{
                     product_id: '',
                     product_name: '',
@@ -375,7 +389,7 @@
                 },
 
                 setupWatchers() {
-                    const fields = ['customer_name', 'phone', 'address', 'dtf', 'dtf_name', 'dtf_number', 'patch', 'patch_price', 'total_amount', 'advanced_payment', 'payment_method'];
+                    const fields = ['customer_name', 'phone', 'address', 'city', 'dtf', 'dtf_name', 'dtf_number', 'patch', 'patch_price', 'total_amount', 'advanced_payment', 'payment_method'];
                     fields.forEach(f => {
                         this.$watch(f, () => this.queueSave());
                     });
@@ -487,7 +501,23 @@
                         total += 200;
                     }
                     this.total_amount = total;
+                    this.calcDeliveryCharge();
                     this.calcPending();
+                },
+
+                calcDeliveryCharge() {
+                    let total = (parseFloat(this.total_amount) || 0) - (parseFloat(this.delivery_charge) || 0);
+                    const freeThreshold = parseFloat(this.$el.querySelector('[data-free-threshold]')?.dataset.freeThreshold || 3000);
+                    const dhakaRate = parseFloat(this.$el.querySelector('[data-dhaka-rate]')?.dataset.dhakaRate || 100);
+                    const outsideRate = parseFloat(this.$el.querySelector('[data-outside-rate]')?.dataset.outsideRate || 120);
+                    if (total >= freeThreshold || !this.city) {
+                        this.delivery_charge = 0;
+                    } else if (this.city.toLowerCase() === 'dhaka') {
+                        this.delivery_charge = dhakaRate;
+                    } else {
+                        this.delivery_charge = outsideRate;
+                    }
+                    this.total_amount = total + this.delivery_charge;
                 },
 
                 calcPending() {
@@ -511,6 +541,8 @@
                             customer_name: this.customer_name,
                             phone: this.phone,
                             address: this.address,
+                            city: this.city,
+                            delivery_charge: this.delivery_charge,
                             products: this.products,
                             dtf: this.dtf,
                             dtf_name: this.dtf_name,
@@ -545,6 +577,8 @@
                     this.customer_name = data.customer_name || '';
                     this.phone = data.phone || '';
                     this.address = data.address || '';
+                    this.city = data.city || '';
+                    this.delivery_charge = data.delivery_charge || 0;
                     this.products = data.products || [{ product_id: '', product_name: '', size: '', quantity: 1, price: 0, out_of_stock: false, in_stock: false }];
                     this.dtf = data.dtf || false;
                     this.dtf_name = data.dtf_name || '';

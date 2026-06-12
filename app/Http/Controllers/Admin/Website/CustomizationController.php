@@ -151,6 +151,11 @@ class CustomizationController extends Controller
             'top_selling_eyebrow', 'top_selling_heading',
             'testimonials_eyebrow', 'testimonials_heading',
             'banner_heading', 'banner_subtext', 'banner_cta', 'banner_cta_link',
+
+            // Shipping settings
+            'shipping_dhaka_rate',
+            'shipping_outside_rate',
+            'shipping_free_threshold',
         ];
 
         foreach ($allowed as $key) {

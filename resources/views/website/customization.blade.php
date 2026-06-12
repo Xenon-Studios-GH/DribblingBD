@@ -310,6 +310,28 @@
                         </div>
                     </x-card>
 
+                    {{-- Shipping Settings --}}
+                    <x-card>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E85D2C]/10"><i class="fas fa-truck text-[#E85D2C] text-xs"></i></div>
+                            <h3 class="text-sm font-semibold text-[#E6EDF3]">Shipping Rates</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Inside Dhaka (৳)</label>
+                                <input name="shipping_dhaka_rate" value="{{ $settings['shipping_dhaka_rate'] ?? '100' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Outside Dhaka (৳)</label>
+                                <input name="shipping_outside_rate" value="{{ $settings['shipping_outside_rate'] ?? '120' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs text-[#94A3B8]">Free Shipping Above (৳)</label>
+                                <input name="shipping_free_threshold" value="{{ $settings['shipping_free_threshold'] ?? '3000' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                        </div>
+                    </x-card>
+
                 </div>
 
                 <div class="mt-6 flex justify-end">

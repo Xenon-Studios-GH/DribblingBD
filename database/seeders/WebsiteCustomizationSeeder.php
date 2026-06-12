@@ -87,6 +87,11 @@ class WebsiteCustomizationSeeder extends Seeder
             'banner_subtext' => "Design your team's unique look. Choose colors, patterns, and add your club name & number.",
             'banner_cta' => 'Design on WhatsApp',
             'banner_cta_link' => 'https://wa.me/8801641857715?text=Hi%2C%20I%20want%20to%20design%20a%20custom%20jersey',
+
+            // Shipping settings
+            'shipping_dhaka_rate' => '100',
+            'shipping_outside_rate' => '120',
+            'shipping_free_threshold' => '3000',
         ];
 
         foreach ($settings as $key => $value) {

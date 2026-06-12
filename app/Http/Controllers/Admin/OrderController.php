@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderDraft;
 use App\Models\Product;
+use App\Models\SiteSetting;
 use App\Models\Stock;
 use App\Services\StockService;
 use Illuminate\Http\Request;
@@ -106,6 +107,7 @@ class OrderController extends Controller
             'customer_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:2000',
+            'city' => 'required|string|max:100',
             'products' => 'required|json',
             'dtf_name' => 'nullable|string|max:255',
             'dtf_number' => 'nullable|string|max:255',
@@ -149,20 +151,26 @@ class OrderController extends Controller
 
         $advancedPayment = $validated['advanced_payment'] ?? 0;
         $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
+        $deliveryCharge = SiteSetting::calculateDeliveryCharge(
+            (float) $validated['total_amount'],
+            $validated['city']
+        );
 
-        $order = DB::transaction(function () use ($validated, $products, $hasOutOfStock, $request, $pendingPayment) {
+        $order = DB::transaction(function () use ($validated, $products, $hasOutOfStock, $request, $pendingPayment, $deliveryCharge) {
             $order = Order::create([
                 'order_no' => Order::generateOrderNo(),
                 'customer_name' => $validated['customer_name'],
                 'phone' => $validated['phone'],
                 'address' => $validated['address'],
+                'city' => $validated['city'],
                 'products' => $products,
                 'dtf' => $request->boolean('dtf'),
                 'dtf_name' => $validated['dtf_name'] ?? null,
                 'dtf_number' => $validated['dtf_number'] ?? null,
                 'patch' => $request->boolean('patch'),
                 'patch_price' => $validated['patch_price'] ?? 0,
-                'total_amount' => $validated['total_amount'],
+                'total_amount' => (float) $validated['total_amount'] + $deliveryCharge,
+                'delivery_charge' => $deliveryCharge,
                 'advanced_payment' => $advancedPayment,
                 'pending_payment' => $pendingPayment,
                 'payment_method' => $validated['payment_method'],
@@ -193,6 +201,7 @@ class OrderController extends Controller
             'customer_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:2000',
+            'city' => 'required|string|max:100',
             'products' => 'required|json',
             'dtf_name' => 'nullable|string|max:255',
             'dtf_number' => 'nullable|string|max:255',
@@ -287,6 +296,10 @@ class OrderController extends Controller
         $status = $hasOutOfStock ? 'out_of_stock' : $validated['status'];
         $advancedPayment = $validated['advanced_payment'] ?? 0;
         $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
+        $deliveryCharge = SiteSetting::calculateDeliveryCharge(
+            (float) $validated['total_amount'],
+            $validated['city']
+        );
 
         if ($status !== $order->status) {
             $allowed = self::VALID_TRANSITIONS[$order->status] ?? [];
@@ -361,13 +374,15 @@ class OrderController extends Controller
                 'customer_name' => $validated['customer_name'],
                 'phone' => $validated['phone'],
                 'address' => $validated['address'],
+                'city' => $validated['city'],
                 'products' => $products,
                 'dtf' => $request->boolean('dtf'),
                 'dtf_name' => $validated['dtf_name'] ?? null,
                 'dtf_number' => $validated['dtf_number'] ?? null,
                 'patch' => $request->boolean('patch'),
                 'patch_price' => $validated['patch_price'] ?? 0,
-                'total_amount' => $validated['total_amount'],
+                'total_amount' => (float) $validated['total_amount'] + $deliveryCharge,
+                'delivery_charge' => $deliveryCharge,
                 'advanced_payment' => $advancedPayment,
                 'pending_payment' => $pendingPayment,
                 'payment_method' => $validated['payment_method'],
