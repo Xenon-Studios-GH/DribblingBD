@@ -3,9 +3,11 @@
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-[#E6EDF3]">SEO Management</h1>
             <div class="flex gap-2">
-                <a href="{{ admin_route('seo.auto-generate') }}" onclick="return confirm('Run auto SEO generation? This will overwrite template-based fields.')" class="inline-flex items-center gap-2 rounded-xl bg-[#22C55E] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#16A34A]">
+                <form method="POST" action="{{ admin_route('seo.auto-generate') }}" onsubmit="return confirm('Run auto SEO generation? This will overwrite template-based fields.')" class="inline">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-[#22C55E] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#16A34A]">
                     <i class="fas fa-magic"></i> Auto-Generate
-                </a>
+                </button></form>
             </div>
         </div>
 

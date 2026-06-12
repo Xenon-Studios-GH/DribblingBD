@@ -23,7 +23,11 @@ class SeoService
         $data = [];
 
         foreach ($templates as $field => $template) {
-            $data[$field] = $this->render($template, $variables);
+            if (is_array($template)) {
+                $data[$field] = array_map(fn($t) => $this->render($t, $variables), $template);
+            } else {
+                $data[$field] = $this->render($template, $variables);
+            }
         }
 
         if (isset($data['focus_keywords']) && is_string($data['focus_keywords'])) {
@@ -151,7 +155,7 @@ class SeoService
             $variables['name'] = $model->product?->product_name ?? $model->slug;
             $variables['description'] = $model->details ?? '';
             $variables['category'] = $model->category?->name ?? '';
-            $variables['url'] = route('shop.project', $model->slug);
+            $variables['url'] = shop_project_url($model);
         }
 
         if ($model instanceof WebsiteCategory) {
