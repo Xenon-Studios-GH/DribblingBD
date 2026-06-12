@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('app:clean-old-transactions --force')->daily()->withoutOverlapping();
 Schedule::command(PurgeOldFinanceData::class, ['--force'])->daily()->withoutOverlapping();
 Schedule::command(SeoAutoGenerateCommand::class)->daily()->withoutOverlapping();
+Schedule::command('app:clean-pending-images')->daily()->withoutOverlapping();
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

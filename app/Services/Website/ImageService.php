@@ -2,6 +2,7 @@
 
 namespace App\Services\Website;
 
+use App\Models\PendingImageDeletion;
 use App\Models\WebsiteProject;
 use App\Models\WebsiteProjectImage;
 use App\Services\WorkLogService;
@@ -89,7 +90,7 @@ class ImageService
                     }
 
                     $extension = $this->getSecureExtension($file->getMimeType());
-                    $filename = $sortOrder . '_' . time() . '_' . Str::random(4) . '.' . $extension;
+                    $filename = 'project-' . $project->id . '-slot-' . $sortOrder . '-' . time() . '.' . $extension;
                     $filePath = $file->storeAs($path, $filename, 'public');
 
                     $createdImages[] = WebsiteProjectImage::create([
@@ -109,16 +110,37 @@ class ImageService
             );
         });
 
-        // Clean up deleted files after successful transaction
+        // Schedule deleted files for removal after 30 days
+        $records = [];
         foreach ($deletedFiles as $filePath) {
-            Storage::disk('public')->delete($filePath);
+            $records[] = [
+                'file_path' => $filePath,
+                'disk' => 'public',
+                'scheduled_for_deletion_at' => now()->addDays(30),
+            ];
+        }
+        if ($records) {
+            PendingImageDeletion::insert($records);
         }
     }
 
     public function deleteAllImages(WebsiteProject $project): void
     {
         $dir = 'website/projects/' . $project->id;
-        Storage::disk('public')->deleteDirectory($dir);
+        $files = Storage::disk('public')->files($dir);
+
+        $records = [];
+        foreach ($files as $filePath) {
+            $records[] = [
+                'file_path' => $filePath,
+                'disk' => 'public',
+                'scheduled_for_deletion_at' => now()->addDays(30),
+            ];
+        }
+        if ($records) {
+            PendingImageDeletion::insert($records);
+        }
+
         $project->images()->delete();
 
         $this->workLogService->log(

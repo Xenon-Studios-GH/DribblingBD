@@ -4,13 +4,24 @@ namespace App\Http\Controllers\Admin\Website;
 
 use App\Http\Controllers\Controller;
 use App\Models\Faq;
-use App\Models\Testimonial;
+use App\Models\PendingImageDeletion;
 use App\Models\SiteSetting;
+use App\Models\Testimonial;
+use App\Services\WorkLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CustomizationController extends Controller
 {
+    protected WorkLogService $workLogService;
+
+    public function __construct(WorkLogService $workLogService)
+    {
+        $this->workLogService = $workLogService;
+    }
+
     public function index(Request $request)
     {
         $tab = $request->get('tab', 'faqs');
@@ -44,7 +55,9 @@ class CustomizationController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        Faq::create($data + ['sort_order' => $data['sort_order'] ?? 0, 'is_active' => $data['is_active'] ?? true]);
+        $faq = Faq::create($data + ['sort_order' => $data['sort_order'] ?? 0, 'is_active' => $data['is_active'] ?? true]);
+
+        $this->workLogService->log('FAQ Created', 'website', $faq->id, "FAQ '{$faq->question}' created");
 
         return redirect(admin_route('website.customization.index', ['tab' => 'faqs']))
             ->with('success', 'FAQ created.');
@@ -62,6 +75,8 @@ class CustomizationController extends Controller
 
         $faq->update($data);
 
+        $this->workLogService->log('FAQ Updated', 'website', $faq->id, "FAQ updated");
+
         return redirect(admin_route('website.customization.index', ['tab' => 'faqs']))
             ->with('success', 'FAQ updated.');
     }
@@ -69,6 +84,7 @@ class CustomizationController extends Controller
     public function destroyFaq(string $role, Faq $faq)
     {
         $faq->delete();
+        $this->workLogService->log('FAQ Deleted', 'website', $faq->id, "FAQ deleted");
         return redirect(admin_route('website.customization.index', ['tab' => 'faqs']))
             ->with('success', 'FAQ deleted.');
     }
@@ -88,10 +104,14 @@ class CustomizationController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('testimonials', 'public');
+            $ext = $request->file('image')->extension();
+            $filename = 'testimonial-' . Str::slug($data['name']) . '-' . time() . '.' . $ext;
+            $data['image'] = $request->file('image')->storeAs('testimonials', $filename, 'public');
         }
 
-        Testimonial::create($data + ['sort_order' => $data['sort_order'] ?? 0, 'is_active' => $data['is_active'] ?? true]);
+        $testimonial = Testimonial::create($data + ['sort_order' => $data['sort_order'] ?? 0, 'is_active' => $data['is_active'] ?? true]);
+
+        $this->workLogService->log('Testimonial Created', 'website', $testimonial->id, "Testimonial by '{$testimonial->name}' created");
 
         return redirect(admin_route('website.customization.index', ['tab' => 'testimonials']))
             ->with('success', 'Testimonial created.');
@@ -111,12 +131,20 @@ class CustomizationController extends Controller
 
         if ($request->hasFile('image')) {
             if ($testimonial->image) {
-                Storage::disk('public')->delete($testimonial->image);
+                PendingImageDeletion::create([
+                    'file_path' => $testimonial->image,
+                    'disk' => 'public',
+                    'scheduled_for_deletion_at' => now()->addDays(30),
+                ]);
             }
-            $data['image'] = $request->file('image')->store('testimonials', 'public');
+            $ext = $request->file('image')->extension();
+            $filename = 'testimonial-' . Str::slug($data['name']) . '-' . time() . '.' . $ext;
+            $data['image'] = $request->file('image')->storeAs('testimonials', $filename, 'public');
         }
 
         $testimonial->update($data);
+
+        $this->workLogService->log('Testimonial Updated', 'website', $testimonial->id, "Testimonial by '{$testimonial->name}' updated");
 
         return redirect(admin_route('website.customization.index', ['tab' => 'testimonials']))
             ->with('success', 'Testimonial updated.');
@@ -125,17 +153,26 @@ class CustomizationController extends Controller
     public function destroyTestimonial(string $role, Testimonial $testimonial)
     {
         if ($testimonial->image) {
-            Storage::disk('public')->delete($testimonial->image);
+            PendingImageDeletion::create([
+                'file_path' => $testimonial->image,
+                'disk' => 'public',
+                'scheduled_for_deletion_at' => now()->addDays(30),
+            ]);
         }
         $testimonial->delete();
+        $this->workLogService->log('Testimonial Deleted', 'website', $testimonial->id, "Testimonial by '{$testimonial->name}' deleted");
         return redirect(admin_route('website.customization.index', ['tab' => 'testimonials']))
             ->with('success', 'Testimonial deleted.');
     }
 
     // === Settings ===
 
-    public function updateSettings(Request $request)
+    public function updateSettings(string $role, Request $request)
     {
+        if (!in_array($role, ['superadmin'])) {
+            abort(403);
+        }
+
         $allowed = [
             'hero_heading_top', 'hero_heading_middle', 'hero_heading_bottom',
             'hero_subtitle', 'hero_cta_text', 'hero_cta_link',
@@ -242,20 +279,38 @@ class CustomizationController extends Controller
             }
         }
 
+        Cache::forget('site_settings');
+
         // Handle hero image uploads
         for ($i = 1; $i <= 3; $i++) {
             if ($request->hasFile("hero_image_{$i}")) {
-                $path = $request->file("hero_image_{$i}")->store('hero', 'public');
+                $existing = SiteSetting::getValue("hero_image_{$i}");
+                if ($existing) {
+                    PendingImageDeletion::create([
+                        'file_path' => $existing,
+                        'disk' => 'public',
+                        'scheduled_for_deletion_at' => now()->addDays(30),
+                    ]);
+                }
+                $ext = $request->file("hero_image_{$i}")->extension();
+                $filename = 'hero-' . $i . '-' . time() . '.' . $ext;
+                $path = $request->file("hero_image_{$i}")->storeAs('hero', $filename, 'public');
                 SiteSetting::setValue("hero_image_{$i}", $path);
             }
             if ($request->has("remove_hero_image_{$i}")) {
                 $existing = SiteSetting::getValue("hero_image_{$i}");
                 if ($existing) {
-                    Storage::disk('public')->delete($existing);
+                    PendingImageDeletion::create([
+                        'file_path' => $existing,
+                        'disk' => 'public',
+                        'scheduled_for_deletion_at' => now()->addDays(30),
+                    ]);
                 }
                 SiteSetting::setValue("hero_image_{$i}", null);
             }
         }
+
+        $this->workLogService->log('Settings Updated', 'website', null, 'Site settings updated');
 
         return redirect(admin_route('website.customization.index', ['tab' => 'settings']))
             ->with('success', 'Settings saved.');
