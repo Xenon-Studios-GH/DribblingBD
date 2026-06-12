@@ -1,171 +1,100 @@
 <x-layouts.app title="Stock Out">
-    <div class="mx-auto max-w-2xl" x-data="stockOutApp()">
+    <div class="mx-auto max-w-4xl" x-data="stockOutApp()">
+        <template x-if="toast.show">
+            <div x-transition x-init="setTimeout(() => toast.show = false, 2500)" class="mb-4 rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2"
+                :class="toast.type === 'success' ? 'border border-[#22C55E]/30 bg-[#22C55E]/10 text-[#22C55E]' : 'border border-[#94A3B8]/30 bg-[#94A3B8]/10 text-[#94A3B8]'">
+                <i class="fas" :class="toast.type === 'success' ? 'fa-check-circle' : 'fa-info-circle'"></i>
+                <span x-text="toast.message"></span>
+            </div>
+        </template>
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-[#E6EDF3]">Stock Out</h1>
             <p class="mt-1 text-sm text-[#94A3B8]">Remove inventory from the system.</p>
         </div>
 
-        <x-card x-show="!showConfirmation" x-transition>
-            <form @submit.prevent="submitPreview" novalidate class="space-y-6">
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Product</label>
-                    <select x-model="product_id" name="product_id" required
-                        class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
-                        <option value="">Select product...</option>
-                        @foreach ($products as $product)
-                        <option value="{{ $product->id }}">{{ $product->product_code }} — {{ $product->product_name }}</option>
-                        @endforeach
-                    </select>
+        <template x-if="pending.length > 0">
+            <div class="mb-6 space-y-3">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm text-[#94A3B8]"><span x-text="pending.length"></span> item(s) pending</p>
                 </div>
-
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Size</label>
-                    <div class="flex gap-2">
-                        @foreach (\App\Models\Stock::SIZES as $s)
-                        <label class="flex-1 cursor-pointer">
-                            <input type="radio" x-model="size" name="size" value="{{ $s }}" class="peer sr-only">
-                            <div class="rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-3 text-center text-sm text-[#94A3B8] transition-colors peer-checked:border-[#EF4444] peer-checked:bg-[#EF4444]/10 peer-checked:text-[#EF4444]">
-                                {{ $s }}
+                <template x-for="(item, idx) in pending" :key="idx">
+                    <x-card>
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-[#E6EDF3]" x-text="item.product_name"></p>
+                                <p class="text-xs text-[#94A3B8] mt-0.5">
+                                    <span x-text="item.product_code"></span> —
+                                    Size: <span x-text="item.size"></span> —
+                                    Qty: <span x-text="item.quantity"></span>
+                                </p>
                             </div>
-                        </label>
-                        @endforeach
+                            <div class="flex gap-2">
+                                <button @click="confirmItem(idx)" :disabled="item.confirming" class="rounded-xl bg-[#EF4444] px-4 py-2 text-xs font-medium text-white hover:bg-[#DC2626] disabled:opacity-50">
+                                    <span x-show="!item.confirming">Confirm</span>
+                                    <span x-show="item.confirming"><i class="fas fa-spinner fa-spin"></i></span>
+                                </button>
+                                <button @click="removeItem(idx)" class="rounded-xl border border-[#232A36] px-4 py-2 text-xs font-medium text-[#94A3B8] hover:bg-[#1C2333]">
+                                    Discard
+                                </button>
+                            </div>
+                        </div>
+                    </x-card>
+                </template>
+            </div>
+        </template>
+
+        <x-card id="stock-form">
+            <div class="space-y-4">
+                <div class="relative">
+                    <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Search Product</label>
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] text-sm"></i>
+                        <input id="stock-search" type="text" x-model="search" @input="search = $el.value; showResults = true" @focus="showResults = true" @click.away="showResults = false" placeholder="Type product name or code..." class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] pl-10 pr-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                    </div>
+                    <div x-show="showResults && search.length > 0" x-cloak class="absolute z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border border-[#232A36] bg-[#161B22] shadow-xl">
+                        <template x-for="p in filteredProducts" :key="p.id">
+                            <button @click="selectProduct(p); showResults = false" class="w-full px-4 py-2.5 text-left text-sm text-[#E6EDF3] hover:bg-[#1C2333] transition-colors border-b border-[#232A36] last:border-0">
+                                <span x-text="p.product_name"></span>
+                            </button>
+                        </template>
+                        <div x-show="filteredProducts.length === 0" class="px-4 py-3 text-sm text-[#94A3B8]">No products found.</div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Quantity to Remove</label>
-                    <input type="number" x-model="quantity" min="1" required
-                        class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
-                </div>
+                <template x-if="selected">
+                    <div class="space-y-4 pt-2 border-t border-[#232A36]">
+                        <div class="rounded-xl bg-[#0F1117] p-3">
+                            <p class="text-sm font-medium text-[#E6EDF3]" x-text="selected.product_name"></p>
+                            <p class="text-xs text-[#94A3B8]" x-text="selected.product_code"></p>
+                        </div>
 
-                <button type="submit" class="w-full rounded-xl bg-[#EF4444] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#DC2626]"
-                    x-bind:disabled="!product_id || !size || !quantity">
-                    Preview Stock Out
-                </button>
-            </form>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Size</label>
+                            <div class="flex gap-2">
+                                @foreach (\App\Models\Stock::SIZES as $s)
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" x-model="size" value="{{ $s }}" class="peer sr-only">
+                                    <div class="rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-3 text-center text-sm text-[#94A3B8] transition-colors peer-checked:border-[#EF4444] peer-checked:bg-[#EF4444]/10 peer-checked:text-[#EF4444]">
+                                        {{ $s }}
+                                        <span class="text-[10px] block mt-0.5">Stock: <span x-text="stockForSize(selected, '{{ $s }}')"></span></span>
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Quantity to Remove</label>
+                            <input type="number" x-model="quantity" min="1" class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                        </div>
+
+                        <button @click="addToList()" class="w-full rounded-xl bg-[#EF4444] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#DC2626]" x-bind:disabled="!size || !quantity">
+                            Add to List
+                        </button>
+                    </div>
+                </template>
+            </div>
         </x-card>
-
-        <div x-show="showConfirmation" x-cloak>
-            <!-- Desktop: centered card -->
-            <div class="hidden md:block">
-                <x-card>
-                    <div class="text-center">
-                        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#EF4444]/10">
-                            <i class="fas fa-minus-circle h-6 w-6 text-[#EF4444]"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-[#E6EDF3]">Confirm Stock Out</h3>
-                    </div>
-
-                    <div class="mt-6 space-y-3 rounded-xl bg-[#0F1117] p-4">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-[#94A3B8]">Product</span>
-                            <span class="text-[#E6EDF3]" x-text="confirmation.product_name"></span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-[#94A3B8]">Size</span>
-                            <span class="text-[#E6EDF3]" x-text="confirmation.size"></span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-[#94A3B8]">Current Stock</span>
-                            <span class="text-[#E6EDF3]" x-text="confirmation.current_stock"></span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-[#94A3B8]">Removing</span>
-                            <span class="text-[#EF4444]" x-text="Math.abs(confirmation.change)"></span>
-                        </div>
-                        <div class="border-t border-[#232A36] pt-3 flex justify-between text-sm font-medium">
-                            <span class="text-[#94A3B8]">New Stock</span>
-                            <span class="text-[#E6EDF3]" x-text="confirmation.new_stock"></span>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 flex gap-3">
-                        <button @click="confirmStockOut()" class="flex-1 rounded-xl bg-[#EF4444] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#DC2626]">
-                            Confirm
-                        </button>
-                        <button @click="cancelAction()" class="flex-1 rounded-xl border border-[#232A36] px-4 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333]">
-                            Discard
-                        </button>
-                    </div>
-                </x-card>
-            </div>
-
-            <!-- Mobile: bottom sheet -->
-            <div x-show="showConfirmation" x-cloak
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="translate-y-full"
-                x-transition:enter-end="translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="translate-y-0"
-                x-transition:leave-end="translate-y-full"
-                class="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border border-[#232A36] bg-[#161B22] p-6 shadow-xl md:hidden">
-                <div class="mx-auto mb-4 h-1.5 w-10 rounded-full bg-[#232A36]"></div>
-                <div class="text-center">
-                    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#EF4444]/10">
-                        <i class="fas fa-minus-circle h-6 w-6 text-[#EF4444]"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-[#E6EDF3]">Confirm Stock Out</h3>
-                </div>
-                <div class="mt-6 space-y-3 rounded-xl bg-[#0F1117] p-4">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-[#94A3B8]">Product</span>
-                        <span class="text-[#E6EDF3]" x-text="confirmation.product_name"></span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-[#94A3B8]">Size</span>
-                        <span class="text-[#E6EDF3]" x-text="confirmation.size"></span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-[#94A3B8]">Current Stock</span>
-                        <span class="text-[#E6EDF3]" x-text="confirmation.current_stock"></span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-[#94A3B8]">Removing</span>
-                        <span class="text-[#EF4444]" x-text="Math.abs(confirmation.change)"></span>
-                    </div>
-                    <div class="border-t border-[#232A36] pt-3 flex justify-between text-sm font-medium">
-                        <span class="text-[#94A3B8]">New Stock</span>
-                        <span class="text-[#E6EDF3]" x-text="confirmation.new_stock"></span>
-                    </div>
-                </div>
-                <div class="mt-6 flex flex-col gap-3">
-                    <button @click="confirmStockOut()" class="rounded-xl bg-[#EF4444] px-4 py-3 text-sm font-medium text-white hover:bg-[#DC2626]">
-                        Confirm
-                    </button>
-                    <button @click="cancelAction()" class="rounded-xl border border-[#232A36] px-4 py-3 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333]">
-                        Discard
-                    </button>
-                </div>
-            </div>
-
-            <!-- Mobile backdrop -->
-            <div x-show="showConfirmation" x-cloak
-                x-transition:enter="transition-opacity duration-300"
-                x-transition:leave="transition-opacity duration-200"
-                class="fixed inset-0 z-40 bg-black/50 md:hidden"
-                @click="cancelAction()"
-                aria-hidden="true"></div>
-        </div>
-
-        <div x-show="showSuccess" x-transition>
-            <x-card>
-                <div class="py-8 text-center">
-                    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#22C55E]/10">
-                        <i class="fas fa-check h-8 w-8 text-[#22C55E]"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-[#E6EDF3]">Stock Removed Successfully</h3>
-                    <p class="mt-1 text-sm text-[#94A3B8]">What would you like to do next?</p>
-                    <div class="mt-6 flex gap-3 justify-center">
-                        <button @click="resetForm()" class="rounded-xl bg-[#3B82F6] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB]">
-                            Remove More Stock
-                        </button>
-                        <a href="{{ admin_route('stock.management') }}" class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333]">
-                            Back to Stock Management
-                        </a>
-                    </div>
-                </div>
-            </x-card>
-        </div>
 
         <div x-show="error" x-transition class="mt-4">
             <div class="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/10 px-4 py-3 text-sm text-[#EF4444]" x-text="error"></div>
@@ -175,72 +104,83 @@
     <script>
         function stockOutApp() {
             return {
-                product_id: '',
+                search: '',
+                products: @json($products),
+                showResults: false,
+                selected: null,
                 size: '',
                 quantity: '',
-                showConfirmation: false,
-                showSuccess: false,
+                pending: [],
                 error: '',
-                confirmation: {},
-
-                submitPreview() {
-                    this.error = '';
-                    fetch('{{ admin_route('stock.out.preview') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    product_id: this.product_id,
-                                    size: this.size,
-                                    quantity: this.quantity,
-                                })
-                            })
-                        .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(d)))
-                        .then(data => {
-                            this.confirmation = data;
-                            this.showConfirmation = true;
-                        })
-                        .catch(e => this.error = e.message || Object.values(e.errors || {}).flat().join(' ') || 'An error occurred.');
+                toast: { show: false, message: '', type: 'success' },
+                notify(message, type = 'success') {
+                    this.toast = { show: true, message, type };
+                    setTimeout(() => this.toast.show = false, 2500);
+                },
+                stockForSize(product, size) {
+                    if (!product || !product.stocks) return 0;
+                    const s = product.stocks.find(s => s.size === size);
+                    return s ? s.quantity : 0;
                 },
 
-                confirmStockOut() {
-                    fetch('{{ admin_route('stock.out.confirm') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    product_id: this.confirmation.product_id,
-                                    size: this.confirmation.size,
-                                    quantity: Math.abs(this.confirmation.change),
-                                })
-                            })
-                        .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(d)))
-                        .then(data => {
-                            window.location.href = '{{ admin_route('stock.management.show', ['product' => 'REPLACE_ID']) }}'.replace('REPLACE_ID', data.product_id);
-                        })
-                        .catch(e => {
-                            this.error = e.message || Object.values(e.errors || {}).flat().join(' ') || 'An unexpected error occurred.';
-                            this.showConfirmation = false;
-                        });
+                get filteredProducts() {
+                    if (!this.search) return [];
+                    const q = this.search.toLowerCase();
+                    return this.products.filter(p =>
+                        p.product_name.toLowerCase().includes(q) ||
+                        p.product_code.toLowerCase().includes(q)
+                    );
                 },
-
-                resetForm() {
-                    this.product_id = '';
+                selectProduct(p) {
+                    this.selected = p;
                     this.size = '';
                     this.quantity = '';
-                    this.showSuccess = false;
-                    this.confirmation = {};
+                    this.search = p.product_code + ' — ' + p.product_name;
                 },
-
-                cancelAction() {
-                    this.showConfirmation = false;
-                }
+                addToList() {
+                    if (!this.selected || !this.size || !this.quantity) return;
+                    this.pending.push({
+                        product_id: this.selected.id,
+                        product_name: this.selected.product_name,
+                        product_code: this.selected.product_code,
+                        size: this.size,
+                        quantity: parseInt(this.quantity),
+                        confirming: false,
+                    });
+                    this.selected = null;
+                    this.size = '';
+                    this.quantity = '';
+                    this.search = '';
+                },
+                async confirmItem(idx) {
+                    const item = this.pending[idx];
+                    item.confirming = true;
+                    this.error = '';
+                    try {
+                        const r = await fetch('{{ admin_route('stock.out.preview') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify({ product_id: item.product_id, size: item.size, quantity: item.quantity }),
+                        });
+                        if (!r.ok) { const d = await r.json(); throw new Error(d.message || Object.values(d.errors || {}).flat().join(' ')); }
+                        const r2 = await fetch('{{ admin_route('stock.out.confirm') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify({ product_id: item.product_id, size: item.size, quantity: item.quantity }),
+                        });
+                        if (!r2.ok) { const d = await r2.json(); throw new Error(d.message || Object.values(d.errors || {}).flat().join(' ')); }
+                        this.pending.splice(idx, 1);
+                        this.notify(item.product_name + ' — Stock removed successfully');
+                    } catch (e) {
+                        this.error = e.message || 'An error occurred.';
+                        item.confirming = false;
+                    }
+                },
+                removeItem(idx) {
+                    const item = this.pending[idx];
+                    this.pending.splice(idx, 1);
+                    this.notify(item.product_name + ' — Discarded', 'info');
+                },
             }
         }
     </script>

@@ -20,7 +20,7 @@ class StockOutController extends Controller
 
     public function index()
     {
-        $products = Product::latest()->get(['id', 'product_code', 'product_name']);
+        $products = Product::with('stocks')->latest()->get(['id', 'product_code', 'product_name']);
         return view('stockout.index', compact('products'));
     }
 
