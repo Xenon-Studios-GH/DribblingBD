@@ -84,7 +84,7 @@ class CheckoutController extends Controller
                 'total_amount' => (float) $validated['total_amount'] + $deliveryCharge,
                 'delivery_charge' => $deliveryCharge,
                 'payment_method' => $validated['payment_method'],
-                'status' => $hasOutOfStock ? 'out_of_stock' : 'on_hold',
+                'status' => 'pending',
                 'created_by' => Auth::id(),
             ]);
         });

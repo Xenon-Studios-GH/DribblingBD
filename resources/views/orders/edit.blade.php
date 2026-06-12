@@ -44,8 +44,8 @@
         </div>
 
         <form method="POST" action="{{ admin_route('orders.update', $order->order_no) }}"
-              data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '100' }}"
-              data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '120' }}"
+              data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '80' }}"
+              data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '130' }}"
               data-free-threshold="{{ $settings['shipping_free_threshold'] ?? '3000' }}"
               x-data="editForm({{ Js::from($products->map(fn($p) => [
                   'id' => $p->id,
@@ -92,13 +92,30 @@
                     </div>
                     <div>
                         <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">City</label>
-                        <select name="city" x-model="city" @change="calcDeliveryCharge()" required
+                        <select name="city" x-model="city" @change="calcDeliveryCharge(); calcPending()" required
                                 class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
                             <option value="">Select city...</option>
                             <option value="Dhaka">Dhaka</option>
                             <option value="Outside Dhaka">Outside Dhaka</option>
                         </select>
                     </div>
+                </div>
+            </x-card>
+
+            <!-- Notes -->
+            <x-card class="mb-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
+                        <i class="fas fa-sticky-note text-[#A855F7]"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-[#E6EDF3]">Notes</h2>
+                        <p class="text-sm text-[#94A3B8]">Internal notes about this order.</p>
+                    </div>
+                </div>
+                <div>
+                    <textarea name="notes" x-model="notes" rows="3" placeholder="Write any notes here..."
+                              class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#3B82F6] focus:outline-none resize-y"></textarea>
                 </div>
             </x-card>
 
@@ -305,6 +322,8 @@
                     </div>
                 </div>
 
+                <input type="hidden" name="delivery_charge" :value="delivery_charge">
+
                 <!-- Status -->
                 <div class="mt-4 rounded-xl bg-[#0F1117] p-4">
                     <div class="flex items-center gap-3">
@@ -327,7 +346,7 @@
                    class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333] transition-colors">
                     Cancel
                 </a>
-                <button type="button" @click="saveDraft()"
+                <button type="button" @click="saveDraft(JSON.stringify(getFormData()))"
                         class="rounded-xl border border-[#A855F7] px-6 py-2.5 text-sm font-medium text-[#A855F7] hover:bg-[#A855F7]/10 transition-colors">
                     <i class="fas fa-pen mr-2"></i> Save Draft
                 </button>
@@ -382,10 +401,12 @@
                 advanced_payment: {{ $order->advanced_payment ?? 0 }},
                 pending_payment: {{ $order->pending_payment }},
                 payment_method: @json($order->payment_method),
+                notes: @json($order->notes ?? ''),
                 status: @json($order->status),
                 drafts: [],
                 draftStatus: 'idle',
-                saveTimer: null,
+                lastSaved: '',
+                autoSaveInterval: null,
                 draftLoaded: false,
 
                 init() {
@@ -397,26 +418,41 @@
                     this._initiating = false;
                     this.calcTotal();
                     this.loadDrafts();
-                    this.setupWatchers();
+                    this.autoSaveInterval = setInterval(() => this.tryAutoSave(), 3000);
                 },
 
-                setupWatchers() {
-                    const fields = ['customer_name', 'phone', 'address', 'city', 'dtf', 'dtf_name', 'dtf_number', 'patch', 'patch_price', 'total_amount', 'advanced_payment', 'payment_method'];
-                    fields.forEach(f => {
-                        this.$watch(f, () => this.queueSave());
-                    });
-                    this.$watch('products', () => this.queueSave(), { deep: true });
+                getFormData() {
+                    return {
+                        customer_name: this.customer_name,
+                        phone: this.phone,
+                        address: this.address,
+                        city: this.city,
+                        delivery_charge: this.delivery_charge,
+                        products: this.products,
+                        dtf: this.dtf,
+                        dtf_name: this.dtf_name,
+                        dtf_number: this.dtf_number,
+                        patch: this.patch,
+                        patch_price: this.patch_price,
+                        total_amount: this.total_amount,
+                        advanced_payment: this.advanced_payment,
+                        payment_method: this.payment_method,
+                        notes: this.notes,
+                        status: 'draft',
+                    };
                 },
 
-                queueSave() {
-                    if (this.saveTimer) clearTimeout(this.saveTimer);
-                    this.saveTimer = setTimeout(() => this.saveDraft(), 1500);
+                tryAutoSave() {
+                    if (this.draftLoaded) return;
+                    const current = JSON.stringify(this.getFormData());
+                    if (current === this.lastSaved) return;
+                    this.saveDraft(current);
                 },
 
                 stopAutoSave() {
-                    if (this.saveTimer) {
-                        clearTimeout(this.saveTimer);
-                        this.saveTimer = null;
+                    if (this.autoSaveInterval) {
+                        clearInterval(this.autoSaveInterval);
+                        this.autoSaveInterval = null;
                     }
                 },
 
@@ -508,8 +544,8 @@
                 calcDeliveryCharge() {
                     let total = (parseFloat(this.total_amount) || 0) - (parseFloat(this.delivery_charge) || 0);
                     const freeThreshold = parseFloat(this.$el.querySelector('[data-free-threshold]')?.dataset.freeThreshold || 3000);
-                    const dhakaRate = parseFloat(this.$el.querySelector('[data-dhaka-rate]')?.dataset.dhakaRate || 100);
-                    const outsideRate = parseFloat(this.$el.querySelector('[data-outside-rate]')?.dataset.outsideRate || 120);
+                    const dhakaRate = parseFloat(this.$el.querySelector('[data-dhaka-rate]')?.dataset.dhakaRate || 80);
+                    const outsideRate = parseFloat(this.$el.querySelector('[data-outside-rate]')?.dataset.outsideRate || 130);
                     if (total >= freeThreshold || !this.city) {
                         this.delivery_charge = 0;
                     } else if (this.city.toLowerCase() === 'dhaka') {
@@ -533,39 +569,21 @@
                     } catch (e) {}
                 },
 
-                async saveDraft() {
-                    if (this.draftLoaded) return;
+                async saveDraft(dataStr) {
                     this.draftStatus = 'saving';
-                    const payload = {
-                        order_id: {{ $order->id }},
-                        data: JSON.stringify({
-                            customer_name: this.customer_name,
-                            phone: this.phone,
-                            address: this.address,
-                            city: this.city,
-                            delivery_charge: this.delivery_charge,
-                            products: this.products,
-                            dtf: this.dtf,
-                            dtf_name: this.dtf_name,
-                            dtf_number: this.dtf_number,
-                            patch: this.patch,
-                            patch_price: this.patch_price,
-                            total_amount: this.total_amount,
-                            advanced_payment: this.advanced_payment,
-                            payment_method: this.payment_method,
-                            status: 'draft',
-                        }),
-                    };
                     try {
                         const res = await fetch('{{ admin_route("order-drafts.store") }}', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify(payload),
+                            body: JSON.stringify({ order_id: {{ $order->id }}, data: dataStr }),
                         });
                         if (res.ok) {
+                            this.lastSaved = dataStr;
                             this.draftStatus = 'saved';
                             await this.loadDrafts();
                             setTimeout(() => { if (this.draftStatus === 'saved') this.draftStatus = 'idle'; }, 2000);
+                        } else {
+                            this.draftStatus = 'idle';
                         }
                     } catch (e) {
                         this.draftStatus = 'idle';
@@ -589,8 +607,10 @@
                     this.total_amount = data.total_amount || 0;
                     this.advanced_payment = data.advanced_payment || 0;
                     this.payment_method = data.payment_method || '';
+                    this.notes = data.notes || '';
                     this.calcTotal();
                     this.products.forEach((_, i) => this.checkStock(i));
+                    this.lastSaved = '';
                     this.draftLoaded = false;
                 },
 

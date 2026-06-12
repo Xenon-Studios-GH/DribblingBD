@@ -28,6 +28,7 @@ class Order extends Model
         'delivery_charge',
         'payment_method',
         'status',
+        'notes',
         'created_by',
     ];
 

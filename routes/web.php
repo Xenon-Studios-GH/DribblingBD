@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
         Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
 
         // Order Drafts
         Route::get('order-drafts', [OrderDraftController::class, 'index'])->name('order-drafts.index');
@@ -67,15 +68,19 @@ Route::middleware('auth')->group(function () {
         Route::get('order-drafts/{orderDraft}', [OrderDraftController::class, 'show'])->name('order-drafts.show');
         Route::delete('order-drafts/{orderDraft}', [OrderDraftController::class, 'destroy'])->name('order-drafts.destroy');
 
-        // Stock In
-        Route::get('stockin', [StockInController::class, 'index'])->name('stock.in');
-        Route::post('stockin/preview', [StockInController::class, 'preview'])->middleware('throttle:30,1')->name('stock.in.preview');
-        Route::post('stockin/confirm', [StockInController::class, 'confirm'])->middleware('throttle:20,1')->name('stock.in.confirm');
+        // Stock In (staff cannot access)
+        Route::middleware('role:superadmin,admin')->group(function () {
+            Route::get('stockin', [StockInController::class, 'index'])->name('stock.in');
+            Route::post('stockin/preview', [StockInController::class, 'preview'])->middleware('throttle:30,1')->name('stock.in.preview');
+            Route::post('stockin/confirm', [StockInController::class, 'confirm'])->middleware('throttle:20,1')->name('stock.in.confirm');
+        });
 
-        // Stock Out
-        Route::get('stockout', [StockOutController::class, 'index'])->name('stock.out');
-        Route::post('stockout/preview', [StockOutController::class, 'preview'])->middleware('throttle:30,1')->name('stock.out.preview');
-        Route::post('stockout/confirm', [StockOutController::class, 'confirm'])->middleware('throttle:20,1')->name('stock.out.confirm');
+        // Stock Out (staff cannot access)
+        Route::middleware('role:superadmin,admin')->group(function () {
+            Route::get('stockout', [StockOutController::class, 'index'])->name('stock.out');
+            Route::post('stockout/preview', [StockOutController::class, 'preview'])->middleware('throttle:30,1')->name('stock.out.preview');
+            Route::post('stockout/confirm', [StockOutController::class, 'confirm'])->middleware('throttle:20,1')->name('stock.out.confirm');
+        });
 
         // Product
         Route::middleware('role:superadmin,admin')->group(function () {

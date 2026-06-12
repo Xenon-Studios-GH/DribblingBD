@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\SiteSetting;
 use App\Models\Stock;
 use App\Services\StockService;
+use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller
 {
     protected StockService $stockService;
+    protected WorkLogService $workLogService;
 
     private ?Product $patchProduct = null;
     private const PATCH_PRODUCT_QUERY = '%Patch%';
@@ -30,9 +32,10 @@ class OrderController extends Controller
         return $this->patchProduct;
     }
 
-    public function __construct(StockService $stockService)
+    public function __construct(StockService $stockService, WorkLogService $workLogService)
     {
         $this->stockService = $stockService;
+        $this->workLogService = $workLogService;
     }
 
     public function index()
@@ -58,6 +61,7 @@ class OrderController extends Controller
                 'show_url' => admin_route('orders.show', ['order' => $o->order_no]),
                 'edit_url' => admin_route('orders.edit', ['order' => $o->order_no]),
                 'update_url' => admin_route('orders.update-status', ['order' => $o->order_no]),
+                'delete_url' => admin_route('orders.destroy', ['order' => $o->order_no]),
                 'is_draft' => false,
             ];
         })->toArray();
@@ -115,7 +119,9 @@ class OrderController extends Controller
             'total_amount' => 'required|numeric|min:0',
             'advanced_payment' => 'nullable|numeric|min:0',
             'payment_method' => 'required|in:bkash,nagad,rocket,cod,cash',
+            'delivery_charge' => 'nullable|numeric|min:0',
             'status' => 'required|in:on_hold,out_of_stock',
+            'notes' => 'nullable|string|max:5000',
         ]);
 
         $products = json_decode($validated['products'], true);
@@ -150,13 +156,10 @@ class OrderController extends Controller
         }
 
         $advancedPayment = $validated['advanced_payment'] ?? 0;
+        $deliveryCharge = $validated['delivery_charge'] ?? 0;
         $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
-        $deliveryCharge = SiteSetting::calculateDeliveryCharge(
-            (float) $validated['total_amount'],
-            $validated['city']
-        );
 
-        $order = DB::transaction(function () use ($validated, $products, $hasOutOfStock, $request, $pendingPayment, $deliveryCharge) {
+        $order = DB::transaction(function () use ($validated, $products, $hasOutOfStock, $request, $advancedPayment, $pendingPayment, $deliveryCharge) {
             $order = Order::create([
                 'order_no' => Order::generateOrderNo(),
                 'customer_name' => $validated['customer_name'],
@@ -169,12 +172,13 @@ class OrderController extends Controller
                 'dtf_number' => $validated['dtf_number'] ?? null,
                 'patch' => $request->boolean('patch'),
                 'patch_price' => $validated['patch_price'] ?? 0,
-                'total_amount' => (float) $validated['total_amount'] + $deliveryCharge,
+                'total_amount' => (float) $validated['total_amount'],
                 'delivery_charge' => $deliveryCharge,
                 'advanced_payment' => $advancedPayment,
                 'pending_payment' => $pendingPayment,
                 'payment_method' => $validated['payment_method'],
                 'status' => $hasOutOfStock ? 'out_of_stock' : ($validated['status'] ?? 'on_hold'),
+                'notes' => $validated['notes'] ?? null,
                 'created_by' => Auth::id(),
             ]);
 
@@ -182,6 +186,8 @@ class OrderController extends Controller
 
             return $order;
         });
+
+        $this->workLogService->log('Order Created', 'order', $order->id, "Order #{$order->order_no} for {$order->customer_name} — ৳" . number_format($order->total_amount));
 
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} created.");
     }
@@ -209,7 +215,9 @@ class OrderController extends Controller
             'total_amount' => 'required|numeric|min:0',
             'advanced_payment' => 'nullable|numeric|min:0',
             'payment_method' => 'required|in:bkash,nagad,rocket,cod,cash',
+            'delivery_charge' => 'nullable|numeric|min:0',
             'status' => 'required|in:on_hold,processing,picked,delivered,out_of_stock,return',
+            'notes' => 'nullable|string|max:5000',
         ]);
 
         $products = json_decode($validated['products'], true);
@@ -295,11 +303,8 @@ class OrderController extends Controller
 
         $status = $hasOutOfStock ? 'out_of_stock' : $validated['status'];
         $advancedPayment = $validated['advanced_payment'] ?? 0;
+        $deliveryCharge = $validated['delivery_charge'] ?? 0;
         $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
-        $deliveryCharge = SiteSetting::calculateDeliveryCharge(
-            (float) $validated['total_amount'],
-            $validated['city']
-        );
 
         if ($status !== $order->status) {
             $allowed = self::VALID_TRANSITIONS[$order->status] ?? [];
@@ -381,12 +386,13 @@ class OrderController extends Controller
                 'dtf_number' => $validated['dtf_number'] ?? null,
                 'patch' => $request->boolean('patch'),
                 'patch_price' => $validated['patch_price'] ?? 0,
-                'total_amount' => (float) $validated['total_amount'] + $deliveryCharge,
+                'total_amount' => (float) $validated['total_amount'],
                 'delivery_charge' => $deliveryCharge,
                 'advanced_payment' => $advancedPayment,
                 'pending_payment' => $pendingPayment,
                 'payment_method' => $validated['payment_method'],
                 'status' => $status,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             OrderDraft::where('user_id', Auth::id())->where('order_id', $order->id)->delete();
@@ -395,6 +401,8 @@ class OrderController extends Controller
             DB::rollBack();
             return back()->withErrors(['status' => 'Failed to update order: ' . $e->getMessage()]);
         }
+
+        $this->workLogService->log('Order Updated', 'order', $order->id, "Order #{$order->order_no} updated — status: {$order->status}");
 
         return redirect(admin_route('orders.show', $order->order_no))->with('success', "Order {$order->order_no} updated.");
     }
@@ -405,6 +413,7 @@ class OrderController extends Controller
     }
 
     private const VALID_TRANSITIONS = [
+        'pending'     => ['on_hold'],
         'on_hold'     => ['processing', 'out_of_stock', 'cancelled'],
         'out_of_stock'=> ['on_hold', 'processing'],
         'processing'  => ['picked', 'delivered', 'return'],
@@ -423,11 +432,17 @@ class OrderController extends Controller
         $newStatus = $request->status;
 
         if ($order->status === $newStatus) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => "Order is already {$newStatus}."], 422);
+            }
             return back()->withErrors(['status' => "Order is already {$newStatus}."]);
         }
 
         $allowed = self::VALID_TRANSITIONS[$order->status] ?? [];
         if (!in_array($newStatus, $allowed, true)) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => "Cannot transition from \"{$order->status}\" to \"{$newStatus}\"."], 422);
+            }
             return back()->withErrors(['status' => "Cannot transition from \"{$order->status}\" to \"{$newStatus}\"."]);
         }
 
@@ -526,7 +541,33 @@ class OrderController extends Controller
             return back()->withErrors(['status' => 'Failed to update status: ' . $e->getMessage()]);
         }
 
+        $this->workLogService->log("Order {$newStatus}", 'order', $order->id, "Order #{$order->order_no} status changed from {$order->status} to {$newStatus}");
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Order {$order->order_no} marked as {$newStatus}.",
+            ]);
+        }
+
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} marked as {$newStatus}.");
+    }
+
+    public function destroy(string $role, Order $order)
+    {
+        $orderNo = $order->order_no;
+        $order->delete();
+
+        $this->workLogService->log('Order Deleted', 'order', $order->id, "Order #{$orderNo} deleted");
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Order {$orderNo} deleted.",
+            ]);
+        }
+
+        return redirect(admin_route('orders.index'))->with('success', "Order {$orderNo} deleted.");
     }
 
     public function productStock(string $role, $productId)

@@ -38,13 +38,14 @@
         </div>
 
         <form method="POST" action="{{ admin_route('orders.store') }}"
-              data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '100' }}"
-              data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '120' }}"
+              data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '80' }}"
+              data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '130' }}"
               data-free-threshold="{{ $settings['shipping_free_threshold'] ?? '3000' }}"
               x-data="orderForm({{ Js::from($products->map(fn($p) => [
                   'id' => $p->id,
                   'name' => $p->product_name . ' (' . $p->product_code . ')',
                   'product_name' => $p->product_name,
+                  'product_code' => $p->product_code,
                   'price' => (float) $p->price,
                   'stocks' => collect(\App\Models\Stock::SIZES)->mapWithKeys(fn($s) => [
                       $s => $p->stocks->where('size', $s)->first()?->quantity ?? 0
@@ -85,7 +86,7 @@
                     </div>
                     <div>
                         <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">City</label>
-                        <select name="city" x-model="city" @change="calcDeliveryCharge()" required
+                        <select name="city" x-model="city" @change="calcDeliveryCharge(); calcPending()" required
                                 class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
                             <option value="">Select city...</option>
                             <option value="Dhaka">Dhaka</option>
@@ -95,78 +96,111 @@
                 </div>
             </x-card>
 
+            <!-- Notes -->
+            <x-card class="mb-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
+                        <i class="fas fa-sticky-note text-[#A855F7]"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-[#E6EDF3]">Notes</h2>
+                        <p class="text-sm text-[#94A3B8]">Internal notes about this order.</p>
+                    </div>
+                </div>
+                <div>
+                    <textarea name="notes" x-model="notes" rows="3" placeholder="Write any notes here..."
+                              class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#3B82F6] focus:outline-none resize-y"></textarea>
+                </div>
+            </x-card>
+
             <!-- Products -->
             <x-card class="mb-6">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#22C55E]/10">
-                            <i class="fas fa-shopping-bag text-[#22C55E]"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-[#E6EDF3]">Products</h2>
-                            <p class="text-sm text-[#94A3B8]">Add products to this order.</p>
-                        </div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#22C55E]/10">
+                        <i class="fas fa-shopping-bag text-[#22C55E]"></i>
                     </div>
-                    <button type="button" @click="addProduct()"
-                            class="flex items-center gap-2 rounded-xl bg-[#22C55E] px-4 py-2 text-sm font-medium text-white hover:bg-[#16A34A] transition-colors">
-                        <i class="fas fa-plus"></i> Add Product
-                    </button>
+                    <div>
+                        <h2 class="text-lg font-semibold text-[#E6EDF3]">Products</h2>
+                        <p class="text-sm text-[#94A3B8]">Search and add products to this order.</p>
+                    </div>
                 </div>
 
-                <template x-for="(p, i) in products" :key="i">
-                    <div class="mb-4 rounded-xl border border-[#232A36] bg-[#0F1117] p-4">
-                        <div class="mb-3 flex items-center justify-between">
-                            <span class="text-sm font-medium text-[#94A3B8]">Product <span x-text="i + 1"></span></span>
-                            <button type="button" @click="removeProduct(i)" x-show="products.length > 1"
-                                    class="text-sm text-[#EF4444] hover:text-[#DC2626]">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </div>
-
-                        <div class="grid grid-cols-12 gap-3">
-                            <div class="col-span-12 md:col-span-6">
-                                <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Product Name</label>
-                                <select x-model="p.product_id" @change="onProductChange(i)" required
-                                        class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
-                                    <option value="">Select product...</option>
-                                    <template x-for="prod in productOptions" :key="prod.id">
-                                        <option x-bind:value="prod.id" x-text="prod.name"></option>
-                                    </template>
-                                </select>
+                <!-- Pending products list -->
+                <template x-if="products.length > 0">
+                    <div class="mb-4 space-y-2">
+                        <template x-for="(p, i) in products" :key="i">
+                            <div class="flex items-center justify-between rounded-xl border border-[#232A36] bg-[#0F1117] p-3">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-[#E6EDF3] truncate" x-text="p.product_name"></p>
+                                    <p class="text-xs text-[#94A3B8] mt-0.5">
+                                        Size: <span x-text="p.size"></span> —
+                                        Qty: <span x-text="p.quantity"></span> —
+                                        ৳<span x-text="p.price * p.quantity"></span>
+                                        <span x-show="p.out_of_stock" class="ml-2 text-[#EF4444]"><i class="fas fa-exclamation-circle"></i> Out of Stock</span>
+                                        <span x-show="p.in_stock" class="ml-2 text-[#22C55E]"><i class="fas fa-check-circle"></i> In Stock</span>
+                                    </p>
+                                </div>
+                                <button type="button" @click="removeProduct(i)"
+                                        class="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EF4444]/10 text-[#EF4444] hover:bg-[#EF4444]/20 transition-colors">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
                             </div>
-                            <div class="col-span-6 md:col-span-3">
-                                <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Size</label>
-                                <select x-model="p.size" @change="checkStock(i)" required
-                                        class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
-                                    <option value="">Size</option>
-                                    @foreach (\App\Models\Stock::SIZES as $s)
-                                    <option value="{{ $s }}">{{ $s }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-span-6 md:col-span-3">
-                                <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Quantity</label>
-                                <input type="number" x-model="p.quantity" @input.debounce="checkStock(i); calcTotal()" min="1" required
-                                       class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#3B82F6] focus:outline-none">
-                            </div>
-                        </div>
-
-                        <div class="mt-2 flex items-center gap-4 text-xs">
-                            <span class="text-[#94A3B8]">
-                                Price: ৳<span x-text="p.price || 0"></span>
-                            </span>
-                            <span class="text-[#94A3B8]">
-                                Available: <span x-text="getStock(i)"></span>
-                            </span>
-                            <span x-show="p.out_of_stock" class="text-[#EF4444] font-medium">
-                                <i class="fas fa-exclamation-circle"></i> Out of Stock
-                            </span>
-                            <span x-show="p.in_stock" class="text-[#22C55E] font-medium">
-                                <i class="fas fa-check-circle"></i> In Stock
-                            </span>
-                        </div>
+                        </template>
                     </div>
                 </template>
+
+                <!-- Search product -->
+                <div class="space-y-4">
+                    <div class="relative">
+                        <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Search Product</label>
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] text-sm"></i>
+                            <input type="text" x-model="search" @input="search = $el.value; showResults = true" @focus="showResults = true" @click.away="showResults = false" placeholder="Type product name..." class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] pl-10 pr-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                        </div>
+                        <div x-show="showResults" x-cloak class="absolute z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border border-[#232A36] bg-[#161B22] shadow-xl">
+                            <template x-for="p in filteredProducts" :key="p.id">
+                                <button @click="selectProduct(p); showResults = false" type="button" class="w-full px-4 py-2.5 text-left text-sm text-[#E6EDF3] hover:bg-[#1C2333] transition-colors border-b border-[#232A36] last:border-0">
+                                    <span x-text="p.product_name"></span>
+                                    <span class="text-[#94A3B8]" x-text="' (' + p.product_code + ')'"></span>
+                                </button>
+                            </template>
+                            <div x-show="filteredProducts.length === 0" class="px-4 py-3 text-sm text-[#94A3B8]">No products found.</div>
+                        </div>
+                    </div>
+
+                    <template x-if="selected">
+                        <div class="space-y-4 pt-2 border-t border-[#232A36]">
+                            <div class="rounded-xl bg-[#0F1117] p-3">
+                                <p class="text-sm font-medium text-[#E6EDF3]" x-text="selected.product_name"></p>
+                                <p class="text-xs text-[#94A3B8]" x-text="selected.product_code"></p>
+                            </div>
+
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Size</label>
+                                <div class="flex gap-2">
+                                    @foreach (\App\Models\Stock::SIZES as $s)
+                                    <label class="flex-1 cursor-pointer">
+                                        <input type="radio" x-model="selectedSize" value="{{ $s }}" class="peer sr-only">
+                                        <div class="rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-3 text-center text-sm text-[#94A3B8] transition-colors peer-checked:border-[#3B82F6] peer-checked:bg-[#3B82F6]/10 peer-checked:text-[#3B82F6]">
+                                            {{ $s }}
+                                            <span class="text-[10px] block mt-0.5">Stock: <span x-text="selected.stocks['{{ $s }}'] ?? 0"></span></span>
+                                        </div>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Quantity</label>
+                                <input type="number" x-model="selectedQty" min="1" class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                            </div>
+
+                            <button @click="addProductToList()" type="button" class="w-full rounded-xl bg-[#22C55E] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#16A34A]" x-bind:disabled="!selectedSize || !selectedQty">
+                                <i class="fas fa-plus mr-1"></i> Add to Order
+                            </button>
+                        </div>
+                    </template>
+                </div>
             </x-card>
 
             <!-- DTF & Patch -->
@@ -224,12 +258,12 @@
                         <h3 class="font-semibold text-[#E6EDF3]">Patch</h3>
                     </div>
                     <div class="flex gap-2 mb-4">
-                        <button type="button" @click="patch = true; calcTotal(); updateStatus()"
+                        <button type="button" @click="patch = true; calcTotal()"
                                 class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
                                 :class="patch ? 'bg-[#22C55E] text-white shadow-lg shadow-[#22C55E]/25' : 'bg-[#232A36] text-[#94A3B8] hover:bg-[#2A3344]'">
                             Yes
                         </button>
-                        <button type="button" @click="patch = false; calcTotal(); updateStatus()"
+                        <button type="button" @click="patch = false; calcTotal()"
                                 class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
                                 :class="!patch ? 'bg-[#232A36] text-[#E6EDF3] border border-[#22C55E]/30' : 'bg-[#161B22] text-[#94A3B8] hover:bg-[#232A36]'">
                             No
@@ -298,22 +332,16 @@
                     </div>
                 </div>
 
-                <!-- Status Badge -->
+                <input type="hidden" name="delivery_charge" :value="delivery_charge">
+
+                <!-- Status -->
                 <div class="mt-4 rounded-xl bg-[#0F1117] p-4">
                     <div class="flex items-center gap-3">
-                        <span class="text-sm text-[#94A3B8]">Status:</span>
-                        <span x-show="status === 'out_of_stock'"
-                              class="inline-flex items-center gap-1.5 rounded-full bg-[#EF4444]/10 px-3 py-1 text-sm font-medium text-[#EF4444]">
-                            <i class="fas fa-exclamation-circle"></i> Out Of Stock
-                        </span>
-                        <span x-show="status === 'on_hold'"
-                              class="inline-flex items-center gap-1.5 rounded-full bg-[#F59E0B]/10 px-3 py-1 text-sm font-medium text-[#F59E0B]">
-                            <i class="fas fa-pause-circle"></i> On Hold
-                        </span>
-                        <span class="ml-2 text-xs text-[#94A3B8]">
-                            <span x-show="status === 'out_of_stock'">One or more products have insufficient stock. Restock to enable ordering.</span>
-                            <span x-show="status === 'on_hold'">All products are in stock. You can change status later.</span>
-                        </span>
+                        <label class="text-sm font-medium text-[#E6EDF3]">Status</label>
+                        <select name="status" x-model="status" class="rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                            <option value="on_hold">On Hold</option>
+                            <option value="out_of_stock">Out Of Stock</option>
+                        </select>
                     </div>
                 </div>
             </x-card>
@@ -324,7 +352,7 @@
                    class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333] transition-colors">
                     Cancel
                 </a>
-                <button type="button" @click="saveDraft()"
+                <button type="button" @click="saveDraft(JSON.stringify(getFormData()))"
                         class="rounded-xl border border-[#A855F7] px-6 py-2.5 text-sm font-medium text-[#A855F7] hover:bg-[#A855F7]/10 transition-colors">
                     <i class="fas fa-pen mr-2"></i> Save Draft
                 </button>
@@ -358,15 +386,12 @@
                 address: '',
                 city: '',
                 delivery_charge: 0,
-                products: [{
-                    product_id: '',
-                    product_name: '',
-                    size: '',
-                    quantity: 1,
-                    price: 0,
-                    out_of_stock: false,
-                    in_stock: false,
-                }],
+                products: [],
+                search: '',
+                showResults: false,
+                selected: null,
+                selectedSize: '',
+                selectedQty: '',
                 dtf: false,
                 dtf_name: '',
                 dtf_number: '',
@@ -378,33 +403,59 @@
                 pending_payment: 0,
                 payment_method: '',
                 status: 'on_hold',
+                notes: '',
                 drafts: [],
                 draftStatus: 'idle',
-                saveTimer: null,
+                lastSaved: '',
+                autoSaveInterval: null,
                 draftLoaded: false,
 
                 init() {
                     this.loadDrafts();
-                    this.setupWatchers();
+                    this.autoSaveInterval = setInterval(() => this.tryAutoSave(), 3000);
                 },
 
-                setupWatchers() {
-                    const fields = ['customer_name', 'phone', 'address', 'city', 'dtf', 'dtf_name', 'dtf_number', 'patch', 'patch_price', 'total_amount', 'advanced_payment', 'payment_method'];
-                    fields.forEach(f => {
-                        this.$watch(f, () => this.queueSave());
-                    });
-                    this.$watch('products', () => this.queueSave(), { deep: true });
+                get filteredProducts() {
+                    const q = this.search.toLowerCase();
+                    if (!q) return this.productOptions;
+                    return this.productOptions.filter(p =>
+                        p.product_name.toLowerCase().includes(q) ||
+                        p.product_code.toLowerCase().includes(q)
+                    );
                 },
 
-                queueSave() {
-                    if (this.saveTimer) clearTimeout(this.saveTimer);
-                    this.saveTimer = setTimeout(() => this.saveDraft(), 1500);
+                getFormData() {
+                    return {
+                        customer_name: this.customer_name,
+                        phone: this.phone,
+                        address: this.address,
+                        city: this.city,
+                        delivery_charge: this.delivery_charge,
+                        products: this.products,
+                        dtf: this.dtf,
+                        dtf_name: this.dtf_name,
+                        dtf_number: this.dtf_number,
+                        patch: this.patch,
+                        patch_price: this.patch_price,
+                        total_amount: this.total_amount,
+                        advanced_payment: this.advanced_payment,
+                        payment_method: this.payment_method,
+                        notes: this.notes,
+                        status: 'draft',
+                    };
+                },
+
+                tryAutoSave() {
+                    if (this.draftLoaded) return;
+                    const current = JSON.stringify(this.getFormData());
+                    if (current === this.lastSaved) return;
+                    this.saveDraft(current);
                 },
 
                 stopAutoSave() {
-                    if (this.saveTimer) {
-                        clearTimeout(this.saveTimer);
-                        this.saveTimer = null;
+                    if (this.autoSaveInterval) {
+                        clearInterval(this.autoSaveInterval);
+                        this.autoSaveInterval = null;
                     }
                 },
 
@@ -416,40 +467,38 @@
                     return this.productOptions.find(p => p.id == id);
                 },
 
-                addProduct() {
+                selectProduct(p) {
+                    this.selected = p;
+                    this.selectedSize = '';
+                    this.selectedQty = '';
+                    this.search = p.product_name + ' (' + p.product_code + ')';
+                },
+
+                addProductToList() {
+                    if (!this.selected || !this.selectedSize || !this.selectedQty) return;
+                    const prod = this.selected;
+                    const qty = parseInt(this.selectedQty) || 1;
+                    const available = prod.stocks[this.selectedSize] || 0;
+                    const outOfStock = qty > available;
                     this.products.push({
-                        product_id: '',
-                        product_name: '',
-                        size: '',
-                        quantity: 1,
-                        price: 0,
-                        out_of_stock: false,
-                        in_stock: false,
+                        product_id: prod.id,
+                        product_name: prod.product_name,
+                        size: this.selectedSize,
+                        quantity: qty,
+                        price: prod.price,
+                        out_of_stock: outOfStock,
+                        in_stock: !outOfStock && qty > 0,
                     });
+                    this.selected = null;
+                    this.selectedSize = '';
+                    this.selectedQty = '';
+                    this.search = '';
+                    this.calcTotal();
                 },
 
                 removeProduct(i) {
-                    if (this.products.length > 1) {
-                        this.products.splice(i, 1);
-                        this.calcTotal();
-                        this.updateStatus();
-                    }
-                },
-
-                onProductChange(i) {
-                    const prod = this.getProductById(this.products[i].product_id);
-                    if (prod) {
-                        this.products[i].product_name = prod.product_name;
-                        this.products[i].price = prod.price;
-                    } else {
-                        this.products[i].product_name = '';
-                        this.products[i].price = 0;
-                    }
-                    this.products[i].size = '';
-                    this.products[i].out_of_stock = false;
-                    this.products[i].in_stock = false;
+                    this.products.splice(i, 1);
                     this.calcTotal();
-                    this.updateStatus();
                 },
 
                 getStock(i) {
@@ -465,26 +514,18 @@
                     if (!prod || !p.size || !p.quantity) {
                         p.out_of_stock = false;
                         p.in_stock = false;
-                        this.updateStatus();
-                        return;
-                    }
-                    const available = prod.stocks[p.size] || 0;
-                    const needed = parseInt(p.quantity) || 0;
-                    if (needed > available) {
-                        p.out_of_stock = true;
-                        p.in_stock = false;
-                    } else {
-                        p.out_of_stock = false;
-                        p.in_stock = true;
-                    }
-                    this.updateStatus();
-                },
-
-                updateStatus() {
-                    const anyOutOfStock = this.products.some(p => p.out_of_stock);
-                    const patchOutOfStock = this.patch && (this.patch_stock < 2);
-                    this.status = (anyOutOfStock || patchOutOfStock) ? 'out_of_stock' : 'on_hold';
-                },
+                    return;
+                }
+                const available = prod.stocks[p.size] || 0;
+                const needed = parseInt(p.quantity) || 0;
+                if (needed > available) {
+                    p.out_of_stock = true;
+                    p.in_stock = false;
+                } else {
+                    p.out_of_stock = false;
+                    p.in_stock = true;
+                }
+            },
 
                 calcTotal() {
                     let total = 0;
@@ -508,8 +549,8 @@
                 calcDeliveryCharge() {
                     let total = (parseFloat(this.total_amount) || 0) - (parseFloat(this.delivery_charge) || 0);
                     const freeThreshold = parseFloat(this.$el.querySelector('[data-free-threshold]')?.dataset.freeThreshold || 3000);
-                    const dhakaRate = parseFloat(this.$el.querySelector('[data-dhaka-rate]')?.dataset.dhakaRate || 100);
-                    const outsideRate = parseFloat(this.$el.querySelector('[data-outside-rate]')?.dataset.outsideRate || 120);
+                    const dhakaRate = parseFloat(this.$el.querySelector('[data-dhaka-rate]')?.dataset.dhakaRate || 80);
+                    const outsideRate = parseFloat(this.$el.querySelector('[data-outside-rate]')?.dataset.outsideRate || 130);
                     if (total >= freeThreshold || !this.city) {
                         this.delivery_charge = 0;
                     } else if (this.city.toLowerCase() === 'dhaka') {
@@ -533,38 +574,21 @@
                     } catch (e) {}
                 },
 
-                async saveDraft() {
-                    if (this.draftLoaded) return;
+                async saveDraft(dataStr) {
                     this.draftStatus = 'saving';
-                    const payload = {
-                        data: JSON.stringify({
-                            customer_name: this.customer_name,
-                            phone: this.phone,
-                            address: this.address,
-                            city: this.city,
-                            delivery_charge: this.delivery_charge,
-                            products: this.products,
-                            dtf: this.dtf,
-                            dtf_name: this.dtf_name,
-                            dtf_number: this.dtf_number,
-                            patch: this.patch,
-                            patch_price: this.patch_price,
-                            total_amount: this.total_amount,
-                            advanced_payment: this.advanced_payment,
-                            payment_method: this.payment_method,
-                            status: 'draft',
-                        }),
-                    };
                     try {
                         const res = await fetch('{{ admin_route("order-drafts.store") }}', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify(payload),
+                            body: JSON.stringify({ data: dataStr }),
                         });
                         if (res.ok) {
+                            this.lastSaved = dataStr;
                             this.draftStatus = 'saved';
                             await this.loadDrafts();
                             setTimeout(() => { if (this.draftStatus === 'saved') this.draftStatus = 'idle'; }, 2000);
+                        } else {
+                            this.draftStatus = 'idle';
                         }
                     } catch (e) {
                         this.draftStatus = 'idle';
@@ -579,7 +603,7 @@
                     this.address = data.address || '';
                     this.city = data.city || '';
                     this.delivery_charge = data.delivery_charge || 0;
-                    this.products = data.products || [{ product_id: '', product_name: '', size: '', quantity: 1, price: 0, out_of_stock: false, in_stock: false }];
+                    this.products = data.products || [];
                     this.dtf = data.dtf || false;
                     this.dtf_name = data.dtf_name || '';
                     this.dtf_number = data.dtf_number || '';
@@ -588,8 +612,10 @@
                     this.total_amount = data.total_amount || 0;
                     this.advanced_payment = data.advanced_payment || 0;
                     this.payment_method = data.payment_method || '';
+                    this.notes = data.notes || '';
                     this.calcTotal();
                     this.products.forEach((_, i) => this.checkStock(i));
+                    this.lastSaved = '';
                     this.draftLoaded = false;
                 },
 

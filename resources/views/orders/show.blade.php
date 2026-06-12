@@ -141,6 +141,20 @@
             </div>
         </x-card>
 
+        @if ($order->notes)
+        <x-card class="mb-6">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
+                    <i class="fas fa-sticky-note text-[#A855F7]"></i>
+                </div>
+                <h2 class="text-lg font-semibold text-[#E6EDF3]">Notes</h2>
+            </div>
+            <div class="rounded-lg bg-[#0F1117] p-4">
+                <p class="text-sm text-[#E6EDF3] whitespace-pre-wrap">{{ $order->notes }}</p>
+            </div>
+        </x-card>
+        @endif
+
         <div class="flex items-center justify-between">
             <a href="{{ admin_route('orders.index') }}"
                class="rounded-xl border border-[#232A36] px-4 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333] transition-colors">

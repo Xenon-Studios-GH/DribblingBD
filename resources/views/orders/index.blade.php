@@ -47,13 +47,14 @@
                         <select x-model="filterStatus"
                                 class="h-11 rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
                             <option value="">All Status</option>
-                            <option value="draft">Draft</option>
+                            <option value="pending">Pending</option>
                             <option value="on_hold">On Hold</option>
                             <option value="processing">Processing</option>
                             <option value="picked">Picked</option>
                             <option value="delivered">Delivered</option>
                             <option value="return">Return</option>
                             <option value="out_of_stock">Out of Stock</option>
+                            <option value="draft">Draft</option>
                         </select>
                         <select x-model="filterPayment"
                                 class="h-11 rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
@@ -144,7 +145,21 @@
                                             </span>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-3 text-center">
-                                            <template x-if="!order.is_draft">
+                                            <template x-if="order.status === 'pending'">
+                                                <div class="flex items-center justify-center gap-1.5">
+                                                    <button @click="confirmOrder(order)"
+                                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E]/20 transition-colors"
+                                                            title="Confirm">
+                                                        <i class="fas fa-check text-xs"></i>
+                                                    </button>
+                                                    <button @click="deleteOrder(order)"
+                                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-[#EF4444]/10 text-[#EF4444] hover:bg-[#EF4444]/20 transition-colors"
+                                                            title="Delete">
+                                                        <i class="fas fa-times text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <template x-if="order.status !== 'pending' && !order.is_draft">
                                                 <a x-bind:href="order.edit_url"
                                                    class="inline-flex items-center gap-1.5 rounded-xl bg-[#3B82F6]/10 px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/20 transition-colors">
                                                     <i class="fas fa-edit"></i> Edit
@@ -211,7 +226,21 @@
                             </div>
                             <div class="mt-3 flex items-center justify-between">
                                 <span class="text-[10px] font-medium capitalize text-[#94A3B8]" x-text="order.payment_method"></span>
-                                <template x-if="!order.is_draft">
+                                <template x-if="order.status === 'pending'">
+                                    <div class="flex items-center gap-1.5">
+                                        <button @click="confirmOrder(order)"
+                                                class="flex h-8 w-8 items-center justify-center rounded-full bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E]/20 transition-colors"
+                                                title="Confirm">
+                                            <i class="fas fa-check text-xs"></i>
+                                        </button>
+                                        <button @click="deleteOrder(order)"
+                                                class="flex h-8 w-8 items-center justify-center rounded-full bg-[#EF4444]/10 text-[#EF4444] hover:bg-[#EF4444]/20 transition-colors"
+                                                title="Delete">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="order.status !== 'pending' && !order.is_draft">
                                     <a x-bind:href="order.edit_url"
                                        class="inline-flex items-center gap-1.5 rounded-xl bg-[#3B82F6]/10 px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/20 transition-colors">
                                         <i class="fas fa-edit"></i> Edit
@@ -275,10 +304,11 @@
 
                 statusClass(status) {
                     const map = {
+                        pending: 'text-[#F59E0B] bg-[#F59E0B]/10',
                         out_of_stock: 'text-[#EF4444] bg-[#EF4444]/10',
-                        on_hold: 'text-[#F59E0B] bg-[#F59E0B]/10',
-                        processing: 'text-[#3B82F6] bg-[#3B82F6]/10',
-                        picked: 'text-[#A855F7] bg-[#A855F7]/10',
+                        on_hold: 'text-[#3B82F6] bg-[#3B82F6]/10',
+                        processing: 'text-[#A855F7] bg-[#A855F7]/10',
+                        picked: 'text-[#22C55E] bg-[#22C55E]/10',
                         delivered: 'text-[#22C55E] bg-[#22C55E]/10',
                         return: 'text-[#EF4444] bg-[#EF4444]/10',
                         draft: 'text-[#6B7280] bg-[#232A36]',
@@ -288,6 +318,7 @@
 
                 statusIcon(status) {
                     const map = {
+                        pending: 'fa-clock',
                         out_of_stock: 'fa-exclamation-circle',
                         on_hold: 'fa-pause-circle',
                         processing: 'fa-spinner',
@@ -302,6 +333,51 @@
                 statusLabel(status) {
                     if (status === 'draft') return 'Draft';
                     return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                },
+
+                async confirmOrder(order) {
+                    if (!confirm('Confirm this order?')) return;
+                    try {
+                        const resp = await fetch(order.update_url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify({ status: 'on_hold' }),
+                        });
+                        const data = await resp.json();
+                        if (data.success) {
+                            order.status = 'on_hold';
+                            this.showToast('Order confirmed', 'success');
+                        } else {
+                            this.showToast(data.message || 'Failed to confirm', 'error');
+                        }
+                    } catch (e) {
+                        this.showToast('Failed to confirm order', 'error');
+                    }
+                },
+
+                async deleteOrder(order) {
+                    if (!confirm('Delete this order? This cannot be undone.')) return;
+                    try {
+                        const resp = await fetch(order.delete_url, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        });
+                        const data = await resp.json();
+                        if (data.success) {
+                            const idx = this.orders.indexOf(order);
+                            if (idx > -1) this.orders.splice(idx, 1);
+                            this.showToast('Order deleted', 'success');
+                        } else {
+                            this.showToast(data.message || 'Failed to delete', 'error');
+                        }
+                    } catch (e) {
+                        this.showToast('Failed to delete order', 'error');
+                    }
+                },
+
+                showToast(message, type = 'success') {
+                    // simple alert-based toast
+                    alert(message);
                 },
             }
         }
