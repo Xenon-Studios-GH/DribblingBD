@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\WebsiteCategory;
 use App\Models\WebsiteProject;
 use App\Services\Website\ImageService;
+use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -14,10 +15,12 @@ use Illuminate\Support\Str;
 class ProjectController extends Controller
 {
     protected ImageService $imageService;
+    protected WorkLogService $workLogService;
 
-    public function __construct(ImageService $imageService)
+    public function __construct(ImageService $imageService, WorkLogService $workLogService)
     {
         $this->imageService = $imageService;
+        $this->workLogService = $workLogService;
     }
 
     public function index(Request $request)
@@ -49,6 +52,10 @@ class ProjectController extends Controller
 
         $products = $query->orderBy('products.created_at', 'desc')->paginate(20);
 
+        if ($request->ajax()) {
+            return view('website.projects._table', compact('products'));
+        }
+
         $categories = WebsiteCategory::with('parent')->orderBy('name')->get();
 
         return view('website.projects.index', compact('products', 'categories'));
@@ -67,6 +74,8 @@ class ProjectController extends Controller
             'is_active' => false,
             'created_by' => Auth::id(),
         ]);
+
+        $this->workLogService->log('Project Created', 'website', $project->id, "Website project for '{$product->product_name}' created");
 
         return redirect(admin_route('website.projects.edit', $project));
     }
@@ -105,6 +114,8 @@ class ProjectController extends Controller
 
         $this->imageService->syncImages($project, $slots, $removeImages);
 
+        $this->workLogService->log('Project Updated', 'website', $project->id, "Website project '{$project->product?->product_name}' updated");
+
         return redirect(admin_route('website.projects'))->with('success', 'Product updated.');
     }
 
@@ -113,6 +124,7 @@ class ProjectController extends Controller
         $project->update(['is_active' => !$project->is_active]);
 
         $status = $project->is_active ? 'activated' : 'deactivated';
+        $this->workLogService->log('Project ' . ucfirst($status), 'website', $project->id, "Website project '{$project->product?->product_name}' {$status}");
         return back()->with('success', "Product {$status} successfully.");
     }
 
@@ -121,6 +133,7 @@ class ProjectController extends Controller
         $product->update(['is_active' => !$product->is_active]);
 
         $status = $product->is_active ? 'activated' : 'deactivated';
+        $this->workLogService->log('Product ' . ucfirst($status), 'stock', $product->id, "Product '{$product->product_name}' {$status}");
         return back()->with('success', "Product {$status} successfully.");
     }
 }

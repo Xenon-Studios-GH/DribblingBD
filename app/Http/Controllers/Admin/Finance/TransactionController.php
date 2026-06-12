@@ -7,16 +7,19 @@ use App\Models\FinanceCategory;
 use App\Models\FinanceTransaction;
 use App\Models\FinanceTransactionVersion;
 use App\Services\Finance\NotificationService;
+use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
     protected NotificationService $notifications;
+    protected WorkLogService $workLogService;
 
-    public function __construct(NotificationService $notifications)
+    public function __construct(NotificationService $notifications, WorkLogService $workLogService)
     {
         $this->notifications = $notifications;
+        $this->workLogService = $workLogService;
     }
 
     public function index(Request $request)
@@ -34,6 +37,11 @@ class TransactionController extends Controller
             $query->where('category_id', $request->category_id);
         }
         $transactions = $query->latest('date')->paginate(20);
+
+        if ($request->ajax()) {
+            return view('finance.transactions._table', compact('transactions'));
+        }
+
         $categories = FinanceCategory::active()->get();
 
         return view('finance.transactions.index', compact('transactions', 'categories'));
@@ -62,10 +70,12 @@ class TransactionController extends Controller
         $this->notifications->notifyAdmins(
             'transaction.created',
             'New Transaction',
-            Auth::user()->name . ' created a ' . $transaction->type . ' of ৳' . number_format($transaction->amount),
+            Auth::user()->name . ' created a ' . $transaction->type->value . ' of ৳' . number_format($transaction->amount),
             'transaction',
             $transaction->id
         );
+
+        $this->workLogService->log('Transaction Created', 'finance', $transaction->id, "{$transaction->type->value} of ৳" . number_format($transaction->amount));
 
         return redirect(admin_route('finance.transactions'))->with('success', 'Transaction created.');
     }
@@ -106,12 +116,18 @@ class TransactionController extends Controller
             $transaction->id
         );
 
+        $this->workLogService->log('Transaction Updated', 'finance', $transaction->id, "{$transaction->type->value} of ৳" . number_format($transaction->amount) . ' updated');
+
         return redirect(admin_route('finance.transactions'))->with('success', 'Transaction updated.');
     }
 
     public function destroy(string $role, FinanceTransaction $transaction)
     {
+        $type = $transaction->type->value;
+        $amount = $transaction->amount;
         $transaction->delete();
+
+        $this->workLogService->log('Transaction Deleted', 'finance', $transaction->id, "{$type} of ৳" . number_format($amount) . ' deleted');
 
         $this->notifications->notifyAdmins(
             'transaction.deleted',

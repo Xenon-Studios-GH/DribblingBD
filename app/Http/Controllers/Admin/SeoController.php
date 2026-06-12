@@ -8,15 +8,18 @@ use App\Models\SeoMeta;
 use App\Models\WebsiteCategory;
 use App\Models\WebsiteProject;
 use App\Services\SeoService;
+use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 
 class SeoController extends Controller
 {
     protected SeoService $seoService;
+    protected WorkLogService $workLogService;
 
-    public function __construct(SeoService $seoService)
+    public function __construct(SeoService $seoService, WorkLogService $workLogService)
     {
         $this->seoService = $seoService;
+        $this->workLogService = $workLogService;
     }
 
     public function index(Request $request)
@@ -34,6 +37,10 @@ class SeoController extends Controller
         }
 
         $seoMetas = $query->latest()->paginate(20);
+
+        if ($request->ajax()) {
+            return view('seo._table', compact('seoMetas'));
+        }
 
         $counts = [
             'total' => SeoMeta::count(),
@@ -98,6 +105,8 @@ class SeoController extends Controller
 
         $seoMeta->update($validated);
 
+        $this->workLogService->log('SEO Updated', 'seo', $seoMeta->id, "SEO meta for {$seoMeta->seoable_type} #{$seoMeta->seoable_id} updated");
+
         return redirect(admin_route('seo.edit', $seoMeta->id))
             ->with('success', 'SEO meta updated successfully.');
     }
@@ -105,6 +114,8 @@ class SeoController extends Controller
     public function destroy(string $role, SeoMeta $seoMeta)
     {
         $seoMeta->delete();
+
+        $this->workLogService->log('SEO Deleted', 'seo', $seoMeta->id, "SEO meta #{$seoMeta->id} deleted");
 
         return redirect(admin_route('seo.index'))
             ->with('success', 'SEO meta deleted.');
@@ -115,6 +126,8 @@ class SeoController extends Controller
         $seoMeta->load('seoable');
         $this->seoService->applyTemplate($seoMeta->seoable);
 
+        $this->workLogService->log('SEO Reset', 'seo', $seoMeta->id, "SEO meta for {$seoMeta->seoable_type} #{$seoMeta->seoable_id} reset to template");
+
         return redirect(admin_route('seo.edit', $seoMeta->id))
             ->with('success', 'SEO meta reset to template.');
     }
@@ -123,6 +136,8 @@ class SeoController extends Controller
     {
         $exitCode = \Artisan::call('seo:auto-generate', ['--force' => true]);
         $output = \Artisan::output();
+
+        $this->workLogService->log('SEO Auto Generated', 'seo', null, 'Auto SEO generation completed');
 
         return redirect(admin_route('seo.index'))
             ->with('success', 'Auto SEO generation completed. Check the command output for details.');

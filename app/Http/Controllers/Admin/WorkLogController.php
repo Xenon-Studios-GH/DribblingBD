@@ -18,8 +18,13 @@ class WorkLogController extends Controller
 
     public function index(Request $request)
     {
-        $filters = $request->only(['user_id', 'module', 'action', 'date_from', 'date_to']);
+        $filters = $request->only(['user_id', 'module', 'action', 'search', 'date_from', 'date_to']);
         $logs = $this->workLogService->getLogs($filters);
+
+        if ($request->ajax()) {
+            return view('work-logs._table', compact('logs'));
+        }
+
         $users = User::whereIn('role', ['superadmin', 'admin', 'staff'])->orderBy('name')->get(['id', 'name', 'email']);
 
         return view('work-logs.index', compact('logs', 'users'));

@@ -20,6 +20,11 @@ class LoginLogController extends Controller
     {
         $filters = $request->only(['user_id', 'email', 'date_from', 'date_to', 'status']);
         $logs = $this->loginLogService->getLogs($filters);
+
+        if ($request->ajax()) {
+            return view('login-logs._table', compact('logs'));
+        }
+
         $users = User::whereIn('role', ['superadmin', 'admin', 'staff'])->orderBy('name')->get(['id', 'name', 'email']);
 
         return view('login-logs.index', compact('logs', 'users'));

@@ -1,5 +1,5 @@
 <x-layouts.app title="Transactions">
-    <div class="space-y-6">
+    <div class="space-y-6" x-data="financeTransactions()">
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-[#E6EDF3]">Transactions</h1>
             <a href="{{ admin_route('finance.transactions.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB]">
@@ -7,74 +7,76 @@
             </a>
         </div>
 
-        {{-- Filters --}}
-        <form method="GET" class="flex flex-col sm:flex-row sm:flex-wrap gap-3">
-            <select name="type" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
-                <option value="">All Types</option>
-                <option value="income" {{ request('type') === 'income' ? 'selected' : '' }}>Income</option>
-                <option value="expense" {{ request('type') === 'expense' ? 'selected' : '' }}>Expense</option>
-            </select>
-            <select name="category_id" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
-                <option value="">All Categories</option>
-                @foreach($categories as $cat)
-                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                @endforeach
-            </select>
-            <input type="date" name="date_from" value="{{ request('date_from', now()->subYear()->format('Y-m-d')) }}" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
-            <input type="date" name="date_to" value="{{ request('date_to', now()->format('Y-m-d')) }}" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
-            <button type="submit" class="rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white">Filter</button>
-            <a href="{{ admin_route('finance.transactions') }}" class="rounded-xl border border-[#232A36] px-4 py-2.5 text-sm text-[#94A3B8]">Reset</a>
-        </form>
-
-        {{-- Table --}}
-        <x-card class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-[#232A36] text-left text-[#94A3B8]">
-                        <th class="pb-3 font-medium">Date</th>
-                        <th class="pb-3 font-medium">Type</th>
-                        <th class="pb-3 font-medium">Category</th>
-                        <th class="pb-3 font-medium text-right pr-6">Amount</th>
-                        <th class="pb-3 font-medium pl-4">Description</th>
-                        <th class="pb-3 font-medium">By</th>
-                        <th class="pb-3 font-medium text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($transactions as $t)
-                    <tr class="border-b border-[#232A36]/50 hover:bg-[#1C2333]">
-                        <td class="py-3 text-[#E6EDF3]">{{ $t->date->format('M d, Y') }}</td>
-                        <td class="py-3">
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $t->type === 'income' ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-[#EF4444]/10 text-[#EF4444]' }}">
-                                {{ ucfirst($t->type) }}
-                            </span>
-                        </td>
-                        <td class="py-3 text-[#94A3B8]">{{ $t->category?->name ?? '—' }}</td>
-                        <td class="py-3 text-right font-semibold pr-6 {{ $t->type === 'income' ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">
-                            ৳{{ number_format($t->amount, 2) }}
-                        </td>
-                        <td class="py-3 text-[#94A3B8] max-w-[200px] truncate pl-4">{{ $t->description ?: '—' }}</td>
-                        <td class="py-3 text-[#94A3B8]">{{ $t->creator?->name ?? '—' }}</td>
-                        <td class="py-3 text-right">
-                            <a href="{{ admin_route('finance.transactions.edit', $t) }}" class="text-[#3B82F6] hover:underline text-xs mr-3">Edit</a>
-                            <button type="button" onclick="confirmDelete({{ $t->id }})" class="text-[#EF4444] hover:underline text-xs">Delete</button>
-                            <form id="delete-form-{{ $t->id }}" method="POST" action="{{ admin_route('finance.transactions.destroy', $t) }}" class="hidden">@csrf @method('DELETE')</form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="py-8 text-center text-[#94A3B8]">No transactions found.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <x-card>
+            <div class="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+                <select x-model="filters.type" @change="fetchTransactions()" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
+                    <option value="">All Types</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+                <select x-model="filters.category_id" @change="fetchTransactions()" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
+                    <option value="">All Categories</option>
+                    @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+                <input type="date" x-model="filters.date_from" @change="fetchTransactions()" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
+                <input type="date" x-model="filters.date_to" @change="fetchTransactions()" class="rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3]">
+                <button @click="resetFilters()" class="rounded-xl border border-[#232A36] px-4 py-2.5 text-sm text-[#94A3B8] hover:bg-[#1C2333]">Reset</button>
+            </div>
         </x-card>
 
-        {{ $transactions->links() }}
+        <div x-html="tableHtml" class="space-y-6">
+            @include('finance.transactions._table')
+        </div>
     </div>
 
     @push('scripts')
     <script>
+        function financeTransactions() {
+            return {
+                filters: {
+                    type: '',
+                    category_id: '',
+                    date_from: '',
+                    date_to: '',
+                },
+                page: 1,
+                tableHtml: '',
+                loading: false,
+
+                init() {
+                    this.fetchTransactions();
+                    window.financeGoToPage = (p) => { this.page = p; this.fetchTransactions(); };
+                },
+
+                fetchTransactions() {
+                    if (this.loading) return;
+                    this.loading = true;
+
+                    const params = new URLSearchParams();
+                    Object.entries(this.filters).forEach(([k, v]) => { if (v) params.append(k, v); });
+                    params.append('page', this.page);
+
+                    fetch('{{ admin_route('finance.transactions') }}?' + params.toString(), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(r => r.text())
+                    .then(html => {
+                        this.tableHtml = html;
+                        this.loading = false;
+                    })
+                    .catch(() => { this.loading = false; });
+                },
+
+                resetFilters() {
+                    this.filters = { type: '', category_id: '', date_from: '', date_to: '' };
+                    this.page = 1;
+                    this.fetchTransactions();
+                },
+            };
+        }
+
         function confirmDelete(id) {
             Swal.fire({
                 title: 'Delete Transaction?',
