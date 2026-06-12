@@ -112,22 +112,22 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
                      x-data="counter($el, {{ $settings['stats_1_value'] ?? 100 }}, '{{ $settings['stats_1_suffix'] ?? '+' }}')" x-init="init()">
-                    <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
+                    <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_1_label'] ?? 'Premium Products' }}</p>
                 </div>
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
                      x-data="counter($el, {{ $settings['stats_2_value'] ?? 2000 }}, '{{ $settings['stats_2_suffix'] ?? '+' }}')" x-init="init()">
-                    <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
+                    <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_2_label'] ?? 'Happy Customers' }}</p>
                 </div>
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
                      x-data="counter($el, {{ $settings['stats_3_value'] ?? 7 }}, '{{ $settings['stats_3_suffix'] ?? ' mins' }}')" x-init="init()">
-                    <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]">&lt;<span x-text="count">0</span>{{ $settings['stats_3_suffix'] ?? ' mins' }}</p>
+                    <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]">&lt;<span x-text="count">0</span>{{ $settings['stats_3_suffix'] ?? ' mins' }}</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_3_label'] ?? 'Avg Reply Time' }}</p>
                 </div>
                 <div class="text-center px-6"
                      x-data="counter($el, {{ $settings['stats_4_value'] ?? 96 }}, '{{ $settings['stats_4_suffix'] ?? ' hours' }}')" x-init="init()">
-                    <p class="text-4xl lg:text-5xl font-bold text-[#E85D2C]"><span x-text="count">0</span>{{ $settings['stats_4_suffix'] ?? ' hours' }}</p>
+                    <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]"><span x-text="count">0</span>{{ $settings['stats_4_suffix'] ?? ' hours' }}</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_4_label'] ?? 'Avg Delivery Time' }}</p>
                 </div>
             </div>

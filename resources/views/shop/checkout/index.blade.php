@@ -59,88 +59,7 @@
 @php
 $shipping = $client && $client->shipping_address ? $client->shipping_address : null;
 @endphp
-<div x-data="{
-    checkout: Alpine.$persist({
-        name: @json($client?->name ?? ''),
-        phone: @json($client?->phone ?? ''),
-        address: @json($client?->address ?? ''),
-        city: @json($client?->city ?? ''),
-        area: @json($shipping['area'] ?? ''),
-        postal: @json($shipping['postal'] ?? ''),
-        notes: @json($shipping['notes'] ?? ''),
-    }).as('shop_checkout'),
-    shippingRates: {
-        dhaka: {{ $settings['shipping_dhaka_rate'] ?? 100 }},
-        outside: {{ $settings['shipping_outside_rate'] ?? 120 }},
-        freeThreshold: {{ $settings['shipping_free_threshold'] ?? 3000 }},
-    },
-    _saveTimer: null,
-    get shippingCharge() {
-        const subtotal = this.cartTotal;
-        if (subtotal >= this.shippingRates.freeThreshold) return 0;
-        if (this.checkout.city?.toLowerCase() === 'dhaka') return this.shippingRates.dhaka;
-        return this.shippingRates.outside;
-    },
-    get grandTotal() {
-        return this.cartTotal + this.shippingCharge;
-    },
-    async placeOrder() {
-        const cart = JSON.parse(localStorage.getItem('shop_cart') || '[]');
-        const payload = {
-            customer_name: this.checkout.name,
-            phone: this.checkout.phone,
-            address: this.checkout.address,
-            city: this.checkout.city,
-            area: this.checkout.area,
-            postal: this.checkout.postal,
-            notes: this.checkout.notes,
-            products: JSON.stringify(cart),
-            total_amount: this.grandTotal,
-            payment_method: 'cod',
-        };
-        try {
-            const res = await fetch('{{ route('shop.checkout.store') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify(payload),
-            });
-            if (res.ok) {
-                const data = await res.json();
-                localStorage.removeItem('shop_cart');
-                window.location.href = '{{ route('shop.checkout.processing') }}' + '?order_no=' + data.order_no;
-            } else {
-                const err = await res.json();
-                Swal.fire({ icon: 'error', title: 'Order Failed', text: Object.values(err.errors || {}).flat().join(', '), confirmButtonColor: '#E85D2C' });
-            }
-        } catch (e) {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#E85D2C' });
-        }
-    },
-    saveAddress() {
-        @auth
-        if (this._saveTimer) clearTimeout(this._saveTimer);
-        this._saveTimer = setTimeout(() => {
-            fetch('{{ route('shop.checkout.address.save') }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({
-                    name: this.checkout.name,
-                    phone: this.checkout.phone,
-                    address: this.checkout.address,
-                    city: this.checkout.city,
-                    area: this.checkout.area,
-                    postal: this.checkout.postal,
-                    notes: this.checkout.notes,
-                }),
-            });
-        }, 800);
-        @endauth
-    }
-}" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+<div x-data="checkoutData" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
     <div class="flex items-center gap-3 mb-10">
         <div class="w-10 h-10 rounded-xl bg-[#E85D2C]/10 flex items-center justify-center">
             <i class="fas fa-credit-card text-[#E85D2C]"></i>
@@ -311,3 +230,94 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
     </template>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('checkoutData', () => ({
+        checkout: Alpine.$persist({
+            name: @json($client?->name ?? ''),
+            phone: @json($client?->phone ?? ''),
+            address: @json($client?->address ?? ''),
+            city: @json($client?->city ?? ''),
+            area: @json($shipping['area'] ?? ''),
+            postal: @json($shipping['postal'] ?? ''),
+            notes: @json($shipping['notes'] ?? ''),
+        }).as('shop_checkout'),
+        shippingRates: {
+            dhaka: {{ $settings['shipping_dhaka_rate'] ?? 100 }},
+            outside: {{ $settings['shipping_outside_rate'] ?? 120 }},
+            freeThreshold: {{ $settings['shipping_free_threshold'] ?? 3000 }},
+        },
+        _saveTimer: null,
+        shippingCharge: 0,
+        grandTotal: 0,
+        init() {
+            this.calcShipping();
+            this.$watch('checkout.city', () => this.calcShipping());
+        },
+        calcShipping() {
+            const cart = JSON.parse(localStorage.getItem('shop_cart') || '[]');
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            if (subtotal >= this.shippingRates.freeThreshold) this.shippingCharge = 0;
+            else if (this.checkout.city?.toLowerCase() === 'dhaka') this.shippingCharge = this.shippingRates.dhaka;
+            else this.shippingCharge = this.shippingRates.outside;
+            this.grandTotal = subtotal + this.shippingCharge;
+        },
+        placeOrder() {
+            const cart = JSON.parse(localStorage.getItem('shop_cart') || '[]');
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const payload = {
+                customer_name: this.checkout.name,
+                phone: this.checkout.phone,
+                address: this.checkout.address,
+                city: this.checkout.city,
+                area: this.checkout.area,
+                postal: this.checkout.postal,
+                notes: this.checkout.notes,
+                products: JSON.stringify(cart),
+                total_amount: subtotal + this.shippingCharge,
+                payment_method: 'cod',
+            };
+            fetch('{{ route('shop.checkout.store') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify(payload),
+            }).then(r => {
+                if (!r.ok) throw r;
+                return r.json();
+            }).then(data => {
+                localStorage.removeItem('shop_cart');
+                window.location.href = '{{ route('shop.checkout.processing') }}' + '?order_no=' + data.order_no;
+            }).catch(r => {
+                r.json().then(err => {
+                    Swal.fire({ icon: 'error', title: 'Order Failed', text: Object.values(err.errors || {}).flat().join(', '), confirmButtonColor: '#E85D2C' });
+                }).catch(() => {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#E85D2C' });
+                });
+            });
+        },
+        saveAddress() {
+            @auth
+            if (this._saveTimer) clearTimeout(this._saveTimer);
+            this._saveTimer = setTimeout(() => {
+                fetch('{{ route('shop.checkout.address.save') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({
+                        name: this.checkout.name,
+                        phone: this.checkout.phone,
+                        address: this.checkout.address,
+                        city: this.checkout.city,
+                        area: this.checkout.area,
+                        postal: this.checkout.postal,
+                        notes: this.checkout.notes,
+                    }),
+                });
+            }, 800);
+            @endauth
+        },
+    }));
+});
+</script>
+@endpush
