@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('type', ['in', 'out']);
-            $table->enum('size', ['S', 'M', 'L', 'XL', 'XXL']);
+            $table->string('type', 5);
+            $table->string('size', 5);
             $table->integer('quantity')->unsigned();
             $table->integer('stock_before');
             $table->integer('stock_after');

@@ -13,7 +13,6 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('slug', 120)->unique();
             $table->foreignId('parent_id')->nullable()->constrained('website_categories')->nullOnDelete();
-            $table->index('parent_id');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->foreignId('created_by')->constrained('users');
