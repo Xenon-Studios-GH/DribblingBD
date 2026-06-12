@@ -97,7 +97,7 @@ $title = 'Player Edition';
                         </div>
                         @endif
                         <div class="absolute top-3 right-3 z-10">
-                            <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm" aria-label="Add to wishlist">
+                            <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG), image: @json($firstImage ? "storage/" . $firstImage->image_path : "", JSON_HEX_TAG) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm" aria-label="Add to wishlist">
                                 <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : 'text-gray-400'"></i>
                             </button>
                         </div>
