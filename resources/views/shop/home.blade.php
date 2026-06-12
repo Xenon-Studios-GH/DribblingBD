@@ -85,21 +85,29 @@
                     </div>
                 </div>
 
-                {{-- Right Image --}}
-                <div class="hidden sm:flex justify-center"
-                     x-data="heroAnimation()" x-init="init()"
+                {{-- Right Image Carousel --}}
+                <div class="hidden sm:flex justify-center relative"
+                     x-data="heroCarousel()" x-init="init()"
                      :class="loaded ? 'animate-slide-in-right' : 'opacity-0'">
-                    <div class="max-w-[500px] rounded-3xl overflow-hidden bg-gray-100 shadow-lg">
-                        @php $heroImage = $heroImages->first(); @endphp
-                        @if ($heroImage)
-                        <img src="{{ asset('storage/' . $heroImage) }}"
-                             alt="Premium Jersey"
-                             class="w-full h-full object-cover scale-110">
-                        @else
-                        <div class="w-full h-full flex items-center justify-center">
-                            <i class="fas fa-box w-16 h-16 text-gray-300"></i>
+                    <div class="max-w-[500px] rounded-3xl overflow-hidden bg-gray-100 shadow-lg relative aspect-[4/5]">
+                        <template x-if="images.length === 0">
+                            <div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-image w-16 h-16 text-gray-300"></i>
+                            </div>
+                        </template>
+                        <template x-for="(img, index) in images" :key="index">
+                            <img :src="img"
+                                 :alt="'Hero ' + (index + 1)"
+                                 class="w-full h-full object-cover scale-110 absolute inset-0 transition-opacity duration-700"
+                                 :class="index === current ? 'opacity-100 relative' : 'opacity-0'">
+                        </template>
+                        <div x-show="images.length > 0" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                            <template x-for="(img, index) in images" :key="'dot' + index">
+                                <button @click="goTo(index)"
+                                        class="w-2 h-2 rounded-full transition-all duration-300"
+                                        :class="index === current ? 'bg-white w-4' : 'bg-white/50'"></button>
+                            </template>
                         </div>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -304,3 +312,31 @@
 
     @include('shop.components.features')
 @endsection
+
+@push('scripts')
+<script>
+    function heroCarousel() {
+        return {
+            current: 0,
+            images: @json($heroImages->map(fn($p) => asset('storage/' . $p))),
+            interval: null,
+            init() {
+                if (this.images.length < 2) return;
+                this.interval = setInterval(() => {
+                    this.current = (this.current + 1) % this.images.length;
+                }, 4000);
+            },
+            goTo(index) {
+                this.current = index;
+                clearInterval(this.interval);
+                this.interval = setInterval(() => {
+                    this.current = (this.current + 1) % this.images.length;
+                }, 4000);
+            },
+            destroy() {
+                if (this.interval) clearInterval(this.interval);
+            }
+        }
+    }
+</script>
+@endpush

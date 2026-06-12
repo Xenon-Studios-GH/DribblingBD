@@ -121,7 +121,7 @@
 
         {{-- === SETTINGS TAB === --}}
         <div x-show="tab === 'settings'">
-            <form method="POST" action="{{ admin_route('website.customization.settings.update') }}">
+            <form method="POST" action="{{ admin_route('website.customization.settings.update') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-6">
 
@@ -157,6 +157,27 @@
                             <div>
                                 <label class="mb-1 block text-xs text-[#94A3B8]">CTA Link</label>
                                 <input name="hero_cta_link" value="{{ $settings['hero_cta_link'] ?? route('shop.products.index') }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                            </div>
+                        </div>
+                        <div class="mt-4 border-t border-[#232A36] pt-4">
+                            <p class="mb-3 text-xs font-medium text-[#94A3B8]">Hero Images (min 3 recommended — will auto-rotate)</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                @for ($i = 1; $i <= 3; $i++)
+                                <div>
+                                    <label class="mb-1 block text-xs text-[#94A3B8]">Image {{ $i }}</label>
+                                    @php $heroImg = $settings['hero_image_'.$i] ?? null; @endphp
+                                    @if ($heroImg)
+                                    <div class="mb-2 relative">
+                                        <img src="{{ asset('storage/' . $heroImg) }}" class="w-full h-28 object-cover rounded-lg border border-[#232A36]">
+                                        <label class="absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-[#EF4444]/80 text-white text-xs hover:bg-[#EF4444]">
+                                            <input type="checkbox" name="remove_hero_image_{{ $i }}" value="1" class="hidden">
+                                            <i class="fas fa-times"></i>
+                                        </label>
+                                    </div>
+                                    @endif
+                                    <input type="file" name="hero_image_{{ $i }}" accept="image/*" class="w-full text-xs text-[#94A3B8] file:mr-2 file:rounded-lg file:border-0 file:bg-[#3B82F6] file:px-3 file:py-1.5 file:text-xs file:text-white">
+                                </div>
+                                @endfor
                             </div>
                         </div>
                     </x-card>

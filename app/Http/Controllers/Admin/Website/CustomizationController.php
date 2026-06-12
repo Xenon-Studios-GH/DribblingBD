@@ -22,12 +22,12 @@ class CustomizationController extends Controller
 
     // === AJAX get single items ===
 
-    public function getFaq(Faq $faq)
+    public function getFaq(string $role, Faq $faq)
     {
         return response()->json($faq);
     }
 
-    public function getTestimonial(Testimonial $testimonial)
+    public function getTestimonial(string $role, Testimonial $testimonial)
     {
         return response()->json($testimonial);
     }
@@ -45,7 +45,7 @@ class CustomizationController extends Controller
 
         Faq::create($data + ['sort_order' => $data['sort_order'] ?? 0]);
 
-        return redirect(admin_route('website.customization', ['tab' => 'faqs']))
+        return redirect(admin_route('website.customization.index', ['tab' => 'faqs']))
             ->with('success', 'FAQ created.');
     }
 
@@ -61,14 +61,14 @@ class CustomizationController extends Controller
 
         $faq->update($data);
 
-        return redirect(admin_route('website.customization', ['tab' => 'faqs']))
+        return redirect(admin_route('website.customization.index', ['tab' => 'faqs']))
             ->with('success', 'FAQ updated.');
     }
 
-    public function destroyFaq(Faq $faq)
+    public function destroyFaq(string $role, Faq $faq)
     {
         $faq->delete();
-        return redirect(admin_route('website.customization', ['tab' => 'faqs']))
+        return redirect(admin_route('website.customization.index', ['tab' => 'faqs']))
             ->with('success', 'FAQ deleted.');
     }
 
@@ -91,7 +91,7 @@ class CustomizationController extends Controller
 
         Testimonial::create($data + ['sort_order' => $data['sort_order'] ?? 0]);
 
-        return redirect(admin_route('website.customization', ['tab' => 'testimonials']))
+        return redirect(admin_route('website.customization.index', ['tab' => 'testimonials']))
             ->with('success', 'Testimonial created.');
     }
 
@@ -116,17 +116,17 @@ class CustomizationController extends Controller
 
         $testimonial->update($data);
 
-        return redirect(admin_route('website.customization', ['tab' => 'testimonials']))
+        return redirect(admin_route('website.customization.index', ['tab' => 'testimonials']))
             ->with('success', 'Testimonial updated.');
     }
 
-    public function destroyTestimonial(Testimonial $testimonial)
+    public function destroyTestimonial(string $role, Testimonial $testimonial)
     {
         if ($testimonial->image) {
             Storage::disk('public')->delete($testimonial->image);
         }
         $testimonial->delete();
-        return redirect(admin_route('website.customization', ['tab' => 'testimonials']))
+        return redirect(admin_route('website.customization.index', ['tab' => 'testimonials']))
             ->with('success', 'Testimonial deleted.');
     }
 
@@ -164,7 +164,22 @@ class CustomizationController extends Controller
             }
         }
 
-        return redirect(admin_route('website.customization', ['tab' => 'settings']))
+        // Handle hero image uploads
+        for ($i = 1; $i <= 3; $i++) {
+            if ($request->hasFile("hero_image_{$i}")) {
+                $path = $request->file("hero_image_{$i}")->store('hero', 'public');
+                SiteSetting::setValue("hero_image_{$i}", $path);
+            }
+            if ($request->has("remove_hero_image_{$i}")) {
+                $existing = SiteSetting::getValue("hero_image_{$i}");
+                if ($existing) {
+                    Storage::disk('public')->delete($existing);
+                }
+                SiteSetting::setValue("hero_image_{$i}", null);
+            }
+        }
+
+        return redirect(admin_route('website.customization.index', ['tab' => 'settings']))
             ->with('success', 'Settings saved.');
     }
 }

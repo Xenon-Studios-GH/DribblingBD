@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\SiteSetting;
 use App\Models\Testimonial;
-use App\Models\WebsiteProjectImage;
 
 class HomeController extends Controller
 {
@@ -24,12 +24,13 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
-        $heroImages = WebsiteProjectImage::with('project.product')
-            ->whereHas('project.product', fn($q) => $q->where('is_active', true))
-            ->inRandomOrder()
-            ->take(1)
-            ->get()
-            ->pluck('image_path');
+        $heroImages = collect();
+        for ($i = 1; $i <= 3; $i++) {
+            $path = SiteSetting::getValue("hero_image_{$i}");
+            if ($path) {
+                $heroImages->push($path);
+            }
+        }
 
         $testimonials = Testimonial::where('is_active', true)->orderBy('sort_order')->get();
 
