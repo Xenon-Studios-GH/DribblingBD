@@ -23,4 +23,25 @@ class SiteSetting extends Model
         Cache::forget("site_setting_{$key}");
         Cache::forget('site_settings');
     }
+
+    public static function getShippingRates(): array
+    {
+        return [
+            'dhaka_rate' => (float) (self::getValue('shipping_dhaka_rate', '100')),
+            'outside_rate' => (float) (self::getValue('shipping_outside_rate', '120')),
+            'free_threshold' => (float) (self::getValue('shipping_free_threshold', '3000')),
+        ];
+    }
+
+    public static function calculateDeliveryCharge(float $totalAmount, ?string $city): float
+    {
+        $rates = self::getShippingRates();
+        if ($totalAmount >= $rates['free_threshold']) {
+            return 0;
+        }
+        if ($city && strtolower(trim($city)) === 'dhaka') {
+            return $rates['dhaka_rate'];
+        }
+        return $rates['outside_rate'];
+    }
 }
