@@ -21,9 +21,11 @@
             <button @click="tab = 'testimonials'" :class="tab === 'testimonials' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="whitespace-nowrap px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors">
                 <i class="fas fa-star mr-1.5"></i>Testimonials
             </button>
+            @if (Auth::user()->role === 'superadmin')
             <button @click="tab = 'settings'" :class="tab === 'settings' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="whitespace-nowrap px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors">
                 <i class="fas fa-cog mr-1.5"></i>Site Settings
             </button>
+            @endif
         </div>
 
         {{-- === FAQ TAB === --}}
@@ -120,6 +122,7 @@
         </div>
 
         {{-- === SETTINGS TAB === --}}
+        @if (Auth::user()->role === 'superadmin')
         <div x-show="tab === 'settings'">
             <form method="POST" action="{{ admin_route('website.customization.settings.update') }}" enctype="multipart/form-data">
                 @csrf
@@ -396,7 +399,7 @@
                                     <div>
                                         <label class="mb-1 block text-xs text-[#94A3B8]">Delivery Charge Heading</label>
                                         <input name="shipping_charge_heading" value="{{ $settings['shipping_charge_heading'] ?? 'Delivery Charge' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
-                                        <textarea name="shipping_charge_text" rows="2" class="mt-2 w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['shipping_charge_text'] ?? 'Free delivery on all orders <span class="font-bold">above ৳3,000</span>. A flat rate of ৳120 applies for orders below ৳3,000.' }}</textarea>
+                                        <textarea name="shipping_charge_text" rows="2" class="mt-2 w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">{{ $settings['shipping_charge_text'] ?? 'Free delivery on all orders <span class="font-bold">above ৳3,000</span>. A flat rate of ৳80 applies inside Dhaka and ৳130 outside Dhaka for orders below ৳3,000.' }}</textarea>
                                     </div>
                                     <div>
                                         <label class="mb-1 block text-xs text-[#94A3B8]">COD Heading</label>
@@ -943,11 +946,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="mb-1 block text-xs text-[#94A3B8]">Inside Dhaka (৳)</label>
-                                <input name="shipping_dhaka_rate" value="{{ $settings['shipping_dhaka_rate'] ?? '100' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                <input name="shipping_dhaka_rate" value="{{ $settings['shipping_dhaka_rate'] ?? '80' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
                             </div>
                             <div>
                                 <label class="mb-1 block text-xs text-[#94A3B8]">Outside Dhaka (৳)</label>
-                                <input name="shipping_outside_rate" value="{{ $settings['shipping_outside_rate'] ?? '120' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
+                                <input name="shipping_outside_rate" value="{{ $settings['shipping_outside_rate'] ?? '130' }}" class="w-full rounded-lg border border-[#232A36] bg-[#0F1117] px-3 py-2 text-xs text-[#E6EDF3]">
                             </div>
                             <div>
                                 <label class="mb-1 block text-xs text-[#94A3B8]">Free Shipping Above (৳)</label>
@@ -965,6 +968,7 @@
                 </div>
             </form>
         </div>
+        @endif
 
         {{-- === FAQ MODAL === --}}
         <div id="faq-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" @click.self="classList.add('hidden')">

@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\Website\ProjectController;
 use App\Http\Controllers\Admin\Website\CategoryController;
 use App\Http\Controllers\Admin\Website\CustomizationController;
 
-Route::middleware(['auth', 'role.match', 'role:superadmin,admin'])
+Route::middleware(['auth', 'role.match', 'role:superadmin,admin,staff'])
     ->prefix('controlPanel/{role}/website')
     ->name('website.')
     ->group(function () {
@@ -38,6 +38,6 @@ Route::middleware(['auth', 'role.match', 'role:superadmin,admin'])
         Route::post('testimonials/{testimonial}', [CustomizationController::class, 'updateTestimonial'])->name('testimonials.update');
         Route::delete('testimonials/{testimonial}', [CustomizationController::class, 'destroyTestimonial'])->name('testimonials.destroy');
 
-        Route::post('settings', [CustomizationController::class, 'updateSettings'])->name('settings.update');
+        Route::middleware('role:superadmin')->post('settings', [CustomizationController::class, 'updateSettings'])->name('settings.update');
     });
 });

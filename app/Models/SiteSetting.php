@@ -27,8 +27,8 @@ class SiteSetting extends Model
     public static function getShippingRates(): array
     {
         return [
-            'dhaka_rate' => (float) (self::getValue('shipping_dhaka_rate', '100')),
-            'outside_rate' => (float) (self::getValue('shipping_outside_rate', '120')),
+            'dhaka_rate' => (float) (self::getValue('shipping_dhaka_rate', '80')),
+            'outside_rate' => (float) (self::getValue('shipping_outside_rate', '130')),
             'free_threshold' => (float) (self::getValue('shipping_free_threshold', '3000')),
         ];
     }

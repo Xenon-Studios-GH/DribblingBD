@@ -89,8 +89,8 @@ class WebsiteCustomizationSeeder extends Seeder
             'banner_cta_link' => 'https://wa.me/8801641857715?text=Hi%2C%20I%20want%20to%20design%20a%20custom%20jersey',
 
             // Shipping settings
-            'shipping_dhaka_rate' => '100',
-            'shipping_outside_rate' => '120',
+            'shipping_dhaka_rate' => '80',
+            'shipping_outside_rate' => '130',
             'shipping_free_threshold' => '3000',
 
             // SEO settings
