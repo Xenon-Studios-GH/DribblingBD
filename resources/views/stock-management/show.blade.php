@@ -11,12 +11,14 @@
                 <h1 class="text-2xl font-bold text-[#E6EDF3]">{{ $product->product_name }}</h1>
                 <p class="mt-1 text-sm text-[#94A3B8] font-mono">{{ $product->product_code }}</p>
             </div>
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
             <button type="button" id="editProductBtn"
                 class="inline-flex h-11 items-center gap-1.5 rounded-xl bg-[#F59E0B]/10 px-4 py-2.5 text-sm font-medium text-[#F59E0B] hover:bg-[#F59E0B]/20"
                 data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-price="{{ $product->price }}">
                 <i class="fas fa-pencil-alt h-4 w-4"></i>
                 Edit
             </button>
+            @endif
         </div>
 
         <!-- KPI Cards -->

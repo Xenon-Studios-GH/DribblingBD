@@ -57,6 +57,7 @@
                     <option value="stock_low">Low to high stock</option>
                     <option value="stock_high">High to low stock</option>
                 </select>
+                @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
                 <a href="{{ admin_route('stock.in') }}" class="flex items-center gap-2 rounded-xl bg-[#22C55E] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#16A34A] shadow-lg shadow-[#22C55E]/20" aria-label="Stock In">
                     <i class="fas fa-plus h-4 w-4"></i>
                     <span class="hidden sm:inline">In</span>
@@ -65,6 +66,7 @@
                     <i class="fas fa-minus h-4 w-4"></i>
                     <span class="hidden sm:inline">Out</span>
                 </a>
+                @endif
             </div>
         </div>
 

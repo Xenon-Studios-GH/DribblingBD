@@ -1,6 +1,6 @@
 @props(['active' => 'dashboard'])
 
-<aside class="fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-[#232A36] bg-[#0F1117] transition-all duration-300 w-64 -translate-x-full md:translate-x-0" :class="{'translate-x-0': sidebarOpen}">
+<aside class="fixed left-0 top-0 z-40 flex h-screen flex-col overflow-hidden border-r border-[#232A36] bg-[#0F1117] transition-all duration-300 w-64 -translate-x-full md:translate-x-0" :class="{'translate-x-0': sidebarOpen}">
 
     <!-- Logo -->
     <div class="flex h-16 shrink-0 items-center gap-3 border-b border-[#232A36] px-4 lg:px-6">
@@ -12,11 +12,9 @@
 
     <!-- Navigation -->
     <nav class="flex-1 space-y-0.5 overflow-y-auto px-1.5 py-3 lg:px-2" aria-label="Main navigation">
-        @if (Auth::user()->role !== 'staff')
         <x-nav-link href="{{ admin_route('dashboard') }}" :active="request()->routeIs('dashboard')" icon="dashboard">
             Dashboard
         </x-nav-link>
-        @endif
 
         @if (Auth::user()->role === 'superadmin')
         <div class="my-2 border-t border-[#232A36]"></div>
@@ -56,11 +54,10 @@
             Add Product
         </x-nav-link>
         @endif
-        @if (Auth::user()->role !== 'staff')
         <x-nav-link href="{{ admin_route('stock.activity') }}" :active="request()->routeIs('stock.activity')" icon="activity">
             Recent Activity
         </x-nav-link>
-        @endif
+
         <div class="my-2 border-t border-[#232A36]"></div>
         <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Orders</p>
 
@@ -88,7 +85,6 @@
             Reports
         </x-nav-link>
         @endif
-        @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
         <div class="my-2 border-t border-[#232A36]"></div>
         <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Website</p>
 
@@ -104,7 +100,6 @@
         <x-nav-link href="{{ admin_route('website.customization.index') }}" :active="request()->routeIs('website.customization*')" icon="cog">
             Website Customization
         </x-nav-link>
-        @endif
     </nav>
 
 </aside>
