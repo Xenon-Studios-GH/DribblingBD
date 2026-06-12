@@ -55,7 +55,7 @@
                 <div class="space-y-4 text-sm text-gray-600 leading-relaxed">
                     <div>
                         <h3 class="font-semibold text-gray-900 mb-1">{{ $settings['shipping_charge_heading'] ?? 'Delivery Charge' }}</h3>
-                        <p>{{ $settings['shipping_charge_text'] ?? 'Free delivery on all orders <span class="font-bold">above ৳3,000</span>. A flat rate of ৳120 applies for orders below ৳3,000.' }}</p>
+                        <p>{{ $settings['shipping_charge_text'] ?? 'Free delivery on all orders above ৳3,000. A flat rate of ৳80 applies inside Dhaka and ৳130 outside Dhaka for orders below ৳3,000.' }}</p>
                     </div>
                     <div>
                         <h3 class="font-semibold text-gray-900 mb-1">{{ $settings['shipping_cod_heading'] ?? 'Cash on Delivery' }}</h3>

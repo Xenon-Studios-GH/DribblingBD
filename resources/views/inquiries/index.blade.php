@@ -1,4 +1,4 @@
-<x-layouts.app title="Customer Care Inquiries">
+<x-layouts.app title="Customer's Inquiries">
     <div>
         <div class="mb-6 flex items-center justify-between">
             <div>

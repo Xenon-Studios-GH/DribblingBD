@@ -245,8 +245,8 @@ document.addEventListener('alpine:init', () => {
             notes: @json($shipping['notes'] ?? ''),
         }).as('shop_checkout'),
         shippingRates: {
-            dhaka: {{ $settings['shipping_dhaka_rate'] ?? 100 }},
-            outside: {{ $settings['shipping_outside_rate'] ?? 120 }},
+            dhaka: {{ $settings['shipping_dhaka_rate'] ?? 80 }},
+            outside: {{ $settings['shipping_outside_rate'] ?? 130 }},
             freeThreshold: {{ $settings['shipping_free_threshold'] ?? 3000 }},
         },
         _saveTimer: null,
@@ -275,7 +275,7 @@ document.addEventListener('alpine:init', () => {
                 area: this.checkout.area,
                 postal: this.checkout.postal,
                 notes: this.checkout.notes,
-                products: JSON.stringify(cart),
+                products: JSON.stringify(cart.map(p => ({ ...p, product_id: p.id }))),
                 total_amount: subtotal + this.shippingCharge,
                 payment_method: 'cod',
             };
@@ -287,7 +287,6 @@ document.addEventListener('alpine:init', () => {
                 if (!r.ok) throw r;
                 return r.json();
             }).then(data => {
-                localStorage.removeItem('shop_cart');
                 window.location.href = '{{ route('shop.checkout.processing') }}' + '?order_no=' + data.order_no;
             }).catch(r => {
                 r.json().then(err => {

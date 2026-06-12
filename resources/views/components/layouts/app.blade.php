@@ -15,7 +15,7 @@
     @stack('meta')
 </head>
 
-<body class="min-h-screen bg-[#0F1117] text-[#E6EDF3] antialiased">
+    <body class="min-h-screen bg-[#0F1117] text-[#E6EDF3] antialiased">
     <div class="flex min-h-screen" x-data="appLayout()" @keydown.escape.window="sidebarOpen = false">
         <x-sidebar />
 

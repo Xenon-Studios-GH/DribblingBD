@@ -99,6 +99,7 @@ footer { display: none !important; }
     }, 1000);
     let cart = JSON.parse(localStorage.getItem('shop_cart') || '[]');
     let addr = JSON.parse(localStorage.getItem('shop_checkout') || '{}');
+    localStorage.removeItem('shop_cart');
     let items = cart.map((i, idx) =>
         (idx + 1) + '. ' + (i.name || 'Product') +
         ' — Size: ' + (i.size || 'N/A') +
@@ -107,8 +108,8 @@ footer { display: none !important; }
     ).join('%0A');
     let subtotal = cart.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0);
     let freeThreshold = {{ $settings['shipping_free_threshold'] ?? 3000 }};
-    let dhakaRate = {{ $settings['shipping_dhaka_rate'] ?? 100 }};
-    let outsideRate = {{ $settings['shipping_outside_rate'] ?? 120 }};
+    let dhakaRate = {{ $settings['shipping_dhaka_rate'] ?? 80 }};
+    let outsideRate = {{ $settings['shipping_outside_rate'] ?? 130 }};
     let shippingCharge = subtotal >= freeThreshold ? 0 : (addr.city?.toLowerCase() === 'dhaka' ? dhakaRate : outsideRate);
     let grandTotal = subtotal + shippingCharge;
     let msg =

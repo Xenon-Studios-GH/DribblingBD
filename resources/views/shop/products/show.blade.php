@@ -144,16 +144,14 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
 
             {{-- Additional info --}}
             <div class="mt-8 pt-6 border-t border-gray-200 space-y-3">
+
                 <div class="flex items-center gap-3 text-sm text-gray-600">
                     <i class="fas fa-check w-4 h-4 text-green-500"></i>
-                    @php
-                    $totalStock = $product->stocks->sum('quantity');
-                    @endphp
-                    @if ($totalStock > 0)
-                    {{ $settings['ui_in_stock'] ?? 'In Stock' }}
-                    @else
-                    <span class="text-red-500">{{ $settings['ui_out_of_stock'] ?? 'Out of Stock' }}</span>
-                    @endif
+                    Premium Quality
+                </div>
+                <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <i class="fas fa-tshirt w-4 h-4 text-green-500"></i>
+                    100% authentic fabric
                 </div>
                 <div class="flex items-center gap-3 text-sm text-gray-600">
                     <i class="fas fa-shopping-bag w-4 h-4 text-green-500"></i>

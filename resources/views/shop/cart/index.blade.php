@@ -61,15 +61,6 @@
                             <span>{{ $settings['ui_subtotal'] ?? 'Subtotal' }}</span>
                             <span class="font-medium text-gray-900">৳<span x-text="cartTotal"></span></span>
                         </div>
-                        <div class="flex justify-between text-sm text-gray-600 mt-2">
-                            <span>{{ $settings['ui_shipping'] ?? 'Shipping' }}</span>
-                            <span class="font-medium text-green-600">{{ $settings['ui_free'] ?? 'Free' }}</span>
-                        </div>
-                        <hr class="my-3 border-gray-200">
-                        <div class="flex justify-between text-base font-bold text-gray-900">
-                            <span>{{ $settings['ui_total'] ?? 'Total' }}</span>
-                            <span>৳<span x-text="cartTotal"></span></span>
-                        </div>
                         <a href="{{ route('shop.checkout.index') }}" class="mt-4 w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20 text-center block">
                             {{ $settings['ui_proceed_checkout'] ?? 'Proceed to Checkout' }}
                         </a>

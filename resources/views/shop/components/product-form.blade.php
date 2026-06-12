@@ -7,8 +7,9 @@
             @foreach ($productFormData['sizes'] as $size)
                 @php
                     $stock = $product->stocks->firstWhere('size', $size);
+                    $outOfStock = $stock ? $stock->quantity < 1 : true;
                 @endphp
-                <button @click='setSize(@json($size, JSON_HEX_TAG))' :class="selectedSize === '{{ $size }}' ? 'bg-[#E85D2C] text-white border-[#E85D2C]' : 'bg-white text-gray-700 border-gray-300 hover:border-[#E85D2C]'" class="px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors">
+                <button @click='setSize(@json($size, JSON_HEX_TAG))' :class="selectedSize === '{{ $size }}' ? 'bg-[#E85D2C] text-white border-[#E85D2C]' : 'bg-white text-gray-700 border-gray-300 hover:border-[#E85D2C]'" class="px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors {{ $outOfStock ? 'opacity-50' : '' }}">
                     {{ $size }}
                 </button>
             @endforeach
@@ -23,11 +24,11 @@
     <div class="mt-4">
         <label class="text-sm font-semibold text-gray-900">Quantity</label>
         <div class="flex items-center gap-3 mt-2">
-            <button @click="qty = Math.max(1, qty - 1)" :disabled="qty < 2" aria-label="Decrease quantity" class="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+            <button @click="qty = Math.max(1, qty - 1)" :disabled="qty < 2" aria-label="Decrease quantity" class="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed p-3">
                 <i class="fas fa-minus w-4 h-4"></i>
             </button>
             <span class="w-12 text-center text-lg font-semibold text-gray-900" x-text="qty"></span>
-            <button @click="qty = Math.min(100, qty + 1)" :disabled="qty >= 100" aria-label="Increase quantity" class="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+            <button @click="qty = Math.min(100, qty + 1)" :disabled="qty >= 100" aria-label="Increase quantity" class="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed p-3">
                 <i class="fas fa-plus w-4 h-4"></i>
             </button>
         </div>
