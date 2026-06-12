@@ -90,7 +90,7 @@ class AuthTest extends TestCase
 
     public function test_dashboard_requires_auth()
     {
-        $response = $this->get('/controlPanel/admin/dashboard');
+        $response = $this->get(route('dashboard', ['role' => 'admin']));
         $response->assertRedirect(route('authentication'));
     }
 

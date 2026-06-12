@@ -102,28 +102,55 @@ class StockFlowTest extends TestCase
             'size' => 'XL',
             'quantity' => 20,
         ]);
+        $confirmResponse->assertStatus(200);
         $confirmResponse->assertJson(['success' => true]);
 
-        $this->assertDatabaseHas('products', ['product_name' => 'Test Hoodie']);
+        $productId = $confirmResponse->json('product_id');
+        $this->assertIsInt($productId);
+        $this->assertDatabaseHas('products', [
+            'id' => $productId,
+            'product_name' => 'Test Hoodie',
+        ]);
+        $this->assertDatabaseHas('stocks', [
+            'product_id' => $productId,
+            'size' => 'XL',
+            'quantity' => 20,
+        ]);
     }
 
     public function test_stock_out_confirm()
     {
         $product = Product::factory()->create();
-        Stock::factory()->create(['product_id' => $product->id, 'size' => 'S', 'quantity' => 50]);
-
-        $response = $this->actingAs($this->user)->post(route('stock.out.confirm', ['role' => $this->user->role]), [
+        Stock::factory()->create([
             'product_id' => $product->id,
             'size' => 'S',
-            'quantity' => 10,
+            'quantity' => 50,
         ]);
+
+        $response = $this->actingAs($this->user)->post(
+            route('stock.out.confirm', ['role' => $this->user->role]),
+            [
+                'product_id' => $product->id,
+                'size' => 'S',
+                'quantity' => 10,
+            ]
+        );
 
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $this->assertDatabaseHas('stocks', [
             'product_id' => $product->id,
             'size' => 'S',
             'quantity' => 40,
+        ]);
+
+        $this->assertDatabaseHas('stock_transactions', [
+            'product_id' => $product->id,
+            'type' => 'out',
+            'quantity' => 10,
+            'stock_before' => 50,
+            'stock_after' => 40,
         ]);
     }
 
@@ -196,7 +223,7 @@ class StockFlowTest extends TestCase
 
         $response = $this->actingAs($this->user)->get(route('stock.activity', ['role' => $this->user->role]));
         $response->assertStatus(200);
-        $response->assertSee('Recent Activity');
+        $response->assertViewHas('transactions');
     }
 
     public function test_stock_out_confirm_returns_product_id()

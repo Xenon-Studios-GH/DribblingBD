@@ -152,9 +152,21 @@ class StockServiceTest extends TestCase
 
     public function test_transaction_audit_trail()
     {
-        Stock::factory()->create(['product_id' => $this->product->id, 'size' => 'M', 'quantity' => 100]);
+        Stock::factory()->create([
+            'product_id' => $this->product->id,
+            'size' => 'M',
+            'quantity' => 100,
+        ]);
+
         $this->stockService->stockOut($this->product, 'M', 30);
 
-        $this->assertEquals(1, StockTransaction::count());
+        $transaction = StockTransaction::first();
+        $this->assertNotNull($transaction);
+        $this->assertEquals($this->product->id, $transaction->product_id);
+        $this->assertEquals(\App\Enums\TransactionType::Out, $transaction->type);
+        $this->assertEquals(30, $transaction->quantity);
+        $this->assertEquals(100, $transaction->stock_before);
+        $this->assertEquals(70, $transaction->stock_after);
+        $this->assertNotNull($transaction->user_id);
     }
 }
