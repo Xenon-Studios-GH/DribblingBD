@@ -56,6 +56,7 @@ class CheckoutController extends Controller
             foreach ($products as $item) {
                 $stock = Stock::where('product_id', $item['product_id'] ?? 0)
                     ->where('size', $item['size'] ?? '')
+                    ->lockForUpdate()
                     ->first();
                 if (!$stock || $stock->quantity < (int) ($item['quantity'] ?? 0)) {
                     $hasOutOfStock = true;

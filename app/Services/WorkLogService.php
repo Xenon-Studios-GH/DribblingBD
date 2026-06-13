@@ -20,7 +20,7 @@ class WorkLogService
 
     public function getLogs(array $filters = [], int $perPage = 20)
     {
-        $query = WorkLog::with('user')->latest();
+        $query = WorkLog::with('user')->latest('created_at');
 
         if (!empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);

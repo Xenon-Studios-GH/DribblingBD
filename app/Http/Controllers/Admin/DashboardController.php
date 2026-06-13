@@ -39,8 +39,10 @@ class DashboardController extends Controller
         $totalOrders = Order::count();
 
         $lowStockProducts = Product::with('stocks')
-            ->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0)->where('quantity', '<=', 5))
-            ->orWhereDoesntHave('stocks')
+            ->where(function ($q) {
+                $q->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0)->where('quantity', '<=', 5))
+                  ->orWhereDoesntHave('stocks');
+            })
             ->count();
 
         $totalWebsiteProjects = WebsiteProject::count();

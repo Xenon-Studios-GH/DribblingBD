@@ -113,3 +113,13 @@ require __DIR__.'/website.php';
 require __DIR__.'/seo.php';
 
 require __DIR__.'/shop.php';
+
+// Serve storage files as fallback when the public/storage symlink is missing
+// (common on shared hosting). Only triggers when the file/symlink doesn't exist.
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    return response()->file($fullPath);
+})->where('path', '.*');

@@ -37,7 +37,7 @@ Route::name('shop.')->group(function () {
     Route::view('size-guide', 'shop.size-guide.index')->name('size-guide');
 
     Route::get('customer-care', [CustomerCareController::class, 'index'])->name('customer-care.index');
-    Route::post('customer-care', [CustomerCareController::class, 'store'])->name('customer-care.store');
+    Route::post('customer-care', [CustomerCareController::class, 'store'])->middleware('throttle:5,10')->name('customer-care.store');
 
     // Website projects
     Route::get('/projects', [WebsiteProjectController::class, 'index'])->name('projects');
