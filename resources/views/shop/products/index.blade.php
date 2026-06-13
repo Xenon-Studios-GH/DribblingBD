@@ -97,7 +97,7 @@ $title = 'Player Edition';
                         </div>
                         @endif
                         <div class="absolute top-3 right-3 z-10">
-                            <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG), image: @json($firstImage ? "storage/" . $firstImage->image_path : "", JSON_HEX_TAG) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm" aria-label="Add to wishlist">
+                            <button @click.stop='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG), image: @json($firstImage ? storage_url($firstImage->image_path) : "", JSON_HEX_TAG) })' class="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-sm" aria-label="Add to wishlist">
                                 <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : 'text-gray-400'"></i>
                             </button>
                         </div>
@@ -107,7 +107,7 @@ $title = 'Player Edition';
                         <div class="mt-1 flex items-center justify-between">
                             <span class="text-base font-bold text-[#E85D2C]">৳{{ number_format($product->price) }}</span>
                         </div>
-                        <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? 'storage/' . $firstImage->image_path : '', JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
+                        <button @click='added = true; addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: "M", quantity: 1, image: @json($firstImage ? storage_url($firstImage->image_path) : '', JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) }); setTimeout(() => added = false, 1500)'
                             class="mt-2.5 w-full py-2 rounded-xl text-xs font-semibold transition-all duration-300"
                             :class="added ? 'bg-green-500 text-white' : 'bg-[#E85D2C] text-white hover:bg-[#d14d1f]'">
                             <span x-show="!added">{{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}</span>

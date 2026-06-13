@@ -24,7 +24,7 @@
                         <template x-for="(item, index) in cart" :key="index">
                             <div class="flex items-center gap-4 p-4 rounded-2xl bg-white border border-gray-200">
                                 <template x-if="item.image">
-                                    <img :src="'/' + item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100">
+                                    <img :src="item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100">
                                 </template>
                                 <template x-if="!item.image">
                                     <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-[#E85D2C] to-[#F59E0B] flex-shrink-0"></div>

@@ -37,7 +37,7 @@
     {{-- Actions --}}
     <div class="mt-6 flex flex-col sm:flex-row gap-3">
         <div x-show="stockQty > 0 && qty <= stockQty" x-cloak class="flex-1">
-            <button @click='addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: selectedSize, quantity: qty, image: @json($product->project?->images->first()?->image_path ? 'storage/' . $product->project->images->first()->image_path : '', JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) })' class="w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20">
+            <button @click='addToCart({ id: {{ $product->id }}, name: @json($product->product_name, JSON_HEX_TAG), price: {{ $product->price }}, size: selectedSize, quantity: qty, image: @json($product->project?->images->first()?->image_path ? storage_url($product->project->images->first()->image_path) : '', JSON_HEX_TAG), code: @json($product->product_code, JSON_HEX_TAG), slug: @json($product->slug, JSON_HEX_TAG) })' class="w-full px-6 py-3 rounded-xl bg-[#E85D2C] text-white font-semibold text-sm hover:bg-[#d14d1f] transition-colors shadow-lg shadow-[#E85D2C]/20">
                 {{ $settings['ui_add_to_cart'] ?? 'Add to Cart' }}
             </button>
         </div>
@@ -47,7 +47,7 @@
                 {{ $settings['ui_contact_stock'] ?? 'Contact for Stock' }}
             </a>
         </div>
-        <button @click='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG), image: @json($product->project?->images->first()?->image_path ? "storage/" . $product->project->images->first()->image_path : "", JSON_HEX_TAG) })' class="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold text-sm hover:border-red-300 hover:text-red-500 transition-colors flex items-center justify-center gap-2" aria-label="Add to wishlist">
+        <button @click='toggleWishlist({ id: {{ $product->id }}, code: @json($product->product_code, JSON_HEX_TAG), name: @json($product->product_name, JSON_HEX_TAG), image: @json($product->project?->images->first()?->image_path ? storage_url($product->project->images->first()->image_path) : "", JSON_HEX_TAG) })' class="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold text-sm hover:border-red-300 hover:text-red-500 transition-colors flex items-center justify-center gap-2" aria-label="Add to wishlist">
             <i class="fas fa-heart w-4 h-4" :class="isInWishlist({{ $product->id }}) ? 'text-red-500' : ''"></i>
             <span x-text="isInWishlist({{ $product->id }}) ? '{{ $settings['ui_saved'] ?? 'Saved' }}' : '{{ $settings['ui_save'] ?? 'Save' }}'"></span>
         </button>

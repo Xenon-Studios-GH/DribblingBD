@@ -25,7 +25,7 @@
                 <template x-for="(item, idx) in items" :key="item.id ?? item">
                     <div class="rounded-2xl bg-white border border-gray-200 overflow-hidden group">
                         <a :href="'/shop/' + (item.code ?? item.id)" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
-                            <img x-show="item.image" :src="'/' + item.image" :alt="item.name" class="absolute inset-0 w-full h-full object-cover">
+                            <img x-show="item.image" :src="item.image" :alt="item.name" class="absolute inset-0 w-full h-full object-cover">
                             <div x-show="!item.image" class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-box w-16 h-16 text-gray-300"></i>
                             </div>

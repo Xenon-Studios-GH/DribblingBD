@@ -26,10 +26,6 @@ if (!function_exists('storage_url')) {
             return '';
         }
 
-        if (file_exists(public_path('storage'))) {
-            return asset('storage/' . $path);
-        }
-
         return route('storage.serve', ['path' => $path], false);
     }
 }

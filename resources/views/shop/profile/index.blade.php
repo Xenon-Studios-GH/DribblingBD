@@ -328,7 +328,7 @@
                                                 <div class="relative group rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all overflow-hidden bg-white">
                                                     <div class="flex gap-4 p-5">
                                                         <template x-if="item.image">
-                                                            <img :src="'/' + item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100">
+                                                            <img :src="item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100">
                                                         </template>
                                                         <template x-if="!item.image">
                                                             <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center flex-shrink-0">

@@ -103,7 +103,7 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                         <template x-for="(item, index) in cart" :key="index">
                             <div class="flex items-center gap-5 px-6 sm:px-8 py-5 hover:bg-gray-50/50 transition-colors">
                                 <template x-if="item.image">
-                                    <img :src="'/' + item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100 shadow-sm">
+                                    <img :src="item.image" :alt="item.name" class="w-20 h-24 rounded-xl object-cover flex-shrink-0 bg-gray-100 shadow-sm">
                                 </template>
                                 <template x-if="!item.image">
                                     <div class="w-20 h-24 rounded-xl bg-gradient-to-br from-[#E85D2C]/10 to-orange-50 flex items-center justify-center flex-shrink-0 shadow-sm">
