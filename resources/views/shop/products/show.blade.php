@@ -80,7 +80,7 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
             <div x-data="galleryFlip()" class="w-full">
                 <div class="gallery-main shadow-xl">
                     <template x-for="(img, i) in images" :key="i">
-                        <img :src="'/storage/' + img" 
+                        <img :src="img" 
                              x-show="activeIndex === i"
                              class="absolute inset-0">
                     </template>
@@ -198,7 +198,7 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
         function galleryFlip() {
             return {
                 activeIndex: 0,
-                images: @json($images->pluck('image_path')),
+                images: @json($images->pluck('image_path')->map(fn($p) => storage_url($p))),
             };
         }
     </script>

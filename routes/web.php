@@ -114,6 +114,9 @@ require __DIR__.'/seo.php';
 
 require __DIR__.'/shop.php';
 
+// Redirect old /storage/ URLs to /uploads/ (stale localStorage cart/wishlist data, cached pages)
+Route::redirect('/storage/{path}', '/uploads/{path}', 301)->where('path', '.*');
+
 // Serve storage files via Laravel (bypasses shared hosting symlink/permission issues)
 Route::get('/uploads/{path}', function (string $path) {
     $fullPath = storage_path('app/public/' . $path);
