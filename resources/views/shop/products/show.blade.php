@@ -93,7 +93,7 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
                     @foreach ($images as $i => $img)
                     <button @click="activeIndex = {{ $i }}" 
                             :class="{ 'active': activeIndex === {{ $i }} }">
-                        <img src="{{ asset('storage/' . $img->image_path) }}" alt="">
+                        <img src="{{ storage_url($img->image_path) }}" alt="">
                     </button>
                     @endforeach
                 </div>
@@ -102,7 +102,7 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
             @elseif ($images->isNotEmpty())
             <div class="rounded-2xl overflow-hidden shadow-xl bg-gray-100">
                 <div class="aspect-[4/5] relative">
-                    <img src="{{ asset('storage/' . $images[0]->image_path) }}" class="absolute inset-0 w-full h-full object-cover">
+                    <img src="{{ storage_url($images[0]->image_path) }}" class="absolute inset-0 w-full h-full object-cover">
                     <div class="absolute top-3 left-3 z-10">
                         <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 text-gray-800">{{ $product->product_code }}</span>
                     </div>
@@ -176,7 +176,7 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
                 <a href="{{ route('shop.products.show', [$rel->product_code, $rel->slug]) }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-br from-[#E85D2C]/10 to-[#F59E0B]/10 group-hover:scale-105 transition-transform duration-500"></div>
                     @if ($relImage)
-                    <img src="{{ asset('storage/' . $relImage->image_path) }}" alt="{{ $rel->product_name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <img src="{{ storage_url($relImage->image_path) }}" alt="{{ $rel->product_name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     @else
                     <div class="absolute inset-0 flex items-center justify-center">
                         <i class="fas fa-box w-12 h-12 text-gray-300"></i>

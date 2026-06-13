@@ -90,7 +90,7 @@ $title = 'Player Edition';
                             <span class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-white/90 text-gray-700">{{ $product->product_code }}</span>
                         </div>
                         @if ($firstImage)
-                        <img src="{{ asset('storage/' . $firstImage->image_path) }}" alt="{{ $product->product_name }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img src="{{ storage_url($firstImage->image_path) }}" alt="{{ $product->product_name }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         @else
                         <div class="absolute inset-0 flex items-center justify-center">
                             <i class="fas fa-box w-16 h-16 text-gray-300 group-hover:text-gray-400 transition-colors"></i>

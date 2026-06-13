@@ -19,6 +19,21 @@ if (!function_exists('shop_project_url')) {
     }
 }
 
+if (!function_exists('storage_url')) {
+    function storage_url(?string $path): string
+    {
+        if (!$path) {
+            return '';
+        }
+
+        if (file_exists(public_path('storage'))) {
+            return asset('storage/' . $path);
+        }
+
+        return route('storage.serve', ['path' => $path], false);
+    }
+}
+
 if (!function_exists('admin_route')) {
     function admin_route(string $name, $parameters = [], bool $absolute = true): string
     {

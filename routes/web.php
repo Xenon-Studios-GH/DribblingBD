@@ -118,8 +118,12 @@ require __DIR__.'/shop.php';
 // (common on shared hosting). Only triggers when the file/symlink doesn't exist.
 Route::get('/storage/{path}', function (string $path) {
     $fullPath = storage_path('app/public/' . $path);
+
     if (!file_exists($fullPath)) {
         abort(404);
     }
-    return response()->file($fullPath);
-})->where('path', '.*');
+
+    return response()->file($fullPath, [
+        'Cache-Control' => 'public, max-age=31536000, immutable',
+    ]);
+})->where('path', '.*')->name('storage.serve');

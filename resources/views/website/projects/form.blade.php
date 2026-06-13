@@ -20,7 +20,7 @@
                              x-show="!removedSlots.includes({{ $i }})">
                             @if($img)
                             <div class="relative mb-2">
-                                <img src="{{ asset('storage/' . $img->image_path) }}" class="w-full h-32 object-cover rounded-lg">
+                                <img src="{{ storage_url($img->image_path) }}" class="w-full h-32 object-cover rounded-lg">
                                 <button type="button" @click="markRemoved({{ $i }})" class="absolute top-1 right-1 bg-[#EF4444] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-[#DC2626]">
                                     <i class="fas fa-times"></i>
                                 </button>

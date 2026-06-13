@@ -55,9 +55,9 @@
                 @if ($inquiry->image)
                 <x-card>
                     <h3 class="mb-4 text-sm font-semibold text-[#E6EDF3]">Attached Image</h3>
-                    <a href="{{ asset('storage/' . $inquiry->image) }}" target="_blank"
+                    <a href="{{ storage_url($inquiry->image) }}" target="_blank"
                        class="block overflow-hidden rounded-lg border border-[#232A36]">
-                        <img src="{{ asset('storage/' . $inquiry->image) }}" alt="Inquiry image"
+                        <img src="{{ storage_url($inquiry->image) }}" alt="Inquiry image"
                              class="h-auto w-full object-cover">
                     </a>
                 </x-card>

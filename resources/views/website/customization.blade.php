@@ -112,7 +112,7 @@
                     </div>
                     <p class="text-sm text-[#94A3B8] leading-relaxed line-clamp-3">{{ $t->content }}</p>
                     @if ($t->image)
-                    <div class="mt-2"><img src="{{ asset('storage/' . $t->image) }}" class="h-12 w-12 rounded-lg object-cover"></div>
+                    <div class="mt-2"><img src="{{ storage_url($t->image) }}" class="h-12 w-12 rounded-lg object-cover"></div>
                     @endif
                 </div>
                 @empty
@@ -171,7 +171,7 @@
                                     @php $heroImg = $settings['hero_image_'.$i] ?? null; @endphp
                                     @if ($heroImg)
                                     <div class="mb-2 relative">
-                                        <img src="{{ asset('storage/' . $heroImg) }}" class="w-full h-28 object-cover rounded-lg border border-[#232A36]">
+                                        <img src="{{ storage_url($heroImg) }}" class="w-full h-28 object-cover rounded-lg border border-[#232A36]">
                                         <label class="absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-[#EF4444]/80 text-white text-xs hover:bg-[#EF4444]">
                                             <input type="checkbox" name="remove_hero_image_{{ $i }}" value="1" class="hidden">
                                             <i class="fas fa-times"></i>
