@@ -92,7 +92,9 @@ footer { display: none !important; }
 @endpush
 
 @section('content')
-<div x-data="{ countdown: 3, showConfirm: false, whatsappUrl: '#' }" x-init="
+<div x-data="{ countdown: 3, showConfirm: false, orderNo: '', whatsappUrl: '#' }" x-init="
+    let params = new URLSearchParams(window.location.search);
+    orderNo = params.get('order_no') || '';
     let timer = setInterval(() => {
         if (countdown > 1) { countdown--; }
         else { clearInterval(timer); showConfirm = true; }
@@ -114,6 +116,8 @@ footer { display: none !important; }
     let grandTotal = subtotal + shippingCharge;
     let msg =
         'Hello Vaiya, I need This Product...%0A%0A' +
+        '━━━ *Order* ━━━%0A' +
+        'Order No: ' + (orderNo || 'N/A') + '%0A%0A' +
         '━━━ *Items* ━━━%0A' + items + '%0A%0A' +
         '━━━ *Payment* ━━━%0A' +
         'Subtotal: ৳' + subtotal.toLocaleString() + '%0A' +
@@ -126,6 +130,7 @@ footer { display: none !important; }
         'City: ' + (addr.city || 'N/A') + '%0A' +
         'Area: ' + (addr.area || 'N/A') + '%0A' +
         'Postal: ' + (addr.postal || 'N/A') + '%0A' +
+        'Notes: ' + (addr.notes || 'N/A') + '%0A' +
         'Shipping Address: ' + (addr.address || 'N/A');
     whatsappUrl = 'https://wa.me/{{ config('shop.whatsapp_number') }}?text=' + msg;
 " class="processing-screen">
@@ -148,6 +153,7 @@ footer { display: none !important; }
                 <i class="fas fa-check text-3xl text-green-500"></i>
             </div>
             <h3 class="text-xl font-bold text-gray-900 mb-3">{{ $settings['ui_order_handed_over'] ?? 'Order Handed Over!' }}</h3>
+            <p class="text-sm font-semibold text-[#E85D2C] mb-4" x-text="'Order #' + orderNo"></p>
             <p class="text-sm text-gray-600 leading-relaxed mb-6">
                 {{ $settings['ui_order_handed_over_desc'] ?? 'Your order is handed over to the Dribbling BD WhatsApp team.<br>Please confirm your order via WhatsApp. Thank you for shopping with us!' }}
             </p>

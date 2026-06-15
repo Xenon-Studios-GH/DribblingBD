@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\SiteSetting;
-use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +38,9 @@ class CheckoutController extends Controller
 
         $products = json_decode($validated['products'], true);
         if (!is_array($products) || empty($products)) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['errors' => ['products' => ['At least one product is required.']]], 422);
+            }
             return back()->withErrors(['products' => 'At least one product is required.'])->withInput();
         }
 
@@ -47,22 +49,14 @@ class CheckoutController extends Controller
             $size = $item['size'] ?? '';
             $qty = (int) ($item['quantity'] ?? 0);
             if (!$productId || !$size || $qty <= 0) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['errors' => ["products.$i" => ['Each product must have a valid product_id, size, and quantity.']]], 422);
+                }
                 return back()->withErrors(["products.$i" => 'Each product must have a valid product_id, size, and quantity.'])->withInput();
             }
         }
 
         $order = DB::transaction(function () use ($validated, $products) {
-            $hasOutOfStock = false;
-            foreach ($products as $item) {
-                $stock = Stock::where('product_id', $item['product_id'] ?? 0)
-                    ->where('size', $item['size'] ?? '')
-                    ->lockForUpdate()
-                    ->first();
-                if (!$stock || $stock->quantity < (int) ($item['quantity'] ?? 0)) {
-                    $hasOutOfStock = true;
-                }
-            }
-
             $fullAddress = trim(implode(', ', array_filter([
                 $validated['address'],
                 $validated['city'],
@@ -85,6 +79,7 @@ class CheckoutController extends Controller
                 'total_amount' => (float) $validated['total_amount'] + $deliveryCharge,
                 'delivery_charge' => $deliveryCharge,
                 'payment_method' => $validated['payment_method'],
+                'notes' => $validated['notes'] ?? null,
                 'status' => 'pending',
                 'created_by' => Auth::id(),
             ]);

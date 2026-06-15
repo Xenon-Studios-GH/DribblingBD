@@ -58,7 +58,7 @@ class SeoController extends Controller
     {
         $seoMeta->load('seoable');
 
-        $editableFields = $this->getEditableFields($seoMeta->seoable_type);
+        $editableFields = $this->getEditableFields();
 
         return view('seo.edit', compact('seoMeta', 'editableFields'));
     }
@@ -143,7 +143,7 @@ class SeoController extends Controller
             ->with('success', 'Auto SEO generation completed. Check the command output for details.');
     }
 
-    protected function getEditableFields(string $seoableType): array
+    protected function getEditableFields(): array
     {
         $base = [
             'meta_title' => ['label' => 'Meta Title', 'type' => 'text', 'max' => 70],

@@ -289,11 +289,28 @@ document.addEventListener('alpine:init', () => {
             }).then(data => {
                 window.location.href = '{{ route('shop.checkout.processing') }}' + '?order_no=' + data.order_no;
             }).catch(r => {
-                r.json().then(err => {
-                    Swal.fire({ icon: 'error', title: 'Order Failed', text: Object.values(err.errors || {}).flat().join(', '), confirmButtonColor: '#E85D2C' });
-                }).catch(() => {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#E85D2C' });
-                });
+                if (r.status === 401) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Session Expired',
+                        text: 'Your session has expired. Please log in again to place your order.',
+                        confirmButtonText: 'Log In',
+                        confirmButtonColor: '#E85D2C',
+                        showCancelButton: true,
+                        cancelButtonText: 'Later',
+                        reverseButtons: true,
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            window.location.href = '{{ route('authentication') }}';
+                        }
+                    });
+                } else {
+                    r.json().then(err => {
+                        Swal.fire({ icon: 'error', title: 'Order Failed', text: Object.values(err.errors || {}).flat().join(', '), confirmButtonColor: '#E85D2C' });
+                    }).catch(() => {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#E85D2C' });
+                    });
+                }
             });
         },
         saveAddress() {
