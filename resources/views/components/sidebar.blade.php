@@ -4,10 +4,7 @@
 
     <!-- Logo -->
     <div class="flex h-16 shrink-0 items-center gap-3 border-b border-[#232A36] px-4 lg:px-6">
-        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3B82F6]">
-            <i class="fas fa-cubes text-2xl text-white"></i>
-        </div>
-        <span class="text-lg font-bold text-[#E6EDF3]">Dribbling Stock</span>
+        <span class="text-md font-bold text-[#E6EDF3]">Dribbling Command Panel</span>
     </div>
 
     <!-- Navigation -->
@@ -41,6 +38,15 @@
         <x-nav-link href="{{ admin_route('seo.index') }}" :active="request()->routeIs('seo*')" icon="seo">
             SEO Management
         </x-nav-link>
+        <x-nav-link href="{{ admin_route('seo.dashboard') }}" :active="request()->routeIs('seo.dashboard')" icon="chart">
+            SEO Dashboard
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('seo.redirects.index') }}" :active="request()->routeIs('seo.redirects.*')" icon="activity">
+            Redirects
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('seo.settings') }}" :active="request()->routeIs('seo.settings*')" icon="cog">
+            SEO Settings
+        </x-nav-link>
         @endif
 
         <div class="my-2 border-t border-[#232A36]"></div>
@@ -56,6 +62,9 @@
         @endif
         <x-nav-link href="{{ admin_route('stock.activity') }}" :active="request()->routeIs('stock.activity')" icon="activity">
             Recent Activity
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('stock.report') }}" :active="request()->routeIs('stock.report*')" icon="report">
+            Stock Report
         </x-nav-link>
 
         <div class="my-2 border-t border-[#232A36]"></div>
@@ -83,6 +92,20 @@
         </x-nav-link>
         <x-nav-link href="{{ admin_route('finance.reports') }}" :active="request()->routeIs('finance.reports')" icon="report">
             Reports
+        </x-nav-link>
+        @endif
+        @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+        <div class="my-2 border-t border-[#232A36]"></div>
+        <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Tracking</p>
+
+        <x-nav-link href="{{ admin_route('tracking.index') }}" :active="request()->routeIs('tracking.index') || request()->routeIs('tracking.create') || request()->routeIs('tracking.edit')" icon="chart">
+            Pixel Manager
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('tracking.events') }}" :active="request()->routeIs('tracking.events*')" icon="activity">
+            Event Log
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('tracking.diagnostics') }}" :active="request()->routeIs('tracking.diagnostics*')" icon="cog">
+            Diagnostics
         </x-nav-link>
         @endif
         <div class="my-2 border-t border-[#232A36]"></div>

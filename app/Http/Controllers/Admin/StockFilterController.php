@@ -16,12 +16,19 @@ class StockFilterController extends Controller
 
         $filter = $request->get('filter');
         $queryText = $request->get('q');
+        $size = $request->get('size');
 
         if ($queryText) {
             $safeQueryText = str_replace(['%', '_'], ['\\%', '\\_'], $queryText);
             $query->where(function ($q) use ($safeQueryText) {
                 $q->where('product_code', 'like', "%{$safeQueryText}%")
                   ->orWhere('product_name', 'like', "%{$safeQueryText}%");
+            });
+        }
+
+        if ($size) {
+            $query->whereHas('stocks', function ($q) use ($size) {
+                $q->where('size', $size)->where('quantity', '>', 0);
             });
         }
 

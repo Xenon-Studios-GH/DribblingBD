@@ -57,6 +57,14 @@
                     <option value="stock_low">Low to high stock</option>
                     <option value="stock_high">High to low stock</option>
                 </select>
+                <select id="sizeFilter" class="h-11 rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
+                    <option value="">All Sizes</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                </select>
                 @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
                 <a href="{{ admin_route('stock.in') }}" class="flex items-center gap-2 rounded-xl bg-[#22C55E] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#16A34A] shadow-lg shadow-[#22C55E]/20" aria-label="Stock In">
                     <i class="fas fa-plus h-4 w-4"></i>
@@ -84,11 +92,13 @@
             const searchInput = document.getElementById('stockSearch');
             const tableContainer = document.getElementById('stockTableContainer');
             const filterSelect = document.getElementById('stockFilter');
+            const sizeFilter = document.getElementById('sizeFilter');
 
             function getCurrentParams() {
                 const q = encodeURIComponent(searchInput.value);
                 const filter = filterSelect.value;
-                return new URLSearchParams({ q, filter });
+                const size = sizeFilter.value;
+                return new URLSearchParams({ q, filter, size });
             }
 
             function loadTable(params) {
@@ -108,6 +118,10 @@
             });
 
             filterSelect.addEventListener('change', function() {
+                loadTable(getCurrentParams());
+            });
+
+            sizeFilter.addEventListener('change', function() {
                 loadTable(getCurrentParams());
             });
 

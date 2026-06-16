@@ -5,6 +5,7 @@
                 <tr class="border-b border-[#232A36]">
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Product ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Product</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Sizes</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Stock</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Price</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Updated</th>
@@ -20,6 +21,16 @@
                 <tr class="transition-colors hover:bg-[#1C2333] cursor-pointer" onclick="window.location='{{ admin_route('stock.management.show', $product) }}'">
                     <td class="whitespace-nowrap px-6 py-4 font-mono text-xs text-[#94A3B8]">{{ $product->product_code }}</td>
                     <td class="whitespace-nowrap px-6 py-4 font-medium text-[#E6EDF3]">{{ $product->product_name }}</td>
+                    @php $sizesInStock = $product->stocks->where('quantity', '>', 0)->pluck('size')->sort()->values(); @endphp
+                    <td class="whitespace-nowrap px-6 py-4">
+                        <div class="flex flex-wrap gap-1">
+                            @foreach (\App\Models\Stock::SIZES as $s)
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium {{ $sizesInStock->contains($s) ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-[#232A36] text-[#6B7280]' }}">
+                                    {{ $s }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </td>
                     <td class="whitespace-nowrap px-6 py-4 font-medium {{ $totalStock > 5 ? 'text-[#22C55E]' : ($totalStock > 0 ? 'text-[#F59E0B]' : 'text-[#EF4444]') }}">
                         {{ number_format($totalStock) }}
                     </td>
@@ -36,7 +47,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-sm text-[#94A3B8]">No products found.</td>
+                    <td colspan="7" class="px-6 py-12 text-center text-sm text-[#94A3B8]">No products found.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -64,6 +75,14 @@
             <span class="text-sm font-medium {{ $totalStock > 5 ? 'text-[#22C55E]' : ($totalStock > 0 ? 'text-[#F59E0B]' : 'text-[#EF4444]') }}">
                 {{ number_format($totalStock) }}
             </span>
+        </div>
+        @php $sizesInStock = $product->stocks->where('quantity', '>', 0)->pluck('size')->sort()->values(); @endphp
+        <div class="flex flex-wrap gap-1">
+            @foreach (\App\Models\Stock::SIZES as $s)
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium {{ $sizesInStock->contains($s) ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-[#232A36] text-[#6B7280]' }}">
+                    {{ $s }}
+                </span>
+            @endforeach
         </div>
         <div class="flex items-center justify-between text-sm">
             <span class="text-[#94A3B8]">Price</span>
