@@ -63,9 +63,6 @@
         <x-nav-link href="{{ admin_route('stock.activity') }}" :active="request()->routeIs('stock.activity')" icon="activity">
             Recent Activity
         </x-nav-link>
-        <x-nav-link href="{{ admin_route('stock.report') }}" :active="request()->routeIs('stock.report*')" icon="report">
-            Stock Report
-        </x-nav-link>
 
         <div class="my-2 border-t border-[#232A36]"></div>
         <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Orders</p>
