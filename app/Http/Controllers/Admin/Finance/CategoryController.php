@@ -38,12 +38,12 @@ class CategoryController extends Controller
         $validated['created_by'] = Auth::id();
         $category = FinanceCategory::create($validated);
 
-        $this->workLogService->log('Category Created', 'finance', $category->id, "{$category->type} category '{$category->name}' created");
+        $this->workLogService->log('Category Created', 'finance', $category->id, "{$category->type->value} category '{$category->name}' created");
 
         $this->notifications->notifyAdmins(
             'category.created',
             'New Category',
-            Auth::user()->name . ' created a new ' . $category->type . ' category: ' . $category->name,
+            Auth::user()->name . ' created a new ' . $category->type->value . ' category: ' . $category->name,
             'category',
             null
         );
@@ -51,7 +51,7 @@ class CategoryController extends Controller
         return redirect(admin_route('finance.categories'))->with('success', 'Category created.');
     }
 
-    public function update(Request $request, string $role, FinanceCategory $category)
+    public function update(Request $request, FinanceCategory $category)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
@@ -67,7 +67,7 @@ class CategoryController extends Controller
         return redirect(admin_route('finance.categories'))->with('success', 'Category updated.');
     }
 
-    public function destroy(string $role, FinanceCategory $category)
+    public function destroy(FinanceCategory $category)
     {
         $name = $category->name;
         $category->transactions()->update(['category_id' => null]);

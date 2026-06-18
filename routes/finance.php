@@ -6,13 +6,14 @@ use App\Http\Controllers\Admin\Finance\TransactionController;
 use App\Http\Controllers\Admin\Finance\CategoryController;
 use App\Http\Controllers\Admin\Finance\ReportController;
 use App\Http\Controllers\Admin\Finance\NotificationController;
+use App\Http\Controllers\Admin\Finance\ChartCustomizationController;
 
-Route::middleware(['auth', 'role.match', 'role:superadmin,admin'])
-    ->prefix('controlPanel/{role}/finance')
+Route::middleware(['auth', 'role:superadmin,admin'])
+    ->prefix('controlPanel/finance')
     ->name('finance.')
     ->group(function () {
 
-    Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::get('transactions', [TransactionController::class, 'index'])->name('transactions');
     Route::get('transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
@@ -27,12 +28,17 @@ Route::middleware(['auth', 'role.match', 'role:superadmin,admin'])
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     Route::get('reports', ReportController::class)->name('reports');
+    Route::get('reports/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
 
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+
+    Route::get('customize-charts', [ChartCustomizationController::class, 'index'])->name('customize-charts');
+    Route::post('customize-charts', [ChartCustomizationController::class, 'update'])->name('customize-charts.update');
+    Route::post('customize-charts/reset', [ChartCustomizationController::class, 'reset'])->name('customize-charts.reset');
 });
 
-Route::get('controlPanel/{role}/finance/notifications/unread-count', [NotificationController::class, 'unreadCount'])
-    ->middleware(['auth', 'role.match', 'role:superadmin,admin'])
+Route::get('controlPanel/finance/notifications/unread-count', [NotificationController::class, 'unreadCount'])
+    ->middleware(['auth', 'role:superadmin,admin'])
     ->name('finance.notifications.unread');

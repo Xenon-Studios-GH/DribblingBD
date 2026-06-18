@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin\Finance;
 use App\Http\Controllers\Controller;
 use App\Models\FinanceCategory;
 use App\Models\FinanceTransaction;
+use App\Services\ReportService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -26,6 +28,52 @@ class ReportController extends Controller
             compact('chartType', 'dateFrom', 'dateTo'),
             $data
         ));
+    }
+
+    public function exportPdf(Request $request, ReportService $reportService)
+    {
+        set_time_limit(300);
+        ini_set('memory_limit', '512M');
+        $period = $request->get('period', 'month');
+        \Illuminate\Support\Facades\Log::info("Exporting PDF for period: " . $period);
+        
+        $dateFrom = match ($period) {
+            'day' => now()->startOfDay(),
+            'week' => now()->subWeek()->startOfDay(),
+            'month' => now()->subMonth()->startOfDay(),
+            'year' => now()->subYear()->startOfDay(),
+            default => now()->subMonth()->startOfDay(),
+        };
+
+        $incomeByCategory = DB::table('finance_transactions')
+            ->selectRaw('COALESCE(fc.name, "Uncategorized") as name, SUM(amount) as total')
+            ->leftJoin('finance_categories as fc', 'finance_transactions.category_id', '=', 'fc.id')
+            ->where('finance_transactions.type', 'income')
+            ->where('finance_transactions.date', '>=', $dateFrom)
+            ->whereNull('finance_transactions.deleted_at')
+            ->groupBy('fc.name')
+            ->orderByDesc('total')
+            ->get();
+
+        $expenseByCategory = DB::table('finance_transactions')
+            ->selectRaw('COALESCE(fc.name, "Uncategorized") as name, SUM(amount) as total')
+            ->leftJoin('finance_categories as fc', 'finance_transactions.category_id', '=', 'fc.id')
+            ->where('finance_transactions.type', 'expense')
+            ->where('finance_transactions.date', '>=', $dateFrom)
+            ->whereNull('finance_transactions.deleted_at')
+            ->groupBy('fc.name')
+            ->orderByDesc('total')
+            ->get();
+
+        $income = $incomeByCategory->sum('total');
+        $expense = $expenseByCategory->sum('total');
+        $balance = $income - $expense;
+
+        $filename = "finance-report-{$period}-" . now()->format('Y-m-d') . ".pdf";
+
+        return $reportService->generatePdf('finance.pdf', compact(
+            'period', 'incomeByCategory', 'expenseByCategory', 'income', 'expense', 'balance'
+        ), $filename);
     }
 
     private function pnlTrend($from, $to): array

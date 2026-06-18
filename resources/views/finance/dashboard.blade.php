@@ -39,27 +39,36 @@
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                     <h2 class="text-lg font-semibold">{{ $periodLabel }} Cashflow</h2>
-                    <div class="flex items-center gap-2">
-                        <div class="flex rounded-lg overflow-hidden border border-[#232A36]">
-                            @foreach($periods as $key => $label)
-                            <a href="{{ request()->fullUrlWithQuery(['period' => $key]) }}"
-                                class="px-3 py-1 text-xs font-medium transition-colors {{ $period === $key ? 'bg-[#3B82F6] text-white' : 'text-[#94A3B8] hover:text-[#E6EDF3]' }} {{ !$loop->first ? 'border-l border-[#232A36]' : '' }}">
-                                {{ $label }}
+                        <div class="flex items-center gap-2">
+                            <div class="flex rounded-lg overflow-hidden border border-[#232A36]">
+                                @foreach($periods as $key => $label)
+                                <a href="{{ request()->fullUrlWithQuery(['period' => $key]) }}"
+                                    class="px-3 py-1 text-xs font-medium transition-colors {{ $period === $key ? 'bg-[#3B82F6] text-white' : 'text-[#94A3B8] hover:text-[#E6EDF3]' }} {{ !$loop->first ? 'border-l border-[#232A36]' : '' }}">
+                                    {{ $label }}
+                                </a>
+                                @endforeach
+                            </div>
+                            <a href="{{ route('finance.reports.pdf', ['period' => $period]) }}"
+                               class="rounded-lg bg-[#3B82F6] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2563EB]">
+                                <i class="fas fa-file-pdf mr-1"></i> PDF
                             </a>
-                            @endforeach
+                            <a href="{{ route('finance.customize-charts') }}"
+                               class="rounded-lg border border-[#232A36] px-3 py-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#E6EDF3] hover:bg-[#1C2333] transition-colors">
+                                <i class="fas fa-sliders-h mr-1"></i> Customize
+                            </a>
                         </div>
-                    </div>
                 </div>
                 <div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <h3 class="text-sm font-medium text-[#22C55E] mb-3">Income by Category</h3>
                             <div class="flex items-center gap-4">
+                                @php $incomeTotal = $incomeByCategory->sum('total'); @endphp
                                 <div class="w-36 h-36 flex-shrink-0">
                                     <canvas id="incomePieChart"></canvas>
+                                    <p class="text-center mt-2 text-sm font-bold text-[#22C55E]">৳{{ number_format($incomeTotal, 2) }}</p>
                                 </div>
                                 <div class="space-y-1.5 min-w-0 flex-1">
-                                    @php $incomeTotal = $incomeByCategory->sum('total'); @endphp
                                     @forelse($incomeByCategory as $item)
                                     @php
                                     $idx = $loop->index % count($chartColors);
@@ -80,11 +89,12 @@
                         <div>
                             <h3 class="text-sm font-medium text-[#EF4444] mb-3">Expense by Category</h3>
                             <div class="flex items-center gap-4">
+                                @php $expenseTotal = $expenseByCategory->sum('total'); @endphp
                                 <div class="w-36 h-36 flex-shrink-0">
                                     <canvas id="expensePieChart"></canvas>
+                                    <p class="text-center mt-2 text-sm font-bold text-[#EF4444]">৳{{ number_format($expenseTotal, 2) }}</p>
                                 </div>
                                 <div class="space-y-1.5 min-w-0 flex-1">
-                                    @php $expenseTotal = $expenseByCategory->sum('total'); @endphp
                                     @forelse($expenseByCategory as $item)
                                     @php
                                     $idx = $loop->index % count($chartColors);
@@ -139,7 +149,7 @@ if (typeof Chart === 'undefined') { console.error('Chart.js not loaded'); return
 try {
 
 new Chart(document.getElementById('incomePieChart'), {
-    type: 'doughnut',
+    type: 'pie',
     data: {
         labels: {!! json_encode($incomeByCategory->pluck('name')) !!},
         datasets: [{
@@ -150,7 +160,7 @@ new Chart(document.getElementById('incomePieChart'), {
         }],
     },
     options: {
-        responsive: true, maintainAspectRatio: true, cutout: '65%',
+        responsive: true, maintainAspectRatio: true,
         plugins: {
             legend: { display: false },
             datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, formatter: (val, ctx) => { let t = ctx.dataset.data.reduce((a,b) => a+b, 0); return t ? (val/t*100).toFixed(1)+'%' : null; } },
@@ -160,7 +170,7 @@ new Chart(document.getElementById('incomePieChart'), {
 });
 
 new Chart(document.getElementById('expensePieChart'), {
-    type: 'doughnut',
+    type: 'pie',
     data: {
         labels: {!! json_encode($expenseByCategory->pluck('name')) !!},
         datasets: [{
@@ -171,7 +181,7 @@ new Chart(document.getElementById('expensePieChart'), {
         }],
     },
     options: {
-        responsive: true, maintainAspectRatio: true, cutout: '65%',
+        responsive: true, maintainAspectRatio: true,
         plugins: {
             legend: { display: false },
             datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, formatter: (val, ctx) => { let t = ctx.dataset.data.reduce((a,b) => a+b, 0); return t ? (val/t*100).toFixed(1)+'%' : null; } },

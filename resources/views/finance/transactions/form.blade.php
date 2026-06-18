@@ -70,7 +70,7 @@
         <script>
             function transactionForm() {
                 return {
-                    categories: @json($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'type' => $c->type])),
+                    categories: {{ Js::from($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'type' => $c->type])) }},
                     selectedType: '{{ old('type', $transaction->type ?? 'income') }}',
                     selectedCategory: '{{ old('category_id', $transaction->category_id ?? '') }}',
                     get filteredCategories() {
