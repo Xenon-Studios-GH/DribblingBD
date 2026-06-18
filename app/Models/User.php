@@ -44,9 +44,9 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'created_by');
     }
 
-    public function loginLogs()
+    public function activityLogs()
     {
-        return $this->hasMany(LoginLog::class);
+        return $this->hasMany(ActivityLog::class);
     }
 
     public function workLogs()
@@ -72,5 +72,18 @@ class User extends Authenticatable
     public function orderDrafts()
     {
         return $this->hasMany(OrderDraft::class);
+    }
+
+    public function pdfDownloads()
+    {
+        return $this->hasMany(PdfDownload::class);
+    }
+
+    public static function getUniqueClients($perPage = 20)
+    {
+        // Using union to combine users who ordered and direct customer data, paginated
+        return \App\Models\Order::select('customer_name as name', 'phone as email')
+            ->distinct()
+            ->paginate($perPage);
     }
 }
