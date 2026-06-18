@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\LoginLog;
+use App\Models\ActivityLog;
 use App\Models\StockTransaction;
 use App\Models\WorkLog;
 use Illuminate\Console\Command;
@@ -26,7 +26,7 @@ class CleanOldTransactions extends Command
         $deletedTransactions = StockTransaction::where('created_at', '<', $cutoff)->delete();
         $this->info("Deleted {$deletedTransactions} stock transaction(s) older than {$days} days.");
 
-        $deletedLogs = LoginLog::where('login_at', '<', $cutoff)->delete();
+        $deletedLogs = ActivityLog::where('login_at', '<', $cutoff)->delete();
         $this->info("Deleted {$deletedLogs} login log(s) older than {$days} days.");
 
         $deletedWorkLogs = WorkLog::whereIn('module', ['stock', 'finance', 'user', 'system', 'website', 'order', 'seo', 'inquiry'])

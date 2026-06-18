@@ -24,7 +24,7 @@ class StockFlowTest extends TestCase
     {
         Product::factory()->count(3)->hasStocks(1)->create();
 
-        $response = $this->actingAs($this->user)->get(route('stock.management', ['role' => $this->user->role]));
+        $response = $this->actingAs($this->user)->get(route('stock.management'));
         $response->assertStatus(200);
     }
 
@@ -32,7 +32,7 @@ class StockFlowTest extends TestCase
     {
         Product::factory()->count(3)->create();
 
-        $response = $this->actingAs($this->user)->get(route('stock.in', ['role' => $this->user->role]));
+        $response = $this->actingAs($this->user)->get(route('stock.in'));
         $response->assertStatus(200);
     }
 
@@ -40,7 +40,7 @@ class StockFlowTest extends TestCase
     {
         Product::factory()->count(3)->hasStocks(1)->create();
 
-        $response = $this->actingAs($this->user)->get(route('stock.out', ['role' => $this->user->role]));
+        $response = $this->actingAs($this->user)->get(route('stock.out'));
         $response->assertStatus(200);
     }
 
@@ -48,7 +48,7 @@ class StockFlowTest extends TestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->actingAs($this->user)->post(route('stock.in.preview', ['role' => $this->user->role]), [
+        $response = $this->actingAs($this->user)->post(route('stock.in.preview'), [
             'product_id' => $product->id,
             'size' => 'M',
             'quantity' => 10,
@@ -68,7 +68,7 @@ class StockFlowTest extends TestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->actingAs($this->user)->post(route('stock.in.confirm', ['role' => $this->user->role]), [
+        $response = $this->actingAs($this->user)->post(route('stock.in.confirm'), [
             'product_id' => $product->id,
             'size' => 'L',
             'quantity' => 5,
@@ -85,7 +85,7 @@ class StockFlowTest extends TestCase
 
     public function test_stock_in_with_new_product()
     {
-        $response = $this->actingAs($this->user)->post(route('stock.in.preview', ['role' => $this->user->role]), [
+        $response = $this->actingAs($this->user)->post(route('stock.in.preview'), [
             'product_id' => 'new',
             'product_name' => 'Test Hoodie',
             'price' => 49.99,
@@ -95,7 +95,7 @@ class StockFlowTest extends TestCase
         $response->assertStatus(200);
         $this->assertEquals('new', $response->json('product_id'));
 
-        $confirmResponse = $this->actingAs($this->user)->post(route('stock.in.confirm', ['role' => $this->user->role]), [
+        $confirmResponse = $this->actingAs($this->user)->post(route('stock.in.confirm'), [
             'product_id' => 'new',
             'product_name' => 'Test Hoodie',
             'price' => 49.99,
@@ -128,7 +128,7 @@ class StockFlowTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)->post(
-            route('stock.out.confirm', ['role' => $this->user->role]),
+            route('stock.out.confirm'),
             [
                 'product_id' => $product->id,
                 'size' => 'S',
@@ -159,7 +159,7 @@ class StockFlowTest extends TestCase
         $product = Product::factory()->create();
         Stock::factory()->create(['product_id' => $product->id, 'size' => 'M', 'quantity' => 5]);
 
-        $response = $this->actingAs($this->user)->post(route('stock.out.preview', ['role' => $this->user->role]), [
+        $response = $this->actingAs($this->user)->post(route('stock.out.preview'), [
             'product_id' => $product->id,
             'size' => 'M',
             'quantity' => 10,
@@ -173,7 +173,7 @@ class StockFlowTest extends TestCase
     {
         $staff = User::factory()->create(['role' => 'staff']);
 
-        $response = $this->actingAs($staff)->get(route('workers.index', ['role' => $staff->role]));
+        $response = $this->actingAs($staff)->get(route('workers.index'));
         $response->assertStatus(403);
     }
 
@@ -181,7 +181,7 @@ class StockFlowTest extends TestCase
     {
         $admin = User::factory()->superadmin()->create();
 
-        $response = $this->actingAs($admin)->get(route('workers.index', ['role' => $admin->role]));
+        $response = $this->actingAs($admin)->get(route('workers.index'));
         $response->assertStatus(200);
     }
 
@@ -192,7 +192,7 @@ class StockFlowTest extends TestCase
             Stock::factory()->create(['product_id' => $product->id, 'size' => $size]);
         }
 
-        $response = $this->actingAs($this->user)->get(route('stock.management.show', ['role' => $this->user->role, 'product' => $product]));
+        $response = $this->actingAs($this->user)->get(route('stock.management.show', ['product' => $product]));
         $response->assertStatus(200);
         $response->assertSee($product->product_name);
         $response->assertSee($product->product_code);
@@ -202,7 +202,7 @@ class StockFlowTest extends TestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->actingAs($this->user)->post(route('stock.in.confirm', ['role' => $this->user->role]), [
+        $response = $this->actingAs($this->user)->post(route('stock.in.confirm'), [
             'product_id' => $product->id,
             'size' => 'L',
             'quantity' => 5,
@@ -215,13 +215,13 @@ class StockFlowTest extends TestCase
     public function test_stock_activity_page_loads()
     {
         $product = Product::factory()->create();
-        $this->actingAs($this->user)->post(route('stock.in.confirm', ['role' => $this->user->role]), [
+        $this->actingAs($this->user)->post(route('stock.in.confirm'), [
             'product_id' => $product->id,
             'size' => 'M',
             'quantity' => 10,
         ]);
 
-        $response = $this->actingAs($this->user)->get(route('stock.activity', ['role' => $this->user->role]));
+        $response = $this->actingAs($this->user)->get(route('stock.activity'));
         $response->assertStatus(200);
         $response->assertViewHas('transactions');
     }
@@ -231,7 +231,7 @@ class StockFlowTest extends TestCase
         $product = Product::factory()->create();
         Stock::factory()->create(['product_id' => $product->id, 'size' => 'S', 'quantity' => 50]);
 
-        $response = $this->actingAs($this->user)->post(route('stock.out.confirm', ['role' => $this->user->role]), [
+        $response = $this->actingAs($this->user)->post(route('stock.out.confirm'), [
             'product_id' => $product->id,
             'size' => 'S',
             'quantity' => 10,

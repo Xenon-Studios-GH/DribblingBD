@@ -15,6 +15,7 @@ class ProductFactory extends Factory
             'product_code' => 'Dribbling-' . $this->faker->unique()->randomNumber(4, true),
             'product_name' => fake()->words(2, true) . ' Jersey',
             'price' => fake()->randomFloat(2, 10, 99),
+            'is_active' => true,
         ];
     }
 }

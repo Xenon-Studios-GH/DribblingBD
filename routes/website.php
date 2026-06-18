@@ -6,12 +6,12 @@ use App\Http\Controllers\Admin\Website\ProjectController;
 use App\Http\Controllers\Admin\Website\CategoryController;
 use App\Http\Controllers\Admin\Website\CustomizationController;
 
-Route::middleware(['auth', 'role.match', 'role:superadmin,admin,staff'])
-    ->prefix('controlPanel/{role}/website')
+Route::middleware(['auth', 'role:superadmin,admin,staff'])
+    ->prefix('controlPanel/website')
     ->name('website.')
     ->group(function () {
 
-    Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::get('projects', [ProjectController::class, 'index'])->name('projects');
     Route::get('projects/create-from-product/{product}', [ProjectController::class, 'createFromProduct'])->name('projects.create-from-product');
