@@ -42,13 +42,21 @@ class LoginController extends Controller
             $this->loginLogService->recordLogin($request->email, true, Auth::id());
             $this->workLogService->log('Login', 'system', Auth::id(), 'User logged in');
 
-            $redirect = Auth::user()->role === 'customer' ? '/' : admin_route('dashboard');
+            $user = Auth::user();
+            if ($user->role !== 'customer') {
+                session()->flash('show_welcome', [
+                    'name' => $user->name,
+                    'role' => ucfirst($user->role),
+                ]);
+            }
+
+            $redirect = $user->role === 'customer' ? '/' : admin_route('dashboard');
             return redirect()->intended($redirect);
         }
 
         $this->loginLogService->recordLogin($request->email, false, $user?->id);
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'The email or password is incorrect.',
         ])->onlyInput('email');
     }
 }

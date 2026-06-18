@@ -12,24 +12,28 @@ use App\Http\Controllers\Admin\StockOutController;
 use App\Http\Controllers\Admin\StockSearchController;
 use App\Http\Controllers\Admin\StockFilterController;
 use App\Http\Controllers\Admin\StockActivityController;
+use App\Http\Controllers\Admin\StockReportController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\InquiryController;
-use App\Http\Controllers\Admin\LoginLogController;
-use App\Http\Controllers\Admin\WorkLogController;
+use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\UserLogController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderDraftController;
 use App\Http\Controllers\Shop\Auth\RegisterController;
 
-Route::prefix('auth/dribblingbd')->middleware('guest')->group(function () {
-    Route::view('authentication', 'auth.authentication')->name('authentication');
-    Route::redirect('login', 'auth/dribblingbd/authentication');
-    Route::post('login', [LoginController::class, 'store'])->name('login')->middleware('throttle:5,1');
-    Route::redirect('register', 'auth/dribblingbd/authentication');
-    Route::post('register', [RegisterController::class, 'store'])->name('register')->middleware('throttle:5,10');
-});
-
 Route::middleware('guest')->group(function () {
+    Route::view('authentication', 'auth.authentication')->name('authentication');
+    Route::post('login', [LoginController::class, 'store'])->name('login')->middleware('throttle:5,1');
+    Route::post('register', [RegisterController::class, 'store'])->name('register')->middleware('throttle:5,10');
+    Route::get('check-email/{email}', function (string $email) {
+        $exists = \App\Models\User::where('email', $email)->exists();
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'Email found' : 'Email not found',
+        ]);
+    })->name('check-email')->where('email', '.*')->middleware('throttle:10,1');
+
     Route::get('forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
     Route::post('forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email')->middleware('throttle:3,1');
     Route::get('reset-password/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
@@ -37,50 +41,61 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::post('auth/dribblingbd/logout', LogoutController::class)->name('logout');
+    Route::post('logout', LogoutController::class)->name('logout');
 
-    Route::prefix('controlPanel/{role}')->where(['role' => 'superadmin|admin|staff'])->middleware('role.match')->group(function () {
+    Route::prefix('controlPanel')->group(function () {
 
         Route::get('dashboard', DashboardController::class)->name('dashboard');
 
-        // Stock management
-        Route::get('stock-management', StockManagementController::class)->name('stock.management');
-        Route::get('stock-management/{product}', [StockManagementController::class, 'show'])->name('stock.management.show');
-        Route::get('stock-management/{product}/transactions', [StockManagementController::class, 'transactions'])->name('stock.management.transactions');
+        // Stock
+        Route::get('stock', StockManagementController::class)->name('stock.management');
+
+        // Static stock routes must come BEFORE parameterized stock/{product}
         Route::get('stock/search', StockSearchController::class)->name('stock.search');
         Route::get('stock/filter', StockFilterController::class)->name('stock.filter');
-        Route::get('stock-activity', StockActivityController::class)->name('stock.activity');
+        Route::get('stock/activity', StockActivityController::class)->name('stock.activity');
+        Route::get('stock/report', [StockReportController::class, 'index'])->name('stock.report');
+        Route::get('stock/report/pdf', [StockReportController::class, 'exportPdf'])->name('stock.report.pdf');
+        Route::get('stock/report/pdf/{filename}', [StockReportController::class, 'viewPdf'])->name('stock.report.view');
+        Route::get('stock/report/details', [StockReportController::class, 'details'])->name('stock.report.details');
+
+        // Stock In (staff cannot access)
+        Route::middleware('role:superadmin,admin')->group(function () {
+            Route::get('stock/in', [StockInController::class, 'index'])->name('stock.in');
+            Route::post('stock/in/preview', [StockInController::class, 'preview'])->middleware('throttle:30,1')->name('stock.in.preview');
+            Route::post('stock/in/confirm', [StockInController::class, 'confirm'])->middleware('throttle:20,1')->name('stock.in.confirm');
+        });
+
+        // Stock Out (staff cannot access)
+        Route::middleware('role:superadmin,admin')->group(function () {
+            Route::get('stock/out', [StockOutController::class, 'index'])->name('stock.out');
+            Route::post('stock/out/preview', [StockOutController::class, 'preview'])->middleware('throttle:30,1')->name('stock.out.preview');
+            Route::post('stock/out/confirm', [StockOutController::class, 'confirm'])->middleware('throttle:20,1')->name('stock.out.confirm');
+        });
+
+        // Parameterized stock routes must come AFTER all static routes
+        Route::get('stock/{product}', [StockManagementController::class, 'show'])->name('stock.management.show');
+        Route::get('stock/{product}/transactions', [StockManagementController::class, 'transactions'])->name('stock.management.transactions');
 
         // Orders
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/trash', [OrderController::class, 'trash'])->name('orders.trash');
+        Route::post('orders/{order}/restore', [OrderController::class, 'restore'])->name('orders.restore');
         Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
         Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
+
+        // Order Drafts (must come before parameterized orders/{order})
+        Route::get('orders/drafts', [OrderDraftController::class, 'index'])->name('order-drafts.index');
+        Route::post('orders/drafts', [OrderDraftController::class, 'store'])->name('order-drafts.store');
+        Route::get('orders/drafts/{orderDraft}', [OrderDraftController::class, 'show'])->name('order-drafts.show');
+        Route::delete('orders/drafts/{orderDraft}', [OrderDraftController::class, 'destroy'])->name('order-drafts.destroy');
+
         Route::get('orders/product-stock/{product}', [OrderController::class, 'productStock'])->name('orders.product-stock');
         Route::get('orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
         Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
-
-        // Order Drafts
-        Route::get('order-drafts', [OrderDraftController::class, 'index'])->name('order-drafts.index');
-        Route::post('order-drafts', [OrderDraftController::class, 'store'])->name('order-drafts.store');
-        Route::get('order-drafts/{orderDraft}', [OrderDraftController::class, 'show'])->name('order-drafts.show');
-        Route::delete('order-drafts/{orderDraft}', [OrderDraftController::class, 'destroy'])->name('order-drafts.destroy');
-
-        // Stock In (staff cannot access)
-        Route::middleware('role:superadmin,admin')->group(function () {
-            Route::get('stockin', [StockInController::class, 'index'])->name('stock.in');
-            Route::post('stockin/preview', [StockInController::class, 'preview'])->middleware('throttle:30,1')->name('stock.in.preview');
-            Route::post('stockin/confirm', [StockInController::class, 'confirm'])->middleware('throttle:20,1')->name('stock.in.confirm');
-        });
-
-        // Stock Out (staff cannot access)
-        Route::middleware('role:superadmin,admin')->group(function () {
-            Route::get('stockout', [StockOutController::class, 'index'])->name('stock.out');
-            Route::post('stockout/preview', [StockOutController::class, 'preview'])->middleware('throttle:30,1')->name('stock.out.preview');
-            Route::post('stockout/confirm', [StockOutController::class, 'confirm'])->middleware('throttle:20,1')->name('stock.out.confirm');
-        });
 
         // Product
         Route::middleware('role:superadmin,admin')->group(function () {
@@ -96,8 +111,8 @@ Route::middleware('auth')->group(function () {
             Route::get('users/{worker}/edit', [WorkerController::class, 'edit'])->name('workers.edit');
             Route::put('users/{worker}', [WorkerController::class, 'update'])->name('workers.update');
             Route::post('users/{worker}/toggle-status', [WorkerController::class, 'toggleStatus'])->name('workers.toggle-status');
-            Route::get('login-logs', [LoginLogController::class, 'index'])->name('login-logs.index');
-            Route::get('work-logs', [WorkLogController::class, 'index'])->name('work-logs.index');
+            Route::get('logs/activity', [UserLogController::class, 'index'])->name('activity-logs.index');
+            Route::get('logs/user', [ActivityLogController::class, 'index'])->name('user-logs.index');
             Route::get('inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
             Route::get('inquiries/{inquiry}', [InquiryController::class, 'show'])->name('inquiries.show');
             Route::delete('inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
@@ -112,20 +127,10 @@ require __DIR__.'/website.php';
 
 require __DIR__.'/seo.php';
 
+require __DIR__.'/tracking.php';
+
 require __DIR__.'/shop.php';
 
-// Redirect old /storage/ URLs to /uploads/ (stale localStorage cart/wishlist data, cached pages)
-Route::redirect('/storage/{path}', '/uploads/{path}', 301)->where('path', '.*');
-
-// Serve storage files via Laravel (bypasses shared hosting symlink/permission issues)
-Route::get('/uploads/{path}', function (string $path) {
-    $fullPath = storage_path('app/public/' . $path);
-
-    if (!file_exists($fullPath)) {
-        abort(404);
-    }
-
-    return response()->file($fullPath, [
-        'Cache-Control' => 'public, max-age=31536000, immutable',
-    ]);
-})->where('path', '.*')->name('storage.serve');
+// Tracking CAPI bridge (no auth — fire-and-forget from client)
+Route::post('/__tracking/capi', [\App\Http\Controllers\Tracking\CapiBridgeController::class, '__invoke'])
+    ->middleware('throttle:30,1');

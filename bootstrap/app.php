@@ -19,17 +19,19 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'role.match' => \App\Http\Middleware\EnsureRoleMatches::class,
         ]);
 
         $middleware->redirectGuestsTo(fn() => route('authentication'));
 
-        $middleware->redirectUsersTo(fn() => route('dashboard', [
-            'role' => auth()->user()?->role ?? 'admin',
-        ]));
+        $middleware->redirectUsersTo(fn() => auth()->user()?->role === 'customer' ? url('/') : route('dashboard'));
+
+        $middleware->validateCsrfTokens(except: [
+            '__tracking/*',
+        ]);
+
+        $middleware->append(\App\Http\Middleware\CheckSeoRedirects::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Render handlers
         $exceptions->render(function (HttpException $e, Request $request) {
             $status = $e->getStatusCode();
             if ($request->expectsJson()) {
@@ -41,7 +43,6 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        // Handle ModelNotFoundException
         $exceptions->render(function (ModelNotFoundException $e, Request $request) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Resource not found.'], 404);
@@ -49,7 +50,6 @@ return Application::configure(basePath: dirname(__DIR__))
             return response()->view('errors.404', [], 404);
         });
 
-        // Handle AuthenticationException
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Unauthenticated.'], 401);
@@ -57,14 +57,12 @@ return Application::configure(basePath: dirname(__DIR__))
             return redirect()->guest(route('authentication'));
         });
 
-        // Handle ValidationException
         $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => $e->getMessage(), 'errors' => $e->errors()], 422);
             }
         });
 
-        // Report all exceptions
         $exceptions->report(function (Throwable $e) {
             Log::error('Unhandled exception', [
                 'message' => $e->getMessage(),
