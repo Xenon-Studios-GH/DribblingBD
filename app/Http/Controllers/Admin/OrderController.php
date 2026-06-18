@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderDraft;
 use App\Models\Product;
-use App\Models\SiteSetting;
 use App\Models\Stock;
 use App\Services\StockService;
 use App\Services\WorkLogService;
@@ -24,12 +23,13 @@ class OrderController extends Controller
 
     private const VALID_TRANSITIONS = [
         'pending'     => ['on_hold'],
-        'on_hold'     => ['processing', 'out_of_stock', 'cancelled'],
-        'out_of_stock'=> ['on_hold', 'processing'],
-        'processing'  => ['picked', 'delivered', 'return'],
-        'picked'      => ['delivered', 'return'],
+        'on_hold'     => ['packed', 'out_of_stock', 'cancelled'],
+        'packed'      => ['picked', 'out_of_stock'],
+        'picked'      => ['delivered'],
         'delivered'   => ['return'],
-        'return'      => [],
+        'out_of_stock'=> ['on_hold', 'packed'],
+        'return'      => ['refund', 'packed'],
+        'refund'      => [],
         'draft'       => ['on_hold', 'out_of_stock', 'cancelled'],
     ];
 
@@ -204,12 +204,12 @@ class OrderController extends Controller
             return $order;
         });
 
-        $this->workLogService->log('Order Created', 'order', $order->id, "Order #{$order->order_no} for {$order->customer_name} — ৳" . number_format($order->total_amount));
+        $this->workLogService->log('Order Created', 'order', $order->id, "Order #{$order->order_no} for {$order->customer_name} — ৳" . number_format($order->total_amount), null, $order->customer_name, $order->phone);
 
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} created.");
     }
 
-    public function edit(string $role, Order $order)
+    public function edit(Order $order)
     {
         $products = Product::with('stocks')->where('is_active', true)->get();
         $patchProduct = Product::with('stocks')->where('product_name', 'like', config('shop.patch_product_name_query'))->first();
@@ -218,7 +218,7 @@ class OrderController extends Controller
         return view('orders.edit', compact('order', 'products', 'patchPrice', 'patchStock'));
     }
 
-    public function update(string $role, Request $request, Order $order)
+    public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
@@ -233,7 +233,7 @@ class OrderController extends Controller
             'advanced_payment' => 'nullable|numeric|min:0',
             'payment_method' => 'required|in:bkash,nagad,rocket,cod,cash',
             'delivery_charge' => 'nullable|numeric|min:0',
-            'status' => 'required|in:on_hold,processing,picked,delivered,out_of_stock,return',
+            'status' => 'required|in:on_hold,packed,picked,delivered,out_of_stock,return,refund',
             'notes' => 'nullable|string|max:5000',
         ]);
 
@@ -273,7 +273,11 @@ class OrderController extends Controller
                 unset($item);
 
                 $oldProducts = $order->products ?? [];
+                $wasStockDeducted = in_array($order->status, ['packed', 'picked', 'delivered']);
+                $finalStatus = $hasOutOfStock ? 'out_of_stock' : $status;
+                $shouldDeduct = !$wasStockDeducted && in_array($finalStatus, ['packed', 'picked', 'delivered']);
 
+                // Handle removed items: only return to stock if stock was previously deducted
                 foreach ($oldProducts as $oldItem) {
                     $stillExists = false;
                     foreach ($products as $newItem) {
@@ -284,32 +288,37 @@ class OrderController extends Controller
                         }
                     }
                     if (!$stillExists && ($oldItem['product_id'] ?? null) && ($oldItem['size'] ?? '')) {
-                        $removedProduct = Product::find($oldItem['product_id']);
-                        if ($removedProduct) {
-                            $this->stockService->stockIn(
-                                $removedProduct, $oldItem['size'], (int) ($oldItem['quantity'] ?? 0),
-                                'Order #' . $order->order_no . ' item removed (edit)', auth()->id()
-                            );
+                        if ($wasStockDeducted) {
+                            $removedProduct = Product::find($oldItem['product_id']);
+                            if ($removedProduct) {
+                                $this->stockService->stockIn(
+                                    $removedProduct, $oldItem['size'], (int) ($oldItem['quantity'] ?? 0),
+                                    'Order #' . $order->order_no . ' item removed (edit)', auth()->id()
+                                );
+                            }
                         }
                     }
                 }
 
-                foreach ($products as $newItem) {
-                    $existedBefore = false;
-                    foreach ($oldProducts as $oldItem) {
-                        if (($newItem['product_id'] ?? null) === ($oldItem['product_id'] ?? null)
-                            && ($newItem['size'] ?? '') === ($oldItem['size'] ?? '')) {
-                            $existedBefore = true;
-                            break;
+                // Handle added items: only deduct individually if bulk deduction won't run
+                if (!$shouldDeduct) {
+                    foreach ($products as $newItem) {
+                        $existedBefore = false;
+                        foreach ($oldProducts as $oldItem) {
+                            if (($newItem['product_id'] ?? null) === ($oldItem['product_id'] ?? null)
+                                && ($newItem['size'] ?? '') === ($oldItem['size'] ?? '')) {
+                                $existedBefore = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!$existedBefore && ($newItem['product_id'] ?? null) && ($newItem['size'] ?? '')) {
-                        $addedProduct = Product::find($newItem['product_id']);
-                        if ($addedProduct) {
-                            $this->stockService->stockOut(
-                                $addedProduct, $newItem['size'], (int) ($newItem['quantity'] ?? 0),
-                                'Order #' . $order->order_no . ' item added (edit)', auth()->id()
-                            );
+                        if (!$existedBefore && ($newItem['product_id'] ?? null) && ($newItem['size'] ?? '')) {
+                            $addedProduct = Product::find($newItem['product_id']);
+                            if ($addedProduct) {
+                                $this->stockService->stockOut(
+                                    $addedProduct, $newItem['size'], (int) ($newItem['quantity'] ?? 0),
+                                    'Order #' . $order->order_no . ' item added (edit)', auth()->id()
+                                );
+                            }
                         }
                     }
                 }
@@ -323,10 +332,11 @@ class OrderController extends Controller
                         ->first();
                     if (!$patchStock || $patchStock->quantity < config('shop.patch_quantity')) {
                         $hasOutOfStock = true;
+                        $finalStatus = 'out_of_stock';
+                        $shouldDeduct = false;
                     }
                 }
 
-                $finalStatus = $hasOutOfStock ? 'out_of_stock' : $status;
                 $advancedPayment = $validated['advanced_payment'] ?? 0;
                 $deliveryCharge = $validated['delivery_charge'] ?? 0;
                 $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
@@ -334,7 +344,8 @@ class OrderController extends Controller
                 $productIds = collect($products)->pluck('product_id')->filter()->unique()->values()->all();
                 $productMap = Product::whereIn('id', $productIds)->get()->keyBy('id');
 
-                if ($finalStatus === 'processing' && $order->status !== 'processing') {
+                // Bulk deduction: applies only when transitioning from non-deducted to deducted status
+                if ($shouldDeduct) {
                     foreach ($products as $item) {
                         $product = $productMap->get($item['product_id']);
                         if (!$product) continue;
@@ -351,7 +362,8 @@ class OrderController extends Controller
                     }
                 }
 
-                if ($finalStatus === 'return' && $order->status !== 'return') {
+                // Return to stock: only if stock was previously deducted
+                if ($finalStatus === 'return' && $wasStockDeducted) {
                     foreach ($products as $item) {
                         $product = $productMap->get($item['product_id']);
                         if (!$product) continue;
@@ -402,15 +414,44 @@ class OrderController extends Controller
         return redirect(admin_route('orders.show', $order->order_no))->with('success', "Order {$order->order_no} updated.");
     }
 
-    public function show(string $role, Order $order)
+    public function trash()
     {
-        return view('orders.show', compact('order'));
+        $orders = Order::onlyTrashed()->with('creator')->latest()->paginate(20);
+        $ordersJson = $orders->map(function ($o) {
+            return [
+                'id' => $o->id,
+                'order_no' => $o->order_no,
+                'customer_name' => $o->customer_name,
+                'phone' => $o->phone,
+                'total' => number_format($o->total_amount, 2),
+                'paid' => number_format($o->advanced_payment, 2),
+                'due' => number_format($o->pending_payment, 2),
+                'total_raw' => (float) $o->total_amount,
+                'payment_method' => $o->payment_method,
+                'status' => $o->status,
+                'date_formatted' => $o->created_at->format('d M, h:i A'),
+                'deleted_at' => $o->deleted_at->format('d M, h:i A'),
+                'restore_url' => admin_route('orders.restore', ['order' => $o->order_no]),
+            ];
+        })->toArray();
+
+        return view('orders.trash', compact('orders', 'ordersJson'));
     }
 
-    public function updateStatus(string $role, Request $request, Order $order)
+    public function restore($orderNo)
+    {
+        $order = Order::onlyTrashed()->where('order_no', $orderNo)->firstOrFail();
+        $order->restore();
+
+        $this->workLogService->log('Order Restored', 'order', $order->id, "Order #{$orderNo} restored from trash");
+
+        return redirect(admin_route('orders.trash'))->with('success', "Order {$orderNo} restored.");
+    }
+
+    public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:on_hold,processing,picked,delivered,return',
+            'status' => 'required|in:on_hold,packed,picked,delivered,return,refund',
         ]);
 
         $newStatus = $request->status;
@@ -439,7 +480,10 @@ class OrderController extends Controller
                     ? $this->getPatchProduct()
                     : null;
 
-                if ($newStatus === 'processing') {
+                $wasStockDeducted = in_array($order->status, ['packed', 'picked', 'delivered']);
+                $shouldDeduct = !$wasStockDeducted && in_array($newStatus, ['packed', 'picked', 'delivered']);
+
+                if ($shouldDeduct) {
                     foreach ($orderProducts as $item) {
                         $product = $productMap->get($item['product_id']);
                         if (!$product) continue;
@@ -503,7 +547,7 @@ class OrderController extends Controller
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} marked as {$newStatus}.");
     }
 
-    public function destroy(string $role, Order $order)
+    public function destroy(Order $order)
     {
         $orderNo = $order->order_no;
         $order->delete();
@@ -520,7 +564,7 @@ class OrderController extends Controller
         return redirect(admin_route('orders.index'))->with('success', "Order {$orderNo} deleted.");
     }
 
-    public function productStock(string $role, $productId)
+    public function productStock($productId)
     {
         $product = Product::with('stocks')->findOrFail($productId);
         $stockData = [];

@@ -7,17 +7,16 @@
                     <span x-text="allOrders.length"></span> orders
                 </p>
             </div>
-            <a href="{{ admin_route('orders.create') }}"
-               class="flex items-center gap-2 rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB] transition-colors">
-                <i class="fas fa-plus"></i> New Order
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ admin_route('orders.trash') }}" class="flex items-center gap-2 rounded-xl bg-[#232A36] px-4 py-2.5 text-sm font-medium text-[#94A3B8] hover:text-[#E6EDF3] transition-colors">
+                    <i class="fas fa-trash"></i> View Trash
+                </a>
+                <a href="{{ admin_route('orders.create') }}"
+                   class="flex items-center gap-2 rounded-xl bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB] transition-colors">
+                    <i class="fas fa-plus"></i> New Order
+                </a>
+            </div>
         </div>
-
-        @if (session('success'))
-        <div class="mb-4 rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-3 text-sm text-[#22C55E]">
-            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        </div>
-        @endif
 
         <template x-if="allOrders.length === 0">
             <x-card>
@@ -49,9 +48,10 @@
                             <option value="">All Status</option>
                             <option value="pending">Pending</option>
                             <option value="on_hold">On Hold</option>
-                            <option value="processing">Processing</option>
                             <option value="picked">Picked</option>
+                            <option value="packed">Packed</option>
                             <option value="delivered">Delivered</option>
+                            <option value="refund">Refund</option>
                             <option value="return">Return</option>
                             <option value="out_of_stock">Out of Stock</option>
                             <option value="draft">Draft</option>
@@ -305,11 +305,12 @@
                 statusClass(status) {
                     const map = {
                         pending: 'text-[#F59E0B] bg-[#F59E0B]/10',
+                        packed: 'text-[#06B6D4] bg-[#06B6D4]/10',
                         out_of_stock: 'text-[#EF4444] bg-[#EF4444]/10',
                         on_hold: 'text-[#3B82F6] bg-[#3B82F6]/10',
-                        processing: 'text-[#A855F7] bg-[#A855F7]/10',
                         picked: 'text-[#22C55E] bg-[#22C55E]/10',
                         delivered: 'text-[#22C55E] bg-[#22C55E]/10',
+                        refund: 'text-[#F59E0B] bg-[#F59E0B]/10',
                         return: 'text-[#EF4444] bg-[#EF4444]/10',
                         draft: 'text-[#6B7280] bg-[#232A36]',
                     };
@@ -319,11 +320,12 @@
                 statusIcon(status) {
                     const map = {
                         pending: 'fa-clock',
+                        packed: 'fa-box',
                         out_of_stock: 'fa-exclamation-circle',
                         on_hold: 'fa-pause-circle',
-                        processing: 'fa-spinner',
                         picked: 'fa-check-double',
                         delivered: 'fa-check-circle',
+                        refund: 'fa-rotate-left',
                         return: 'fa-undo',
                         draft: 'fa-pen',
                     };

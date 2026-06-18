@@ -1,5 +1,15 @@
 <x-layouts.app title="Edit Order">
-    <div class="mx-auto max-w-4xl">
+    <div class="mx-auto max-w-4xl"
+          x-data="editForm({{ Js::from($products->map(fn($p) => [
+                  'id' => (int) $p->id,
+                  'name' => $p->product_name . ' (' . $p->product_code . ')',
+                  'product_name' => $p->product_name,
+                  'product_code' => $p->product_code,
+                  'price' => (float) $p->price,
+                  'stocks' => collect(\App\Models\Stock::SIZES)->mapWithKeys(fn($s) => [
+                      $s => $p->stocks->where('size', $s)->first()?->quantity ?? 0
+                  ])->toArray(),
+              ])->values()) }}, {{ $patchPrice }}, {{ $patchStock }})">
         <div class="mb-6 flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-[#E6EDF3]">Edit Order</h1>
@@ -47,15 +57,6 @@
               data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '80' }}"
               data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '130' }}"
               data-free-threshold="{{ $settings['shipping_free_threshold'] ?? '3000' }}"
-              x-data="editForm({{ Js::from($products->map(fn($p) => [
-                  'id' => $p->id,
-                  'name' => $p->product_name . ' (' . $p->product_code . ')',
-                  'product_name' => $p->product_name,
-                  'price' => (float) $p->price,
-                  'stocks' => collect(\App\Models\Stock::SIZES)->mapWithKeys(fn($s) => [
-                      $s => $p->stocks->where('size', $s)->first()?->quantity ?? 0
-                  ])->toArray(),
-              ])->values()) }}, {{ $patchPrice }}, {{ $patchStock }})"
               @submit.prevent="submitForm()" novalidate>
             @csrf
             @method('PUT')
@@ -150,13 +151,21 @@
                         <div class="grid grid-cols-12 gap-3">
                             <div class="col-span-12 md:col-span-6">
                                 <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Product Name</label>
-                                <select x-model="p.product_id" @change="onProductChange(i)" required
-                                        class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
-                                    <option value="">Select product...</option>
-                                    <template x-for="prod in productOptions" :key="prod.id">
-                                        <option x-bind:value="prod.id" x-text="prod.name"></option>
-                                    </template>
-                                </select>
+                                <div class="relative">
+                                    <div class="relative">
+                                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] text-sm"></i>
+                                        <input type="text" x-model="rowSearch[i]" @input="rowShowResults[i] = true" @focus="rowShowResults[i] = true" @click.away="rowShowResults[i] = false" placeholder="Search product..." class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] pl-10 pr-4 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                                    </div>
+                                    <div x-show="rowShowResults[i]" x-cloak class="absolute z-50 mt-1 w-full max-h-40 overflow-y-auto rounded-xl border border-[#232A36] bg-[#161B22] shadow-xl">
+                                        <template x-for="prod in filteredRowProducts(i)" :key="prod.id">
+                                            <button @click="selectRowProduct(i, prod); rowShowResults[i] = false" type="button" class="w-full px-4 py-2 text-left text-sm text-[#E6EDF3] hover:bg-[#1C2333] transition-colors border-b border-[#232A36] last:border-0">
+                                                <span x-text="prod.product_name"></span>
+                                                <span class="text-[#94A3B8]" x-text="' (' + prod.product_code + ')'"></span>
+                                            </button>
+                                        </template>
+                                        <div x-show="filteredRowProducts(i).length === 0" class="px-4 py-3 text-sm text-[#94A3B8]">No products found.</div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-span-6 md:col-span-3">
                                 <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Size</label>
@@ -330,9 +339,10 @@
                         <label class="text-sm font-medium text-[#E6EDF3]">Status</label>
                             <select name="status" x-model="status" class="rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
                                 <option value="on_hold">On Hold</option>
-                                <option value="processing">Processing</option>
+                                <option value="packed">Packed</option>
                                 <option value="picked">Picked</option>
                                 <option value="delivered">Delivered</option>
+                                <option value="refund">Refund</option>
                                 <option value="return">Return</option>
                                 <option value="out_of_stock">Out Of Stock</option>
                             </select>
@@ -383,7 +393,7 @@
                 city: @json($order->city ?? ''),
                 delivery_charge: {{ $order->delivery_charge ?? 0 }},
                 products: orderProducts.map(p => ({
-                    product_id: p.product_id ? String(p.product_id) : '',
+                    product_id: Number(p.product_id) || '',
                     product_name: p.product_name || '',
                     size: p.size || '',
                     quantity: p.quantity || 1,
@@ -391,6 +401,8 @@
                     out_of_stock: false,
                     in_stock: false,
                 })),
+                rowSearch: orderProducts.map(p => p.product_name || ''),
+                rowShowResults: orderProducts.map(() => false),
                 dtf: {{ $order->dtf ? 'true' : 'false' }},
                 dtf_name: @json($order->dtf_name ?? ''),
                 dtf_number: @json($order->dtf_number ?? ''),
@@ -414,6 +426,7 @@
                     this.products.forEach((_, i) => {
                         this.onProductChange(i);
                         this.checkStock(i);
+                        this.rowSearch[i] = this.products[i].product_name;
                     });
                     this._initiating = false;
                     this.calcTotal();
@@ -565,7 +578,9 @@
                 async loadDrafts() {
                     try {
                         const res = await fetch('{{ admin_route("order-drafts.index") }}?order_id={{ $order->id }}');
-                        if (res.ok) this.drafts = await res.json();
+                        if (res.ok && res.headers.get('content-type')?.includes('json')) {
+                            this.drafts = await res.json();
+                        }
                     } catch (e) {}
                 },
 
@@ -577,7 +592,7 @@
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                             body: JSON.stringify({ order_id: {{ $order->id }}, data: dataStr }),
                         });
-                        if (res.ok) {
+                        if (res.ok && res.headers.get('content-type')?.includes('json')) {
                             this.lastSaved = dataStr;
                             this.draftStatus = 'saved';
                             await this.loadDrafts();
@@ -616,7 +631,7 @@
 
                 async deleteDraft(id) {
                     try {
-                        const res = await fetch('{{ url("controlPanel") }}/' + '{{ auth()->user()->role }}' + '/order-drafts/' + id, {
+                        const res = await fetch('{{ route("order-drafts.destroy", "__ID__") }}'.replace('__ID__', id), {
                             method: 'DELETE',
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         });
@@ -645,4 +660,5 @@
             }
         }
     </script>
+    </div>
 </x-layouts.app>

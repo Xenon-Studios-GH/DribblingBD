@@ -1,5 +1,15 @@
 <x-layouts.app title="New Order">
-    <div class="mx-auto max-w-4xl">
+    <div class="mx-auto max-w-4xl"
+         x-data="orderForm({{ Js::from($products->map(fn($p) => [
+                  'id' => $p->id,
+                  'name' => $p->product_name . ' (' . $p->product_code . ')',
+                  'product_name' => $p->product_name,
+                  'product_code' => $p->product_code,
+                  'price' => (float) $p->price,
+                  'stocks' => collect(\App\Models\Stock::SIZES)->mapWithKeys(fn($s) => [
+                      $s => $p->stocks->where('size', $s)->first()?->quantity ?? 0
+                  ])->toArray(),
+              ])->values()) }}, {{ $patchPrice }}, {{ $patchStock }})">
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-[#E6EDF3]">New Order</h1>
             <p class="mt-1 text-sm text-[#94A3B8]">Create a new customer order.</p>
@@ -41,16 +51,6 @@
               data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '80' }}"
               data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '130' }}"
               data-free-threshold="{{ $settings['shipping_free_threshold'] ?? '3000' }}"
-              x-data="orderForm({{ Js::from($products->map(fn($p) => [
-                  'id' => $p->id,
-                  'name' => $p->product_name . ' (' . $p->product_code . ')',
-                  'product_name' => $p->product_name,
-                  'product_code' => $p->product_code,
-                  'price' => (float) $p->price,
-                  'stocks' => collect(\App\Models\Stock::SIZES)->mapWithKeys(fn($s) => [
-                      $s => $p->stocks->where('size', $s)->first()?->quantity ?? 0
-                  ])->toArray(),
-              ])->values()) }}, {{ $patchPrice }}, {{ $patchStock }})"
               @submit.prevent="submitForm()" novalidate>
             @csrf
             <input type="hidden" name="products" x-model="JSON.stringify(products)">
@@ -115,18 +115,39 @@
 
             <!-- Products -->
             <x-card class="mb-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#22C55E]/10">
-                        <i class="fas fa-shopping-bag text-[#22C55E]"></i>
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#22C55E]/10">
+                            <i class="fas fa-shopping-bag text-[#22C55E]"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-[#E6EDF3]">Products</h2>
+                            <p class="text-sm text-[#94A3B8]">
+                                <span x-show="!noProducts">Search and add products to this order.</span>
+                                <span x-show="noProducts" class="text-[#F59E0B]"><i class="fas fa-info-circle mr-1"></i> No products — DTF/Patch only</span>
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-[#E6EDF3]">Products</h2>
-                        <p class="text-sm text-[#94A3B8]">Search and add products to this order.</p>
-                    </div>
+                    <button type="button" @click="setNoProducts()"
+                            :class="noProducts ? 'bg-[#F59E0B] text-white shadow-lg shadow-[#F59E0B]/25' : 'border border-[#232A36] text-[#94A3B8] hover:bg-[#1C2333]'"
+                            class="rounded-xl px-4 py-2 text-sm font-medium transition-all">
+                        None
+                    </button>
                 </div>
 
+                <!-- No products indicator -->
+                <template x-if="noProducts">
+                    <div class="rounded-xl border border-dashed border-[#F59E0B]/40 bg-[#F59E0B]/5 p-8 text-center">
+                        <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F59E0B]/10">
+                            <i class="fas fa-ban text-xl text-[#F59E0B]"></i>
+                        </div>
+                        <h3 class="text-base font-semibold text-[#E6EDF3]">No Products</h3>
+                        <p class="mt-1 text-sm text-[#94A3B8]">This order is for DTF or Patch services only.</p>
+                    </div>
+                </template>
+
                 <!-- Pending products list -->
-                <template x-if="products.length > 0">
+                <template x-if="!noProducts && products.length > 0">
                     <div class="mb-4 space-y-2">
                         <template x-for="(p, i) in products" :key="i">
                             <div class="flex items-center justify-between rounded-xl border border-[#232A36] bg-[#0F1117] p-3">
@@ -150,6 +171,7 @@
                 </template>
 
                 <!-- Search product -->
+                <template x-if="!noProducts">
                 <div class="space-y-4">
                     <div class="relative">
                         <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Search Product</label>
@@ -201,6 +223,7 @@
                         </div>
                     </template>
                 </div>
+                </template>
             </x-card>
 
             <!-- DTF & Patch -->
@@ -404,6 +427,7 @@
                 payment_method: '',
                 status: 'on_hold',
                 notes: '',
+                noProducts: false,
                 drafts: [],
                 draftStatus: 'idle',
                 lastSaved: '',
@@ -496,6 +520,17 @@
                     this.calcTotal();
                 },
 
+                setNoProducts() {
+                    this.noProducts = !this.noProducts;
+                    if (this.noProducts) {
+                        this.products = [];
+                        this.selected = null;
+                        this.selectedSize = '';
+                        this.selectedQty = '';
+                        this.search = '';
+                    }
+                },
+
                 removeProduct(i) {
                     this.products.splice(i, 1);
                     this.calcTotal();
@@ -570,7 +605,9 @@
                 async loadDrafts() {
                     try {
                         const res = await fetch('{{ admin_route("order-drafts.index") }}');
-                        if (res.ok) this.drafts = await res.json();
+                        if (res.ok && res.headers.get('content-type')?.includes('json')) {
+                            this.drafts = await res.json();
+                        }
                     } catch (e) {}
                 },
 
@@ -582,7 +619,7 @@
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                             body: JSON.stringify({ data: dataStr }),
                         });
-                        if (res.ok) {
+                        if (res.ok && res.headers.get('content-type')?.includes('json')) {
                             this.lastSaved = dataStr;
                             this.draftStatus = 'saved';
                             await this.loadDrafts();
@@ -621,7 +658,7 @@
 
                 async deleteDraft(id) {
                     try {
-                        const res = await fetch('{{ url("controlPanel") }}/' + '{{ auth()->user()->role }}' + '/order-drafts/' + id, {
+                        const res = await fetch('{{ route("order-drafts.destroy", "__ID__") }}'.replace('__ID__', id), {
                             method: 'DELETE',
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         });
@@ -650,4 +687,5 @@
             }
         }
     </script>
+    </div>
 </x-layouts.app>
