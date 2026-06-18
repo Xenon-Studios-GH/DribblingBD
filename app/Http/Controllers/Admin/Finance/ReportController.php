@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin\Finance;
 
 use App\Http\Controllers\Controller;
-use App\Models\FinanceCategory;
 use App\Models\FinanceTransaction;
 use App\Services\ReportService;
 use Illuminate\Http\Request;

@@ -31,12 +31,13 @@ class StockReportController extends Controller
     protected function applyGrouping($query, string $period): array
     {
         $isDaily = in_array($period, ['day', 'custom']);
+        $driver = $query->getConnection()->getDriverName();
 
-        $groupSelect = match ($period) {
-            'week' => "CONCAT(YEAR(created_at), '-W', LPAD(WEEK(created_at), 2, '0')) as period_label, YEAR(created_at) as yr, WEEK(created_at) as wk",
-            'month' => "CONCAT(YEAR(created_at), '-', LPAD(MONTH(created_at), 2, '0')) as period_label, YEAR(created_at) as yr, MONTH(created_at) as mo",
-            'year' => "YEAR(created_at) as period_label, YEAR(created_at) as yr",
-            default => "DATE(created_at) as period_label, DATE(created_at) as dt",
+        [$groupSelect, $groupBy, $orderBy] = match ($period) {
+            'week' => $this->weekGrouping($driver),
+            'month' => $this->monthGrouping($driver),
+            'year' => $this->yearGrouping($driver),
+            default => $this->dailyGrouping($driver),
         };
 
         $reports = $query->selectRaw("
@@ -44,16 +45,74 @@ class StockReportController extends Controller
                 SUM(CASE WHEN type = 'in' THEN quantity ELSE 0 END) as total_in,
                 SUM(CASE WHEN type = 'out' THEN quantity ELSE 0 END) as total_out
             ")
-            ->when($period === 'week', fn($q) => $q->groupByRaw('YEAR(created_at), WEEK(created_at)'))
-            ->when($period === 'month', fn($q) => $q->groupByRaw('YEAR(created_at), MONTH(created_at)'))
-            ->when($period === 'year', fn($q) => $q->groupByRaw('YEAR(created_at)'))
-            ->when($isDaily, fn($q) => $q->groupByRaw('DATE(created_at)'))
-            ->when($period === 'week', fn($q) => $q->orderByRaw('YEAR(created_at) desc, WEEK(created_at) desc'))
-            ->when($period === 'month', fn($q) => $q->orderByRaw('YEAR(created_at) desc, MONTH(created_at) desc'))
-            ->when($period === 'year', fn($q) => $q->orderByRaw('YEAR(created_at) desc'))
-            ->when($isDaily, fn($q) => $q->orderByRaw('DATE(created_at) desc'));
+            ->groupByRaw($groupBy)
+            ->orderByRaw($orderBy);
 
         return compact('reports', 'isDaily');
+    }
+
+    private function weekGrouping(string $driver): array
+    {
+        if ($driver === 'mysql') {
+            return [
+                "CONCAT(YEAR(created_at), '-W', LPAD(WEEK(created_at), 2, '0')) as period_label, YEAR(created_at) as yr, WEEK(created_at) as wk",
+                'YEAR(created_at), WEEK(created_at)',
+                'YEAR(created_at) desc, WEEK(created_at) desc',
+            ];
+        }
+        return [
+            "CAST(strftime('%Y', created_at) AS TEXT) || '-W' || SUBSTR('00' || CAST(strftime('%W', created_at) AS TEXT), -2) as period_label, strftime('%Y', created_at) as yr, strftime('%W', created_at) as wk",
+            "strftime('%Y', created_at), strftime('%W', created_at)",
+            "strftime('%Y', created_at) desc, strftime('%W', created_at) desc",
+        ];
+    }
+
+    private function monthGrouping(string $driver): array
+    {
+        if ($driver === 'mysql') {
+            return [
+                "CONCAT(YEAR(created_at), '-', LPAD(MONTH(created_at), 2, '0')) as period_label, YEAR(created_at) as yr, MONTH(created_at) as mo",
+                'YEAR(created_at), MONTH(created_at)',
+                'YEAR(created_at) desc, MONTH(created_at) desc',
+            ];
+        }
+        return [
+            "CAST(strftime('%Y', created_at) AS TEXT) || '-' || SUBSTR('00' || CAST(strftime('%m', created_at) AS TEXT), -2) as period_label, strftime('%Y', created_at) as yr, strftime('%m', created_at) as mo",
+            "strftime('%Y', created_at), strftime('%m', created_at)",
+            "strftime('%Y', created_at) desc, strftime('%m', created_at) desc",
+        ];
+    }
+
+    private function yearGrouping(string $driver): array
+    {
+        if ($driver === 'mysql') {
+            return [
+                "YEAR(created_at) as period_label, YEAR(created_at) as yr",
+                'YEAR(created_at)',
+                'YEAR(created_at) desc',
+            ];
+        }
+        return [
+            "strftime('%Y', created_at) as period_label, strftime('%Y', created_at) as yr",
+            "strftime('%Y', created_at)",
+            "strftime('%Y', created_at) desc",
+        ];
+    }
+
+    private function dailyGrouping(string $driver): array
+    {
+        if ($driver === 'mysql') {
+            return [
+                "DATE(created_at) as period_label, DATE(created_at) as dt",
+                'DATE(created_at)',
+                'DATE(created_at) desc',
+            ];
+        }
+        return [
+            "DATE(created_at) as period_label, DATE(created_at) as dt",
+            'DATE(created_at)',
+            'DATE(created_at) desc',
+        ];
     }
 
     public function index(Request $request)
@@ -87,15 +146,25 @@ class StockReportController extends Controller
 
         $query = StockTransaction::with(['product:id,product_name,product_code', 'user:id,name']);
 
+        $driver = $query->getConnection()->getDriverName();
+
         if ($isDaily && $label) {
             $query->where('created_at', '>=', $label . ' 00:00:00')
                   ->where('created_at', '<=', $label . ' 23:59:59');
         } elseif ($period === 'week' && $label && str_contains($label, '-W')) {
             $parts = explode('-W', $label);
-            $query->whereRaw("YEAR(created_at) = ? AND WEEK(created_at) = ?", [(int)$parts[0], (int)$parts[1]]);
+            if ($driver === 'mysql') {
+                $query->whereRaw("YEAR(created_at) = ? AND WEEK(created_at) = ?", [(int)$parts[0], (int)$parts[1]]);
+            } else {
+                $query->whereRaw("strftime('%Y', created_at) = ? AND strftime('%W', created_at) = ?", [(int)$parts[0], str_pad((int)$parts[1], 2, '0', STR_PAD_LEFT)]);
+            }
         } elseif ($period === 'month' && $label && str_contains($label, '-')) {
             $parts = explode('-', $label);
-            $query->whereRaw("YEAR(created_at) = ? AND MONTH(created_at) = ?", [(int)$parts[0], (int)$parts[1]]);
+            if ($driver === 'mysql') {
+                $query->whereRaw("YEAR(created_at) = ? AND MONTH(created_at) = ?", [(int)$parts[0], (int)$parts[1]]);
+            } else {
+                $query->whereRaw("strftime('%Y', created_at) = ? AND strftime('%m', created_at) = ?", [(int)$parts[0], str_pad((int)$parts[1], 2, '0', STR_PAD_LEFT)]);
+            }
         } elseif ($period === 'year' && $label) {
             $query->whereYear('created_at', (int)$label);
         }

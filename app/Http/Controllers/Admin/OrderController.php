@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreOrderRequest;
+use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
 use App\Models\OrderDraft;
 use App\Models\Product;
@@ -114,25 +116,9 @@ class OrderController extends Controller
         return view('orders.create', compact('products', 'patchPrice', 'patchStock'));
     }
 
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string|max:2000',
-            'city' => 'required|string|max:100',
-            'products' => 'required|json',
-            'dtf_name' => 'nullable|string|max:255',
-            'dtf_number' => 'nullable|string|max:255',
-            'patch_price' => 'nullable|numeric|min:0',
-            'total_amount' => 'required|numeric|min:0',
-            'advanced_payment' => 'nullable|numeric|min:0',
-            'payment_method' => 'required|in:bkash,nagad,rocket,cod,cash',
-            'delivery_charge' => 'nullable|numeric|min:0',
-            'status' => 'required|in:on_hold,out_of_stock',
-            'notes' => 'nullable|string|max:5000',
-        ]);
-
+        $validated = $request->validated();
         $products = json_decode($validated['products'], true);
         if (!is_array($products) || empty($products)) {
             return back()->withErrors(['products' => 'At least one product is required.'])->withInput();
@@ -218,25 +204,9 @@ class OrderController extends Controller
         return view('orders.edit', compact('order', 'products', 'patchPrice', 'patchStock'));
     }
 
-    public function update(Request $request, Order $order)
+    public function update(UpdateOrderRequest $request, Order $order)
     {
-        $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string|max:2000',
-            'city' => 'required|string|max:100',
-            'products' => 'required|json',
-            'dtf_name' => 'nullable|string|max:255',
-            'dtf_number' => 'nullable|string|max:255',
-            'patch_price' => 'nullable|numeric|min:0',
-            'total_amount' => 'required|numeric|min:0',
-            'advanced_payment' => 'nullable|numeric|min:0',
-            'payment_method' => 'required|in:bkash,nagad,rocket,cod,cash',
-            'delivery_charge' => 'nullable|numeric|min:0',
-            'status' => 'required|in:on_hold,packed,picked,delivered,out_of_stock,return,refund',
-            'notes' => 'nullable|string|max:5000',
-        ]);
-
+        $validated = $request->validated();
         $products = json_decode($validated['products'], true);
         if (!is_array($products) || empty($products)) {
             return back()->withErrors(['products' => 'At least one product is required.'])->withInput();

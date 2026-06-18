@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasKeyValueSettings;
 use Illuminate\Database\Eloquent\Model;
 
 class SeoSetting extends Model
 {
+    use HasKeyValueSettings;
+
     protected $table = 'seo_settings';
     public $timestamps = false;
     protected $primaryKey = 'key';
@@ -13,14 +16,4 @@ class SeoSetting extends Model
     protected $keyType = 'string';
 
     protected $fillable = ['key', 'value', 'type'];
-
-    public static function getValue(string $key, $default = null): ?string
-    {
-        return static::where('key', $key)->value('value') ?? $default;
-    }
-
-    public static function setValue(string $key, ?string $value, string $type = 'text'): void
-    {
-        static::updateOrCreate(['key' => $key], ['value' => $value, 'type' => $type]);
-    }
 }
