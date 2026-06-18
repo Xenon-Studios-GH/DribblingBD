@@ -20,13 +20,14 @@ class StockService
 
     public function getOrCreateStock(Product $product, string $size): Stock
     {
-        return Stock::where('product_id', $product->id)
-            ->where('size', $size)
-            ->lockForUpdate()
-            ->firstOrCreate(
+        return DB::transaction(function () use ($product, $size) {
+            $stock = Stock::firstOrCreate(
                 ['product_id' => $product->id, 'size' => $size],
                 ['quantity' => 0]
             );
+
+            return Stock::lockForUpdate()->findOrFail($stock->id);
+        });
     }
 
     public function previewIn(Product $product, string $size, int $quantity): array
@@ -84,13 +85,12 @@ class StockService
         $userId ??= Auth::id();
 
         return DB::transaction(function () use ($product, $size, $quantity, $note, $userId) {
-            $stock = Stock::where('product_id', $product->id)
-                ->where('size', $size)
-                ->lockForUpdate()
-                ->firstOrCreate(
-                    ['product_id' => $product->id, 'size' => $size],
-                    ['quantity' => 0]
-                );
+            $stock = Stock::firstOrCreate(
+                ['product_id' => $product->id, 'size' => $size],
+                ['quantity' => 0]
+            );
+
+            $stock = Stock::lockForUpdate()->findOrFail($stock->id);
 
             $stockBefore = $stock->quantity;
             $stock->increment('quantity', $quantity);

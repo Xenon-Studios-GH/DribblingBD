@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PdfDownload;
 use App\Models\StockTransaction;
 
 class StockActivityController extends Controller
@@ -20,11 +21,16 @@ class StockActivityController extends Controller
             ->where('created_at', '>=', now()->subDays(90))->count();
         $todayCount = StockTransaction::whereDate('created_at', today())->count();
 
+        $downloads = PdfDownload::with('user')
+            ->latest()
+            ->paginate(20);
+
         return view('stock-activity.index', compact(
             'transactions',
             'stockInCount',
             'stockOutCount',
-            'todayCount'
+            'todayCount',
+            'downloads'
         ));
     }
 }

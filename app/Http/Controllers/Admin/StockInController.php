@@ -83,6 +83,7 @@ class StockInController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
             'product_name' => ['required_if:product_id,new', 'string', 'max:255'],
             'price' => ['required_if:product_id,new', 'numeric', 'min:0'],
+            'note' => ['nullable', 'string', 'max:500'],
         ]);
 
         try {
@@ -104,7 +105,7 @@ class StockInController extends Controller
                     $product = Product::findOrFail($validated['product_id']);
                 }
 
-                $this->stockService->stockIn($product, $validated['size'], $validated['quantity']);
+                $this->stockService->stockIn($product, $validated['size'], $validated['quantity'], $validated['note'] ?? null);
 
                 return $product;
             });

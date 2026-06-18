@@ -8,6 +8,7 @@ use App\Services\SeoService;
 use App\Services\StockService;
 use App\Services\WorkLogService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,9 +25,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
-            $settings = Cache::rememberForever('site_settings', function () {
-                return SiteSetting::pluck('value', 'key')->toArray();
-            });
+            $settings = [];
+            if (Schema::hasTable('site_settings')) {
+                $settings = Cache::rememberForever('site_settings', function () {
+                    return SiteSetting::pluck('value', 'key')->toArray();
+                });
+            }
             $view->with('settings', $settings);
         });
     }

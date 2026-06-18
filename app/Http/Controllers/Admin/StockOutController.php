@@ -56,11 +56,12 @@ class StockOutController extends Controller
             'product_id' => ['required', 'exists:products,id'],
             'size' => ['required', 'in:' . implode(',', StockSize::values())],
             'quantity' => ['required', 'integer', 'min:1'],
+            'note' => ['nullable', 'string', 'max:500'],
         ]);
 
         try {
             $product = Product::findOrFail($validated['product_id']);
-            $this->stockService->stockOut($product, $validated['size'], $validated['quantity']);
+            $this->stockService->stockOut($product, $validated['size'], $validated['quantity'], $validated['note'] ?? null);
             return response()->json(['success' => true, 'message' => 'Stock removed successfully.', 'product_id' => $product->id]);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
