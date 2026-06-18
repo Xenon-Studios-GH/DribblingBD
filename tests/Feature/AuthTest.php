@@ -19,8 +19,8 @@ class AuthTest extends TestCase
     public function test_authenticated_user_redirected_from_login()
     {
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->get(route('login'));
-        $response->assertRedirect(route('dashboard', ['role' => $user->role]));
+        $response = $this->actingAs($user)->get(route('authentication'));
+        $response->assertRedirect(route('dashboard'));
     }
 
     public function test_login_with_valid_credentials()
@@ -32,7 +32,7 @@ class AuthTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect(route('dashboard', ['role' => $user->role]));
+        $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticated();
     }
 
@@ -72,7 +72,7 @@ class AuthTest extends TestCase
             'password' => 'password',
         ]);
 
-        $this->assertDatabaseHas('login_logs', [
+        $this->assertDatabaseHas('activity_logs', [
             'email' => $user->email,
             'status' => 'success',
         ]);
@@ -90,14 +90,14 @@ class AuthTest extends TestCase
 
     public function test_dashboard_requires_auth()
     {
-        $response = $this->get(route('dashboard', ['role' => 'admin']));
+        $response = $this->get(route('dashboard'));
         $response->assertRedirect(route('authentication'));
     }
 
     public function test_dashboard_loads_for_authenticated_user()
     {
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->get(route('dashboard', ['role' => $user->role]));
+        $response = $this->actingAs($user)->get(route('dashboard'));
         $response->assertStatus(200);
     }
 }

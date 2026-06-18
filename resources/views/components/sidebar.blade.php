@@ -20,11 +20,11 @@
         <x-nav-link href="{{ admin_route('workers.index') }}" :active="request()->routeIs('workers.*')" icon="users">
             Users
         </x-nav-link>
-        <x-nav-link href="{{ admin_route('login-logs.index') }}" :active="request()->routeIs('login-logs.*')" icon="login">
-            Login Logs
+        <x-nav-link href="{{ admin_route('user-logs.index') }}" :active="request()->routeIs('user-logs.*')" icon="activity">
+            User Logs
         </x-nav-link>
-        <x-nav-link href="{{ admin_route('work-logs.index') }}" :active="request()->routeIs('work-logs.*')" icon="activity">
-            Work Logs
+        <x-nav-link href="{{ admin_route('activity-logs.index') }}" :active="request()->routeIs('activity-logs.*')" icon="activity">
+            Activity Logs
         </x-nav-link>
         <x-nav-link href="{{ admin_route('inquiries.index') }}" :active="request()->routeIs('inquiries.*')" icon="inquiry">
             Inquiries
@@ -63,15 +63,15 @@
         <x-nav-link href="{{ admin_route('stock.activity') }}" :active="request()->routeIs('stock.activity')" icon="activity">
             Recent Activity
         </x-nav-link>
+        <x-nav-link href="{{ admin_route('stock.report') }}" :active="request()->routeIs('stock.report*')" icon="report">
+            Stock Report
+        </x-nav-link>
 
         <div class="my-2 border-t border-[#232A36]"></div>
         <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Orders</p>
 
         <x-nav-link href="{{ admin_route('orders.index') }}" :active="request()->routeIs('orders.*')" icon="order">
             All Orders
-        </x-nav-link>
-        <x-nav-link href="{{ admin_route('orders.create') }}" :active="request()->routeIs('orders.create')" icon="plus">
-            New Order
         </x-nav-link>
 
         @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
