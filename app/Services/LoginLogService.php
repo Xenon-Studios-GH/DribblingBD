@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\LoginLog;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\DB;
 
 class LoginLogService
 {
-    public function recordLogin(string $email, bool $success, ?int $userId = null): LoginLog
+    public function recordLogin(string $email, bool $success, ?int $userId = null): ActivityLog
     {
         $ipAddress = null;
         $userAgent = null;
@@ -20,13 +20,14 @@ class LoginLogService
             $userAgent = request()->userAgent();
         }
 
-        return LoginLog::create([
+        return ActivityLog::create([
             'user_id' => $userId,
             'email' => $email,
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent,
             'login_at' => now(),
             'status' => $success ? 'success' : 'failed',
+            'action' => 'login',
         ]);
     }
 
@@ -37,7 +38,7 @@ class LoginLogService
         }
 
         DB::transaction(function () use ($userId) {
-            $latest = LoginLog::where('user_id', $userId)
+            $latest = ActivityLog::where('user_id', $userId)
                 ->whereNull('logout_at')
                 ->latest('login_at')
                 ->lockForUpdate()
@@ -51,7 +52,7 @@ class LoginLogService
 
     public function getLogs(array $filters = [], int $days = 90)
     {
-        $query = LoginLog::with('user')
+        $query = ActivityLog::with('user')
             ->where('login_at', '>=', now()->subDays($days))
             ->latest('login_at');
 
@@ -60,7 +61,7 @@ class LoginLogService
         }
 
         if (!empty($filters['email'])) {
-            $query->where('email', 'like', '%' . $filters['email'] . '%');
+            $query->where('email', 'like', $filters['email'] . '%');
         }
 
         if (!empty($filters['date_from'])) {

@@ -37,43 +37,45 @@
             </x-card>
         </div>
 
-        @if (session('success'))
-        <div class="rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-3 text-sm text-[#22C55E]">
-            {{ session('success') }}
-        </div>
-        @endif
-
         <!-- Search + Actions Bar (sticky below top bar) -->
         <div class="sticky top-16 z-20 -mx-4 -mt-2 bg-[#0F1117] px-4 pb-4 pt-4 md:-mx-8 md:px-8">
-            <div class="flex flex-wrap items-center gap-3">
-                <div class="relative flex-1 min-w-0 sm:min-w-[200px]">
-                    <i class="fas fa-search pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]"></i>
-                    <input type="text" id="stockSearch" placeholder="Search product or code..." autocomplete="off"
-                        class="w-full rounded-xl border border-[#232A36] bg-[#161B22] pl-10 pr-4 py-2.5 text-sm text-[#E6EDF3] placeholder-[#94A3B8] transition-colors focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
+            <div class="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
+                <div class="w-full sm:flex-1 sm:min-w-[180px]">
+                    <div class="relative">
+                        <i class="fas fa-search pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]"></i>
+                        <input type="text" id="stockSearch" placeholder="Search..." autocomplete="off"
+                            class="w-full rounded-xl border border-[#232A36] bg-[#161B22] pl-8 pr-3 py-2.5 text-sm text-[#E6EDF3] placeholder-[#94A3B8] transition-colors focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
+                    </div>
                 </div>
-                <select id="stockFilter" class="h-11 rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
-                    <option value="">Select option</option>
-                    <option value="out_of_stock">Out of stock</option>
-                    <option value="stock_low">Low to high stock</option>
-                    <option value="stock_high">High to low stock</option>
-                </select>
-                <select id="sizeFilter" class="h-11 rounded-xl border border-[#232A36] bg-[#161B22] px-3 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
-                    <option value="">All Sizes</option>
-                    <option value="S">S</option>
-                    <option value="M">M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
-                    <option value="XXL">XXL</option>
-                </select>
+                <div class="flex items-center gap-1.5">
+                    <select id="stockFilter" class="flex-1 rounded-xl border border-[#232A36] bg-[#161B22] px-2 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
+                        <option value="">All</option>
+                        <option value="out_of_stock">Out of stock</option>
+                        <option value="stock_low">Low to high</option>
+                        <option value="stock_high">High to low</option>
+                    </select>
+                    <select id="sizeFilter" class="flex-1 rounded-xl border border-[#232A36] bg-[#161B22] px-2 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]">
+                        <option value="">Sizes</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
                 @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
-                <a href="{{ admin_route('stock.in') }}" class="flex items-center gap-2 rounded-xl bg-[#22C55E] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#16A34A] shadow-lg shadow-[#22C55E]/20" aria-label="Stock In">
-                    <i class="fas fa-plus h-4 w-4"></i>
-                    <span class="hidden sm:inline">In</span>
-                </a>
-                <a href="{{ admin_route('stock.out') }}" class="flex items-center gap-2 rounded-xl bg-[#EF4444] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#DC2626] shadow-lg shadow-[#EF4444]/20" aria-label="Stock Out">
-                    <i class="fas fa-minus h-4 w-4"></i>
-                    <span class="hidden sm:inline">Out</span>
-                </a>
+                <div class="flex items-center gap-1.5">
+                    <a href="{{ admin_route('stock.in') }}"
+                       class="flex items-center justify-center gap-1 rounded-xl bg-[#22C55E] px-3 py-2 text-sm font-semibold text-white hover:bg-[#16A34A] shadow-lg shadow-[#22C55E]/20">
+                        <i class="fas fa-plus h-4 w-4"></i>
+                        <span>In</span>
+                    </a>
+                    <a href="{{ admin_route('stock.out') }}"
+                       class="flex items-center justify-center gap-1 rounded-xl bg-[#EF4444] px-3 py-2 text-sm font-semibold text-white hover:bg-[#DC2626] shadow-lg shadow-[#EF4444]/20">
+                        <i class="fas fa-minus h-4 w-4"></i>
+                        <span>Out</span>
+                    </a>
+                </div>
                 @endif
             </div>
         </div>

@@ -91,7 +91,7 @@ class ImageService
 
                     $extension = $this->getSecureExtension($file->getMimeType());
                     $filename = 'project-' . $project->id . '-slot-' . $sortOrder . '-' . time() . '.' . $extension;
-                    $filePath = $file->storeAs($path, $filename, 'public');
+                    $filePath = $file->storeAs($path, $filename, 'uploads');
 
                     $createdImages[] = WebsiteProjectImage::create([
                         'project_id' => $project->id,
@@ -115,7 +115,7 @@ class ImageService
         foreach ($deletedFiles as $filePath) {
             $records[] = [
                 'file_path' => $filePath,
-                'disk' => 'public',
+                'disk' => 'uploads',
                 'scheduled_for_deletion_at' => now()->addDays(30),
             ];
         }
@@ -127,13 +127,13 @@ class ImageService
     public function deleteAllImages(WebsiteProject $project): void
     {
         $dir = 'website/projects/' . $project->id;
-        $files = Storage::disk('public')->files($dir);
+        $files = Storage::disk('uploads')->files($dir);
 
         $records = [];
         foreach ($files as $filePath) {
             $records[] = [
                 'file_path' => $filePath,
-                'disk' => 'public',
+                'disk' => 'uploads',
                 'scheduled_for_deletion_at' => now()->addDays(30),
             ];
         }

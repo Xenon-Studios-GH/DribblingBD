@@ -1,12 +1,5 @@
 <x-layouts.app title="Stock Out">
     <div class="mx-auto max-w-4xl" x-data="stockOutApp()">
-        <template x-if="toast.show">
-            <div x-transition x-init="setTimeout(() => toast.show = false, 2500)" class="mb-4 rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2"
-                :class="toast.type === 'success' ? 'border border-[#22C55E]/30 bg-[#22C55E]/10 text-[#22C55E]' : 'border border-[#94A3B8]/30 bg-[#94A3B8]/10 text-[#94A3B8]'">
-                <i class="fas" :class="toast.type === 'success' ? 'fa-check-circle' : 'fa-info-circle'"></i>
-                <span x-text="toast.message"></span>
-            </div>
-        </template>
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-[#E6EDF3]">Stock Out</h1>
             <p class="mt-1 text-sm text-[#94A3B8]">Remove inventory from the system.</p>
@@ -88,6 +81,11 @@
                             <input type="number" x-model="quantity" min="1" class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
                         </div>
 
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Note <span class="font-normal text-[#94A3B8]">(optional)</span></label>
+                            <input type="text" x-model="note" placeholder="e.g. Damaged, quality issue, write-off..." class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-4 py-2.5 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                        </div>
+
                         <button @click="addToList()" class="w-full rounded-xl bg-[#EF4444] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#DC2626]" x-bind:disabled="!size || !quantity">
                             Add to List
                         </button>
@@ -110,12 +108,12 @@
                 selected: null,
                 size: '',
                 quantity: '',
+                note: '',
                 pending: [],
                 error: '',
                 toast: { show: false, message: '', type: 'success' },
                 notify(message, type = 'success') {
-                    this.toast = { show: true, message, type };
-                    setTimeout(() => this.toast.show = false, 2500);
+                    window.notify(message, type);
                 },
                 stockForSize(product, size) {
                     if (!product || !product.stocks) return 0;
@@ -145,11 +143,13 @@
                         product_code: this.selected.product_code,
                         size: this.size,
                         quantity: parseInt(this.quantity),
+                        note: this.note,
                         confirming: false,
                     });
                     this.selected = null;
                     this.size = '';
                     this.quantity = '';
+                    this.note = '';
                     this.search = '';
                 },
                 async confirmItem(idx) {
@@ -166,7 +166,7 @@
                         const r2 = await fetch('{{ admin_route('stock.out.confirm') }}', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify({ product_id: item.product_id, size: item.size, quantity: item.quantity }),
+                            body: JSON.stringify({ product_id: item.product_id, size: item.size, quantity: item.quantity, note: item.note || '' }),
                         });
                         if (!r2.ok) { const d = await r2.json(); throw new Error(d.message || Object.values(d.errors || {}).flat().join(' ')); }
                         this.pending.splice(idx, 1);

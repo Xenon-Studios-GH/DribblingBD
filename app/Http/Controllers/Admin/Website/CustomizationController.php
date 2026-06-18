@@ -10,7 +10,6 @@ use App\Models\Testimonial;
 use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CustomizationController extends Controller
@@ -33,12 +32,12 @@ class CustomizationController extends Controller
 
     // === AJAX get single items ===
 
-    public function getFaq(string $role, Faq $faq)
+    public function getFaq(Faq $faq)
     {
         return response()->json($faq);
     }
 
-    public function getTestimonial(string $role, Testimonial $testimonial)
+    public function getTestimonial(Testimonial $testimonial)
     {
         return response()->json($testimonial);
     }
@@ -63,7 +62,7 @@ class CustomizationController extends Controller
             ->with('success', 'FAQ created.');
     }
 
-    public function updateFaq(string $role, Request $request, Faq $faq)
+    public function updateFaq(Request $request, Faq $faq)
     {
         $data = $request->validate([
             'category' => 'required|in:product,order',
@@ -81,7 +80,7 @@ class CustomizationController extends Controller
             ->with('success', 'FAQ updated.');
     }
 
-    public function destroyFaq(string $role, Faq $faq)
+    public function destroyFaq(Faq $faq)
     {
         $faq->delete();
         $this->workLogService->log('FAQ Deleted', 'website', $faq->id, "FAQ deleted");
@@ -106,7 +105,7 @@ class CustomizationController extends Controller
         if ($request->hasFile('image')) {
             $ext = $request->file('image')->extension();
             $filename = 'testimonial-' . Str::slug($data['name']) . '-' . time() . '.' . $ext;
-            $data['image'] = $request->file('image')->storeAs('testimonials', $filename, 'public');
+            $data['image'] = $request->file('image')->storeAs('testimonials', $filename, 'uploads');
         }
 
         $testimonial = Testimonial::create($data + ['sort_order' => $data['sort_order'] ?? 0, 'is_active' => $data['is_active'] ?? true]);
@@ -117,7 +116,7 @@ class CustomizationController extends Controller
             ->with('success', 'Testimonial created.');
     }
 
-    public function updateTestimonial(string $role, Request $request, Testimonial $testimonial)
+    public function updateTestimonial(Request $request, Testimonial $testimonial)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -133,13 +132,13 @@ class CustomizationController extends Controller
             if ($testimonial->image) {
                 PendingImageDeletion::create([
                     'file_path' => $testimonial->image,
-                    'disk' => 'public',
+                    'disk' => 'uploads',
                     'scheduled_for_deletion_at' => now()->addDays(30),
                 ]);
             }
             $ext = $request->file('image')->extension();
             $filename = 'testimonial-' . Str::slug($data['name']) . '-' . time() . '.' . $ext;
-            $data['image'] = $request->file('image')->storeAs('testimonials', $filename, 'public');
+            $data['image'] = $request->file('image')->storeAs('testimonials', $filename, 'uploads');
         }
 
         $testimonial->update($data);
@@ -150,12 +149,12 @@ class CustomizationController extends Controller
             ->with('success', 'Testimonial updated.');
     }
 
-    public function destroyTestimonial(string $role, Testimonial $testimonial)
+    public function destroyTestimonial(Testimonial $testimonial)
     {
         if ($testimonial->image) {
             PendingImageDeletion::create([
                 'file_path' => $testimonial->image,
-                'disk' => 'public',
+                'disk' => 'uploads',
                 'scheduled_for_deletion_at' => now()->addDays(30),
             ]);
         }
@@ -167,8 +166,9 @@ class CustomizationController extends Controller
 
     // === Settings ===
 
-    public function updateSettings(string $role, Request $request)
+    public function updateSettings(Request $request)
     {
+        $role = auth()->user()->role;
         if (!in_array($role, ['superadmin'])) {
             abort(403);
         }
@@ -288,13 +288,13 @@ class CustomizationController extends Controller
                 if ($existing) {
                     PendingImageDeletion::create([
                         'file_path' => $existing,
-                        'disk' => 'public',
+                        'disk' => 'uploads',
                         'scheduled_for_deletion_at' => now()->addDays(30),
                     ]);
                 }
                 $ext = $request->file("hero_image_{$i}")->extension();
                 $filename = 'hero-' . $i . '-' . time() . '.' . $ext;
-                $path = $request->file("hero_image_{$i}")->storeAs('hero', $filename, 'public');
+                $path = $request->file("hero_image_{$i}")->storeAs('hero', $filename, 'uploads');
                 SiteSetting::setValue("hero_image_{$i}", $path);
             }
             if ($request->has("remove_hero_image_{$i}")) {
@@ -302,7 +302,7 @@ class CustomizationController extends Controller
                 if ($existing) {
                     PendingImageDeletion::create([
                         'file_path' => $existing,
-                        'disk' => 'public',
+                        'disk' => 'uploads',
                         'scheduled_for_deletion_at' => now()->addDays(30),
                     ]);
                 }

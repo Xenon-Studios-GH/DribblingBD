@@ -5,17 +5,10 @@ use Illuminate\Support\Facades\Auth;
 if (!function_exists('shop_project_url')) {
     function shop_project_url($project)
     {
-        $cat = $project->category;
-        if (!$cat) {
+        if (!$project?->slug) {
             return '#';
         }
-        $categorySlug = $cat->parent?->slug ?? $cat->slug;
-        $subcategorySlug = $cat->slug;
-        return route('shop.project.detail', [
-            'categorySlug' => $categorySlug,
-            'subcategorySlug' => $subcategorySlug,
-            'projectSlug' => $project->slug,
-        ]);
+        return route('shop.products.show', $project);
     }
 }
 
@@ -26,7 +19,7 @@ if (!function_exists('storage_url')) {
             return '';
         }
 
-        return route('storage.serve', ['path' => $path], false);
+        return asset('uploads/' . $path);
     }
 }
 
@@ -35,15 +28,6 @@ if (!function_exists('admin_route')) {
     {
         if (!is_array($parameters)) {
             $parameters = [$parameters];
-        }
-        $role = Auth::user()?->role;
-        if (!$role) {
-            throw new \RuntimeException('Cannot generate admin route: user not authenticated.');
-        }
-        if (array_is_list($parameters)) {
-            array_unshift($parameters, $role);
-        } else {
-            $parameters['role'] = $role;
         }
         return route($name, $parameters, $absolute);
     }

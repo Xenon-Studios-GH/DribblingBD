@@ -30,13 +30,18 @@ class OrderDraftController extends Controller
             'data' => 'required|json',
         ]);
 
+        $decoded = json_decode($data['data'], true);
+        if (!is_array($decoded)) {
+            return response()->json(['message' => 'Data must be a valid JSON object.'], 422);
+        }
+
         $draft = OrderDraft::updateOrCreate(
             [
                 'user_id' => Auth::id(),
                 'order_id' => $data['order_id'] ?? null,
             ],
             [
-                'data' => json_decode($data['data'], true),
+                'data' => $decoded,
             ]
         );
 
