@@ -10,12 +10,73 @@
     <title>{{ $title }} — {{ config('app.name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>[x-cloak]{display:none!important}</style>
+    <x-tracking.head />
 </head>
 
     <body class="min-h-screen bg-[#0F1117] text-[#E6EDF3] antialiased">
-    <div class="flex min-h-screen" x-data="appLayout()" @keydown.escape.window="sidebarOpen = false">
+
+    @if (session('show_welcome'))
+    <div id="welcome-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0F1117]">
+        <div class="text-center">
+            <h1 id="welcome-text" class="font-bold text-[#E6EDF3] leading-tight" style="font-size: clamp(1.5rem, 5vw, 3.5rem)"></h1>
+            <p id="welcome-role" class="mt-6 text-xl sm:text-2xl text-[#94A3B8]"></p>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const name = @json(session('show_welcome')['name']);
+            const role = @json(session('show_welcome')['role']);
+            const el = document.getElementById('welcome-text');
+            const roleEl = document.getElementById('welcome-role');
+            const overlay = document.getElementById('welcome-overlay');
+            const chars = '!<>-_\\/[]{}—=+*^?#________';
+
+            el.textContent = 'Welcome Back';
+            roleEl.textContent = role;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.id = 'welcome-name';
+            nameSpan.textContent = name.split('').map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+            el.appendChild(document.createTextNode(' '));
+            el.appendChild(nameSpan);
+
+            const tl = gsap.timeline();
+            const totalFrames = 35;
+
+            for (let i = 0; i < totalFrames; i++) {
+                tl.call(() => {
+                    const done = gsap.timeline().totalProgress() / totalFrames;
+                    const revealCount = Math.floor((i + 1) / totalFrames * name.length);
+                    let result = '';
+                    for (let j = 0; j < name.length; j++) {
+                        if (j < revealCount) {
+                            result += name[j];
+                        } else {
+                            result += chars[Math.floor(Math.random() * chars.length)];
+                        }
+                    }
+                    nameSpan.textContent = result;
+                }, [], i * 0.06);
+            }
+
+            tl.call(() => {
+                nameSpan.textContent = name;
+                roleEl.style.opacity = 0;
+            })
+            .to(roleEl, { opacity: 1, duration: 0.4 })
+            .to({}, { duration: 1.2 })
+            .to(overlay, { opacity: 0, duration: 0.5, ease: 'power2.inOut', onComplete: () => {
+                overlay.remove();
+            }});
+        });
+    </script>
+    @endif
+
+    <div class="flex min-h-screen" x-data="appLayout()" @keydown.escape.window="sidebarOpen = false"
+         x-init="init()">
         <x-sidebar />
 
         <div class="flex flex-1 flex-col md:ml-16 lg:ml-64">
@@ -99,6 +160,13 @@
             <main class="flex-1 p-4 md:p-8">
                 {{ $slot }}
             </main>
+
+            <footer class="border-t border-[#232A36] bg-[#0F1117]/50 px-4 md:px-8 py-6">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#94A3B8]">
+                    <p>&copy; {{ date('Y') }} DribblingBD. All rights reserved.</p>
+                    <p>Design And Develop By <a href="https://munthasir.com/" target="_blank" class="text-[#3B82F6] hover:underline">Munthasir Rahman</a></p>
+                </div>
+            </footer>
         </div>
 
         <!-- Mobile sidebar backdrop -->
@@ -110,10 +178,87 @@
             aria-hidden="true"></div>
     </div>
 
+    <!-- Global Toast -->
+    <div x-show="toast.show" x-cloak
+         x-transition:enter="transition-all duration-300"
+         x-transition:enter-start="opacity-0 translate-x-4"
+         x-transition:leave="transition-all duration-300"
+         x-transition:leave-end="opacity-0 translate-x-4"
+         class="fixed top-20 right-4 z-[9999] max-w-sm w-full"
+         @click="toast.show = false">
+        <div class="rounded-xl border px-4 py-3 shadow-lg flex items-start gap-3"
+             :class="toast.border"
+             :style="{ backgroundColor: toast.bg }">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                 :class="toast.iconBg">
+                <i class="h-4 w-4" :class="toast.icon" :style="{ color: toast.color }"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold" :style="{ color: toast.color }" x-text="toast.title"></p>
+                <p class="text-xs mt-0.5 text-[#94A3B8]" x-text="toast.message"></p>
+            </div>
+            <button @click="toast.show = false" class="shrink-0 text-[#64748B] hover:text-[#E6EDF3] transition-colors">
+                <i class="fas fa-times h-3 w-3"></i>
+            </button>
+        </div>
+    </div>
+
     <script>
         function appLayout() {
             return {
                 sidebarOpen: false,
+                toast: {
+                    show: false,
+                    title: '',
+                    message: '',
+                    type: 'success',
+                    timer: null,
+                    get color() {
+                        return this.type === 'success' ? '#22C55E' : this.type === 'error' ? '#EF4444' : this.type === 'warning' ? '#F59E0B' : '#3B82F6';
+                    },
+                    get bg() {
+                        return this.type === 'success' ? '#22C55E08' : this.type === 'error' ? '#EF444408' : this.type === 'warning' ? '#F59E0B08' : '#3B82F608';
+                    },
+                    get border() {
+                        return this.type === 'success' ? 'border-[#22C55E]/30' : this.type === 'error' ? 'border-[#EF4444]/30' : this.type === 'warning' ? 'border-[#F59E0B]/30' : 'border-[#3B82F6]/30';
+                    },
+                    get iconBg() {
+                        return this.type === 'success' ? 'bg-[#22C55E]/10' : this.type === 'error' ? 'bg-[#EF4444]/10' : this.type === 'warning' ? 'bg-[#F59E0B]/10' : 'bg-[#3B82F6]/10';
+                    },
+                    get icon() {
+                        return this.type === 'success' ? 'fas fa-check-circle' : this.type === 'error' ? 'fas fa-exclamation-circle' : this.type === 'warning' ? 'fas fa-exclamation-triangle' : 'fas fa-info-circle';
+                    },
+                },
+                init() {
+                    @php
+                        $flash = session('success')
+                            ? ['type' => 'success', 'message' => session('success')]
+                            : (session('error')
+                                ? ['type' => 'error', 'message' => session('error')]
+                                : (session('status')
+                                    ? ['type' => 'info', 'message' => session('status')]
+                                    : null));
+                    @endphp
+                    const flash = @json($flash);
+                    if (flash) {
+                        this.$nextTick(() => this.notify(flash.message, flash.type));
+                    }
+                },
+                notify(message, type = 'success') {
+                    if (this.toast.timer) clearTimeout(this.toast.timer);
+                    this.toast.title = type === 'success' ? 'Success' : type === 'error' ? 'Error' : type === 'warning' ? 'Warning' : 'Info';
+                    this.toast.message = message;
+                    this.toast.type = type;
+                    this.toast.show = true;
+                    this.toast.timer = setTimeout(() => { this.toast.show = false; }, 3500);
+                },
+            }
+        }
+
+        window.notify = function(message, type = 'success') {
+            const el = document.querySelector('[x-data]');
+            if (el && el.__x) {
+                el.__x.$data.notify(message, type);
             }
         }
 
@@ -156,6 +301,7 @@
             };
         }
     </script>
+    <x-tracking.body />
     @stack('scripts')
 </body>
 

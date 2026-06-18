@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ? "$title — " : '' }}{{ $settings['site_name'] ?? 'DribblingBD' }}</title>
+    <x-seo.head :model="$seoable ?? null" :page="$seoPage ?? null" />
     <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +16,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>[x-cloak]{display:none!important}</style>
     @stack('styles')
+    <x-tracking.head />
 </head>
 
 <body class="min-h-screen bg-white text-gray-900 antialiased font-sans">
@@ -35,9 +36,9 @@
 
     <script>
         const uiLabels = {
-            addedCart: '{{ $settings["ui_notify_added_cart"] ?? "Added to cart!" }}',
-            savedWishlist: '{{ $settings["ui_notify_saved_wishlist"] ?? "Saved to wishlist!" }}',
-            removedWishlist: '{{ $settings["ui_notify_removed_wishlist"] ?? "Removed from wishlist" }}',
+            addedCart: @json($settings['ui_notify_added_cart'] ?? 'Added to cart!'),
+            savedWishlist: @json($settings['ui_notify_saved_wishlist'] ?? 'Saved to wishlist!'),
+            removedWishlist: @json($settings['ui_notify_removed_wishlist'] ?? 'Removed from wishlist'),
         };
         function shopStore() {
             return {
@@ -80,6 +81,14 @@
                             slug: product.slug || '',
                         });
                     }
+                    window.dt('AddToCart', {
+                        content_name: product.name,
+                        content_ids: [product.code || product.id],
+                        content_type: 'product',
+                        value: product.price * (product.quantity || 1),
+                        currency: 'BDT',
+                        contents: [{ id: product.code || product.id, quantity: product.quantity || 1, price: product.price }],
+                    });
                     this.notify(uiLabels.addedCart);
                 },
 
@@ -253,6 +262,7 @@
                     clearTimeout(this.timer);
                     this.timer = setTimeout(() => {
                         this.loading = true;
+                        if (typeof window.dt === 'function') window.dt('Search', { search_term: q });
                         fetch(`/search?q=${encodeURIComponent(q)}`)
                             .then(r => r.json())
                             .then(data => { this.results = data; })
@@ -263,6 +273,7 @@
             }
         }
     </script>
+    <x-tracking.body />
     @stack('scripts')
 </body>
 

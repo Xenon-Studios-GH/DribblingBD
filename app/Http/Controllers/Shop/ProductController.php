@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\WebsiteProject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -36,23 +36,20 @@ class ProductController extends Controller
 
         $products = $query->with(['project', 'stocks'])->paginate(12)->withQueryString();
 
-        return view('shop.products.index', compact('products', 'sort', 'type', 'stock'));
+        return view('shop.products.index', compact('products', 'sort', 'type', 'stock') + ['seoPage' => 'shop']);
     }
 
-    public function redirectById(Product $product)
+    public function show(WebsiteProject $project)
     {
-        $slug = $product->project?->slug ?? Str::slug($product->product_name);
-        return redirect()->route('shop.products.show', [$product->product_code, $slug]);
-    }
+        \Illuminate\Support\Facades\Log::info('Attempting to show project: ' . $project->id);
+        $product = $project->product;
 
-    public function show(Product $product, ?string $slug = null)
-    {
-        $expected = $product->project?->slug ?? Str::slug($product->product_name);
-        if ($slug !== $expected) {
-            return redirect()->route('shop.products.show', [$product->product_code, $expected]);
+        if (!$product || !$product->is_active || !$project->is_active) {
+            \Illuminate\Support\Facades\Log::warning('Product/Project not active or missing for project ID: ' . $project->id);
+            abort(404);
         }
 
-        $product->load(['stocks', 'project.images', 'project.category']);
+        $product->loadMissing(['stocks', 'project.images', 'project.category']);
 
         $allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
         $stockMap = collect($allSizes)->mapWithKeys(fn ($s) => [
@@ -75,7 +72,7 @@ class ProductController extends Controller
             'sizes' => $allSizes,
         ];
 
-        return view('shop.products.show', compact('product', 'related', 'productFormData'));
+        return view('shop.products.show', compact('product', 'related', 'productFormData') + ['seoable' => $product, 'seoPage' => null]);
     }
 
     public function search(Request $request): JsonResponse
@@ -87,7 +84,7 @@ class ProductController extends Controller
         }
 
         $safeQ = str_replace(['%', '_'], ['\\%', '\\_'], $q);
-        $products = Product::with('project')
+        $products = Product::with(['project.images'])
             ->where('is_active', true)
             ->where(function ($query) use ($safeQ) {
                 $query->where('product_name', 'like', "%{$safeQ}%")
@@ -100,7 +97,8 @@ class ProductController extends Controller
                 'name' => $p->product_name,
                 'code' => $p->product_code,
                 'price' => (int) $p->price,
-                'url' => route('shop.products.show', [$p->product_code, $p->project?->slug ?? Str::slug($p->product_name)]),
+                'url' => $p->project ? route('shop.products.show', $p->project) : '#',
+                'image' => ($p->project && $p->project->images->isNotEmpty()) ? storage_url($p->project->images->first()->image_path) : null,
             ]);
 
         return response()->json($products);

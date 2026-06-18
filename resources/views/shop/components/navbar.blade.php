@@ -19,8 +19,13 @@
                     <div x-show="results.length > 0" x-cloak x-transition class="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl border border-gray-200 shadow-xl z-50 max-h-96 overflow-y-auto">
                         <template x-for="r in results" :key="r.id">
                             <a :href="r.url" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                                <div class="w-10 h-12 rounded-lg bg-gradient-to-br from-[#E85D2C]/20 to-[#F59E0B]/20 flex-shrink-0 flex items-center justify-center">
-                                    <i class="fas fa-box w-5 h-5 text-gray-400"></i>
+                                <div class="w-10 h-12 rounded-lg bg-gradient-to-br from-[#E85D2C]/20 to-[#F59E0B]/20 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                    <template x-if="r.image">
+                                        <img :src="r.image" :alt="r.name" class="w-full h-full object-cover">
+                                    </template>
+                                    <template x-if="!r.image">
+                                        <i class="fas fa-box w-5 h-5 text-gray-400"></i>
+                                    </template>
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium text-gray-900 truncate" x-text="r.name"></p>

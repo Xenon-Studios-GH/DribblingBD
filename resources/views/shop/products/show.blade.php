@@ -63,10 +63,10 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
         @php $cat = $project->category; @endphp
         @if ($cat->parent)
         <i class="fas fa-chevron-right w-3 h-3"></i>
-        <a href="{{ route('shop.category', $cat->parent->slug) }}" class="hover:text-[#E85D2C]">{{ $cat->parent->name }}</a>
+        <a href="{{ route('shop.products.index') }}" class="hover:text-[#E85D2C]">{{ $cat->parent->name }}</a>
         @endif
         <i class="fas fa-chevron-right w-3 h-3"></i>
-        <a href="{{ route('shop.category', $cat->slug) }}" class="hover:text-[#E85D2C]">{{ $cat->name }}</a>
+        <a href="{{ route('shop.products.index') }}" class="hover:text-[#E85D2C]">{{ $cat->name }}</a>
         @endif
         <i class="fas fa-chevron-right w-3 h-3"></i>
         <a href="{{ route('shop.products.index') }}" class="hover:text-[#E85D2C]">Shop</a>
@@ -173,7 +173,7 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
             @foreach ($related as $rel)
             @php $relImage = $rel->project?->images->first(); @endphp
             <div class="group rounded-2xl bg-white border border-gray-200 hover:border-[#E85D2C]/30 hover:shadow-lg transition-all duration-300 overflow-hidden" x-data="{ added: false }">
-                <a href="{{ route('shop.products.show', [$rel->product_code, $rel->slug]) }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                <a href="{{ $rel->project ? route('shop.products.show', $rel->project) : '#' }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-br from-[#E85D2C]/10 to-[#F59E0B]/10 group-hover:scale-105 transition-transform duration-500"></div>
                     @if ($relImage)
                     <img src="{{ storage_url($relImage->image_path) }}" alt="{{ $rel->product_name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
@@ -198,9 +198,24 @@ $hasOffer = $offerPrice && $offerPrice < $regularPrice;
         function galleryFlip() {
             return {
                 activeIndex: 0,
-                images: @json($images->pluck('image_path')->map(fn($p) => storage_url($p))),
+                images: {{ Js::from($images->pluck('image_path')->map(fn($p) => storage_url($p))) }},
             };
         }
     </script>
+
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.dt('ViewContent', {
+            content_name: '{{ $product->product_name }}',
+            content_ids: ['{{ $product->product_code }}'],
+            content_type: 'product',
+            value: {{ $product->price ?? 0 }},
+            currency: 'BDT',
+            contents: [{ id: '{{ $product->product_code }}', quantity: 1, price: {{ $product->price ?? 0 }} }],
+        });
+    });
+    </script>
+    @endpush
     @include('shop.components.features')
     @endSection

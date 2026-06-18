@@ -87,7 +87,11 @@
     {{-- Bottom bar --}}
     <div class="border-t border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p class="text-xs text-gray-500">&copy; {{ date('Y') }} {{ $settings['footer_copyright_text'] ?? 'DribblingBD. All rights reserved.' }}</p>
+            <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-xs text-gray-500">
+                <p>&copy; {{ date('Y') }} {{ $settings['footer_copyright_text'] ?? 'DribblingBD. All rights reserved.' }}</p>
+                <span class="hidden sm:inline text-gray-700">|</span>
+                <p>Design And Develop By <a href="https://munthasir.com/" target="_blank" class="hover:text-white transition-colors">Munthasir Rahman</a></p>
+            </div>
             <div class="flex items-center gap-3">
                 <span class="text-xs text-gray-600">{{ $settings['footer_we_accept_text'] ?? 'We Accept:' }}</span>
                 <div class="flex items-center gap-2">

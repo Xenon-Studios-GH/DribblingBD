@@ -477,7 +477,7 @@
 </head>
 
 <body>
-    <div class="container @if($errors->any()) active @endif">
+    <div class="container @if($errors->any() && old('form') === 'register') active @endif">
         <div class="curved-shape"></div>
         <div class="curved-shape2"></div>
 
@@ -502,8 +502,8 @@
                 <div class="input-box animation" style="--D:2; --S:23">
                     <input id="password" type="password" name="password" required autocomplete="current-password">
                     <label for="password">Password</label>
-                    <span class="icon">
-                        <i class="fas fa-lock"></i>
+                    <span class="icon toggle-password" style="cursor:pointer" data-target="password">
+                        <i class="fas fa-eye"></i>
                     </span>
                 </div>
 
@@ -562,8 +562,8 @@
                 <div class="input-box animation" style="--li:19; --S:3">
                     <input id="reg_password" type="password" name="password" required autocomplete="new-password">
                     <label for="reg_password">Password</label>
-                    <span class="icon">
-                        <i class="fas fa-lock"></i>
+                    <span class="icon toggle-password" style="cursor:pointer" data-target="reg_password">
+                        <i class="fas fa-eye"></i>
                     </span>
                     @error('password')
                         <p class="error-msg">{{ $message }}</p>
@@ -573,8 +573,8 @@
                 <div class="input-box animation" style="--li:20; --S:4">
                     <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password">
                     <label for="password_confirmation">Confirm Password</label>
-                    <span class="icon">
-                        <i class="fas fa-lock"></i>
+                    <span class="icon toggle-password" style="cursor:pointer" data-target="password_confirmation">
+                        <i class="fas fa-eye"></i>
                     </span>
                 </div>
 
@@ -611,6 +611,50 @@
             LoginLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 container.classList.remove('active');
+            });
+        }
+
+        // Password show/hide toggle
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById(btn.dataset.target);
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        });
+
+        // Check email existence before login submit
+        const loginForm = document.querySelector('.form-box.Login form');
+        const emailInput = document.getElementById('email');
+        const regEmailInput = document.getElementById('reg_email');
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                const email = emailInput.value.trim();
+                if (!email) return;
+
+                e.preventDefault();
+
+                try {
+                    const res = await fetch('/check-email/' + encodeURIComponent(email));
+                    const data = await res.json();
+
+                    if (!data.exists) {
+                        if (regEmailInput) regEmailInput.value = email;
+                        container.classList.add('active');
+                        return;
+                    }
+
+                    loginForm.submit();
+                } catch {
+                    loginForm.submit();
+                }
             });
         }
     </script>

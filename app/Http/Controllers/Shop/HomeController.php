@@ -34,6 +34,6 @@ class HomeController extends Controller
 
         $testimonials = Testimonial::where('is_active', true)->orderBy('sort_order')->get();
 
-        return view('shop.home', compact('newArrivals', 'trending', 'heroImages', 'testimonials'));
+        return view('shop.home', compact('newArrivals', 'trending', 'heroImages', 'testimonials') + ['seoPage' => 'home']);
     }
 }

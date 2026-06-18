@@ -119,23 +119,23 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-[80px] py-14 lg:py-16">
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
-                     x-data="counter($el, {{ $settings['stats_1_value'] ?? 100 }}, '{{ $settings['stats_1_suffix'] ?? '+' }}')" x-init="init()">
+                     x-data='counter($el, {{ $settings['stats_1_value'] ?? 100 }}, @json($settings['stats_1_suffix'] ?? '+'))' x-init="init()">
                     <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_1_label'] ?? 'Premium Products' }}</p>
                 </div>
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
-                     x-data="counter($el, {{ $settings['stats_2_value'] ?? 2000 }}, '{{ $settings['stats_2_suffix'] ?? '+' }}')" x-init="init()">
+                     x-data='counter($el, {{ $settings['stats_2_value'] ?? 2000 }}, @json($settings['stats_2_suffix'] ?? '+'))' x-init="init()">
                     <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_2_label'] ?? 'Happy Customers' }}</p>
                 </div>
                 <div class="text-center lg:border-r border-gray-200/60 last:border-r-0 px-6"
-                     x-data="counter($el, {{ $settings['stats_3_value'] ?? 7 }}, '{{ $settings['stats_3_suffix'] ?? ' mins' }}')" x-init="init()">
-                    <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]">&lt;<span x-text="count">0</span>{{ $settings['stats_3_suffix'] ?? ' mins' }}</p>
-                    <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_3_label'] ?? 'Avg Reply Time' }}</p>
+                     x-data='counter($el, {{ $settings['stats_3_value'] ?? 7 }}, @json($settings['stats_3_suffix'] ?? ' mins'))' x-init="init()">
+                    <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
+                    <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_3_label'] ?? 'Average Response' }}</p>
                 </div>
                 <div class="text-center px-6"
-                     x-data="counter($el, {{ $settings['stats_4_value'] ?? 96 }}, '{{ $settings['stats_4_suffix'] ?? ' hours' }}')" x-init="init()">
-                    <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]"><span x-text="count">0</span>{{ $settings['stats_4_suffix'] ?? ' hours' }}</p>
+                     x-data='counter($el, {{ $settings['stats_4_value'] ?? 96 }}, @json($settings['stats_4_suffix'] ?? ' hours'))' x-init="init()">
+                    <p class="text-3xl lg:text-4xl font-bold text-[#E85D2C]" x-text="count + suffix">0</p>
                     <p class="text-sm text-[#7A7A7A] mt-1.5">{{ $settings['stats_4_label'] ?? 'Avg Delivery Time' }}</p>
                 </div>
             </div>
@@ -158,7 +158,7 @@
                 @foreach ($newArrivals as $product)
                     @php $firstImage = $product->project?->images->first(); @endphp
                     <div class="group rounded-2xl bg-white border border-gray-200 hover:border-[#E85D2C]/30 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 overflow-hidden" x-data="{ added: false }">
-                        <a href="{{ route('shop.products.show', [$product->product_code, $product->slug]) }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                        <a href="{{ $product->project ? route('shop.products.show', $product->project) : '#' }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                             <div class="absolute inset-0 bg-gradient-to-br from-[#E85D2C]/10 to-[#F59E0B]/10 group-hover:scale-105 transition-transform duration-500"></div>
                             <div class="absolute top-3 left-3 z-10">
                                 <span class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-white/90 text-gray-700">{{ $product->product_code }}</span>
@@ -227,7 +227,7 @@
                 @foreach ($trending as $product)
                     @php $firstImage = $product->project?->images->first(); @endphp
                     <div class="group rounded-2xl bg-white border border-gray-200 hover:border-[#E85D2C]/30 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 overflow-hidden" x-data="{ added: false }">
-                        <a href="{{ route('shop.products.show', [$product->product_code, $product->slug]) }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                        <a href="{{ $product->project ? route('shop.products.show', $product->project) : '#' }}" class="block aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                             <div class="absolute inset-0 bg-gradient-to-br from-[#E85D2C]/10 to-[#F59E0B]/10 group-hover:scale-105 transition-transform duration-500"></div>
                             <div class="absolute top-3 left-3 z-10">
                                 <span class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-white/90 text-gray-700">{{ $product->product_code }}</span>
@@ -319,7 +319,7 @@
         return {
             current: 0,
             loaded: false,
-            images: @json($heroImages->map(fn($p) => storage_url($p))),
+            images: {{ Js::from($heroImages->map(fn($p) => storage_url($p))) }},
             interval: null,
             init() {
                 this.loaded = true;

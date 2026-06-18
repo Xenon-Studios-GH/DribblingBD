@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Inquiry;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class CustomerCareController extends Controller
 {
@@ -25,7 +24,7 @@ class CustomerCareController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('inquiries', 'public');
+            $imagePath = $request->file('image')->store('inquiries', 'uploads');
         }
 
         Inquiry::create([
