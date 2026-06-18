@@ -12,6 +12,8 @@ class WorkLog extends Model
         'module',
         'reference_id',
         'description',
+        'guest_name',
+        'guest_phone',
     ];
 
     public function user()

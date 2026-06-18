@@ -1,4 +1,4 @@
-<x-layouts.app title="Work Logs">
+<x-components.layouts.app title="Work Logs">
     <div class="space-y-6" x-data="workLogs()">
         <div>
             <h1 class="text-2xl font-bold text-[#E6EDF3]">Work Logs</h1>
@@ -87,7 +87,7 @@
                     Object.entries(this.filters).forEach(([k, v]) => { if (v) params.append(k, v); });
                     params.append('page', this.page);
 
-                    fetch('{{ admin_route('work-logs.index') }}?' + params.toString(), {
+                    fetch('{{ admin_route('user-logs.index') }}?' + params.toString(), {
                         headers: { 'X-Requested-With': 'XMLHttpRequest' }
                     })
                     .then(r => r.text())

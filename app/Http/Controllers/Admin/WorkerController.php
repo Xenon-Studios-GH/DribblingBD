@@ -8,6 +8,7 @@ use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class WorkerController extends Controller
 {
@@ -43,7 +44,7 @@ class WorkerController extends Controller
             'email' => ['required', 'email', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:20'],
             'role' => ['required', Rule::in($allowedRoles)],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', Password::min(8)->letters()->mixedCase()->numbers(), 'confirmed'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -62,12 +63,12 @@ class WorkerController extends Controller
             ->with('success', 'Worker created successfully.');
     }
 
-    public function edit(string $role, User $worker)
+    public function edit(User $worker)
     {
         return view('workers.edit', compact('worker'));
     }
 
-    public function update(Request $request, string $role, User $worker)
+    public function update(Request $request, User $worker)
     {
         if ($worker->id === auth()->id() && $request->role !== $worker->role) {
             return redirect(admin_route('workers.index'))->with('error', 'You cannot change your own role.');
@@ -104,7 +105,7 @@ class WorkerController extends Controller
         return redirect(admin_route('workers.index'))->with('success', 'Worker updated successfully.');
     }
 
-    public function toggleStatus(string $role, User $worker)
+    public function toggleStatus(User $worker)
     {
         if ($worker->id === auth()->id()) {
             return redirect(admin_route('workers.index'))->with('error', 'You cannot deactivate your own account.');

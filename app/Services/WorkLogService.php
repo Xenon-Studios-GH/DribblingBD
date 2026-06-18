@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class WorkLogService
 {
-    public function log(string $action, string $module, ?int $referenceId = null, ?string $description = null, ?int $userId = null): WorkLog
+    public function log(string $action, string $module, ?int $referenceId = null, ?string $description = null, ?int $userId = null, ?string $guestName = null, ?string $guestPhone = null): WorkLog
     {
         return WorkLog::create([
             'user_id' => $userId ?? Auth::id(),
@@ -15,6 +15,8 @@ class WorkLogService
             'module' => $module,
             'reference_id' => $referenceId,
             'description' => $description,
+            'guest_name' => $guestName,
+            'guest_phone' => $guestPhone,
         ]);
     }
 
