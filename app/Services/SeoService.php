@@ -61,7 +61,7 @@ class SeoService
         return array_map('trim', explode(',', $keywordString));
     }
 
-    public function buildJsonLd(Model $model): ?array
+    public function buildJsonLd(object $model): ?array
     {
         $meta = $model->seoMeta;
         if (! $meta || ! $meta->schema_type) {
@@ -73,27 +73,34 @@ class SeoService
             '@type' => $meta->schema_type,
         ];
 
-        if ($meta->meta_title) {
+        if (isset($meta->meta_title) && $meta->meta_title) {
             $schema['name'] = $meta->meta_title;
         }
-        if ($meta->meta_description) {
+        if (isset($meta->meta_description) && $meta->meta_description) {
             $schema['description'] = $meta->meta_description;
         }
-        if ($meta->og_image) {
-            $schema['image'] = \Storage::disk('public')->url($meta->og_image);
+        if (isset($meta->og_image) && $meta->og_image) {
+            $schema['image'] = storage_url($meta->og_image);
         }
-        if ($meta->canonical_url) {
+        if (isset($meta->canonical_url) && $meta->canonical_url) {
             $schema['url'] = $meta->canonical_url;
         }
 
         if ($model instanceof Product) {
+            $product = $model->product_name;
             $schema['@type'] = 'Product';
-            $schema['name'] = $model->product_name;
+            $schema['name'] = $product;
+            $schema['brand'] = [
+                '@type' => 'Brand',
+                'name' => SiteSetting::getValue('site_name', config('app.name')),
+            ];
+            $schema['category'] = $model->project?->category?->name ?? 'Clothing';
+
             if ($model->project?->details) {
                 $schema['description'] = $model->project->details;
             }
             if ($model->project?->images?->first()) {
-                $schema['image'] = \Storage::disk('public')->url($model->project->images->first()->image_path);
+                $schema['image'] = storage_url($model->project->images->first()->image_path);
             }
             if ($model->price) {
                 $schema['offers'] = [
@@ -103,13 +110,35 @@ class SeoService
                     'availability' => ($model->stocks()->sum('quantity') > 0) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
                 ];
             }
+
+            $sizes = $model->stocks()->distinct()->pluck('size')->filter()->values();
+            if ($sizes->isNotEmpty()) {
+                $schema['size'] = $sizes->toArray();
+            }
         }
 
         if ($model instanceof WebsiteProject) {
-            $schema['@type'] = 'WebPage';
+            $schema['@type'] = 'Product';
             $schema['name'] = $model->product?->product_name ?? $model->slug;
+            $schema['brand'] = [
+                '@type' => 'Brand',
+                'name' => SiteSetting::getValue('site_name', config('app.name')),
+            ];
+            $schema['category'] = $model->category?->name ?? 'Clothing';
             if ($model->details) {
                 $schema['description'] = $model->details;
+            }
+            if ($model->product?->price) {
+                $schema['offers'] = [
+                    '@type' => 'Offer',
+                    'price' => $model->product->price,
+                    'priceCurrency' => 'BDT',
+                    'availability' => ($model->product->stocks()->sum('quantity') > 0) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                ];
+            }
+            $sizes = $model->product?->stocks()->distinct()->pluck('size')->filter()->values();
+            if ($sizes?->isNotEmpty()) {
+                $schema['size'] = $sizes->toArray();
             }
         }
 
@@ -127,8 +156,9 @@ class SeoService
         }
 
         $validTypes = [
-            'Product', 'WebPage', 'Organization', 'LocalBusiness',
-            'Service', 'BreadcrumbList', 'FAQPage', 'Article',
+            'Product', 'WebPage', 'Organization', 'ClothingStore',
+            'LocalBusiness', 'Service', 'BreadcrumbList', 'FAQPage',
+            'Article', 'CollectionPage', 'AboutPage', 'ContactPage',
         ];
 
         return in_array($schema['@type'], $validTypes);
@@ -139,31 +169,37 @@ class SeoService
         $variables = [
             'site_name' => SiteSetting::getValue('site_name', config('app.name')),
             'current_year' => now()->format('Y'),
+            'brand' => SiteSetting::getValue('site_name', config('app.name')),
         ];
 
         if ($model instanceof Product) {
             $variables['title'] = $model->product_name;
             $variables['name'] = $model->product_name;
             $variables['description'] = $model->project?->details ?? '';
-            $variables['category'] = $model->project?->category?->name ?? '';
+            $variables['category'] = $model->project?->category?->name ?? 'Clothing';
             $variables['price'] = number_format($model->price ?? 0, 2);
             $variables['sku'] = $model->product_code ?? '';
             $variables['url'] = $this->buildProductUrl($model);
+            $variables['sizes'] = $model->stocks()->distinct()->pluck('size')->filter()->implode(', ');
+            $variables['brand'] = SiteSetting::getValue('site_name', config('app.name'));
         }
 
         if ($model instanceof WebsiteProject) {
             $variables['title'] = $model->product?->product_name ?? $model->slug;
             $variables['name'] = $model->product?->product_name ?? $model->slug;
             $variables['description'] = $model->details ?? '';
-            $variables['category'] = $model->category?->name ?? '';
+            $variables['category'] = $model->category?->name ?? 'Clothing';
             $variables['url'] = shop_project_url($model);
+            $variables['sizes'] = $model->product?->stocks()->distinct()->pluck('size')->filter()->implode(', ');
+            $variables['brand'] = SiteSetting::getValue('site_name', config('app.name'));
         }
 
         if ($model instanceof WebsiteCategory) {
             $variables['title'] = $model->name;
             $variables['name'] = $model->name;
             $variables['description'] = $model->description ?? '';
-            $variables['url'] = route('shop.category', $model->slug);
+            $variables['url'] = route('shop.products.index');
+            $variables['brand'] = SiteSetting::getValue('site_name', config('app.name'));
         }
 
         return $variables;

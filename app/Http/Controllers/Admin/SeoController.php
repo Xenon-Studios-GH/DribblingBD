@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\SeoMeta;
 use App\Models\WebsiteCategory;
 use App\Models\WebsiteProject;
+use App\Models\SeoSetting;
+use App\Services\SeoDashboardService;
 use App\Services\SeoService;
 use App\Services\WorkLogService;
 use Illuminate\Http\Request;
@@ -54,7 +56,7 @@ class SeoController extends Controller
         return view('seo.index', compact('seoMetas', 'counts'));
     }
 
-    public function edit(string $role, SeoMeta $seoMeta)
+    public function edit(SeoMeta $seoMeta)
     {
         $seoMeta->load('seoable');
 
@@ -63,7 +65,7 @@ class SeoController extends Controller
         return view('seo.edit', compact('seoMeta', 'editableFields'));
     }
 
-    public function update(Request $request, string $role, SeoMeta $seoMeta)
+    public function update(Request $request, SeoMeta $seoMeta)
     {
         $validated = $request->validate([
             'meta_title' => 'nullable|string|max:70',
@@ -111,7 +113,7 @@ class SeoController extends Controller
             ->with('success', 'SEO meta updated successfully.');
     }
 
-    public function destroy(string $role, SeoMeta $seoMeta)
+    public function destroy(SeoMeta $seoMeta)
     {
         $seoMeta->delete();
 
@@ -121,7 +123,7 @@ class SeoController extends Controller
             ->with('success', 'SEO meta deleted.');
     }
 
-    public function resetTemplate(string $role, SeoMeta $seoMeta)
+    public function resetTemplate(SeoMeta $seoMeta)
     {
         $seoMeta->load('seoable');
         $this->seoService->applyTemplate($seoMeta->seoable);
@@ -132,7 +134,7 @@ class SeoController extends Controller
             ->with('success', 'SEO meta reset to template.');
     }
 
-    public function autoGenerate(string $role)
+    public function autoGenerate()
     {
         $exitCode = \Artisan::call('seo:auto-generate', ['--force' => true]);
         $output = \Artisan::output();
@@ -141,6 +143,51 @@ class SeoController extends Controller
 
         return redirect(admin_route('seo.index'))
             ->with('success', 'Auto SEO generation completed. Check the command output for details.');
+    }
+
+    public function dashboard(SeoDashboardService $dashboardService)
+    {
+        $healthScore = $dashboardService->getHealthScore();
+        $stats = $dashboardService->getStats();
+        $alerts = $dashboardService->getAlerts();
+
+        return view('seo.dashboard', compact('healthScore', 'stats', 'alerts'));
+    }
+
+    public function runAudit(SeoDashboardService $dashboardService)
+    {
+        $count = $dashboardService->runAudit();
+        return redirect(admin_route('seo.dashboard'))
+            ->with('success', "Audit complete. {$count} records scored.");
+    }
+
+    public function settings()
+    {
+        $seoSettings = SeoSetting::pluck('value', 'key');
+        return view('seo.settings', compact('seoSettings'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'site_name' => 'nullable|string|max:255',
+            'title_suffix' => 'nullable|string|max:100',
+            'default_og_image' => 'nullable|string|max:500',
+            'twitter_handle' => 'nullable|string|max:100',
+            'facebook_page' => 'nullable|string|max:500',
+            'schema_organization_name' => 'nullable|string|max:255',
+            'schema_logo' => 'nullable|string|max:500',
+            'schema_same_as' => 'nullable|string',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            if (!is_null($value)) {
+                SeoSetting::setValue($key, $value);
+            }
+        }
+
+        return redirect(admin_route('seo.settings'))
+            ->with('success', 'SEO settings updated successfully.');
     }
 
     protected function getEditableFields(): array
