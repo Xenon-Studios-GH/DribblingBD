@@ -183,7 +183,7 @@
             <div class="lg:col-span-2 rounded-xl border border-[#232A36] bg-[#161B22] p-4">
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="text-sm font-semibold text-[#E6EDF3]">Recent Activity</h2>
-                    <a href="{{ admin_route('user-logs.index') }}" class="rounded-lg bg-[#3B82F6]/10 px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/20 transition-colors">View All</a>
+                    <a href="{{ admin_route('monitoring.index') }}" class="rounded-lg bg-[#3B82F6]/10 px-3 py-1.5 text-xs font-medium text-[#3B82F6] hover:bg-[#3B82F6]/20 transition-colors">View All</a>
                 </div>
                 <div class="divide-y divide-[#232A36] max-h-72 overflow-y-auto custom-scrollbar">
                     @forelse ($recentLogs as $log)
