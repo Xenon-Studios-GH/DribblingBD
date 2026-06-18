@@ -20,11 +20,8 @@
         <x-nav-link href="{{ admin_route('workers.index') }}" :active="request()->routeIs('workers.*')" icon="users">
             Users
         </x-nav-link>
-        <x-nav-link href="{{ admin_route('user-logs.index') }}" :active="request()->routeIs('user-logs.*')" icon="activity">
-            User Logs
-        </x-nav-link>
-        <x-nav-link href="{{ admin_route('activity-logs.index') }}" :active="request()->routeIs('activity-logs.*')" icon="activity">
-            Activity Logs
+        <x-nav-link href="{{ admin_route('monitoring.index') }}" :active="request()->routeIs('monitoring.*')" icon="activity">
+            Monitoring
         </x-nav-link>
         <x-nav-link href="{{ admin_route('inquiries.index') }}" :active="request()->routeIs('inquiries.*')" icon="inquiry">
             Inquiries
@@ -60,9 +57,6 @@
             Add Product
         </x-nav-link>
         @endif
-        <x-nav-link href="{{ admin_route('stock.activity') }}" :active="request()->routeIs('stock.activity')" icon="activity">
-            Recent Activity
-        </x-nav-link>
         <x-nav-link href="{{ admin_route('stock.report') }}" :active="request()->routeIs('stock.report*')" icon="report">
             Stock Report
         </x-nav-link>
@@ -97,9 +91,6 @@
 
         <x-nav-link href="{{ admin_route('tracking.index') }}" :active="request()->routeIs('tracking.index') || request()->routeIs('tracking.create') || request()->routeIs('tracking.edit')" icon="chart">
             Pixel Manager
-        </x-nav-link>
-        <x-nav-link href="{{ admin_route('tracking.events') }}" :active="request()->routeIs('tracking.events*')" icon="activity">
-            Event Log
         </x-nav-link>
         <x-nav-link href="{{ admin_route('tracking.diagnostics') }}" :active="request()->routeIs('tracking.diagnostics*')" icon="cog">
             Diagnostics

@@ -6,18 +6,16 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Http\Controllers\Admin\Auth\ResetPasswordController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\StockManagementController;
 use App\Http\Controllers\Admin\StockInController;
 use App\Http\Controllers\Admin\StockOutController;
 use App\Http\Controllers\Admin\StockSearchController;
 use App\Http\Controllers\Admin\StockFilterController;
-use App\Http\Controllers\Admin\StockActivityController;
 use App\Http\Controllers\Admin\StockReportController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\InquiryController;
-use App\Http\Controllers\Admin\ActivityLogController;
-use App\Http\Controllers\Admin\UserLogController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderDraftController;
 use App\Http\Controllers\Shop\Auth\RegisterController;
@@ -53,7 +51,6 @@ Route::middleware('auth')->group(function () {
         // Static stock routes must come BEFORE parameterized stock/{product}
         Route::get('stock/search', StockSearchController::class)->name('stock.search');
         Route::get('stock/filter', StockFilterController::class)->name('stock.filter');
-        Route::get('stock/activity', StockActivityController::class)->name('stock.activity');
         Route::get('stock/report', [StockReportController::class, 'index'])->name('stock.report');
         Route::get('stock/report/pdf', [StockReportController::class, 'exportPdf'])->name('stock.report.pdf');
         Route::get('stock/report/pdf/{filename}', [StockReportController::class, 'viewPdf'])->name('stock.report.view');
@@ -111,8 +108,8 @@ Route::middleware('auth')->group(function () {
             Route::get('users/{worker}/edit', [WorkerController::class, 'edit'])->name('workers.edit');
             Route::put('users/{worker}', [WorkerController::class, 'update'])->name('workers.update');
             Route::post('users/{worker}/toggle-status', [WorkerController::class, 'toggleStatus'])->name('workers.toggle-status');
-            Route::get('logs/activity', [UserLogController::class, 'index'])->name('activity-logs.index');
-            Route::get('logs/user', [ActivityLogController::class, 'index'])->name('user-logs.index');
+            Route::get('monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
+            Route::get('monitoring/pdf', [MonitoringController::class, 'exportPdf'])->name('monitoring.pdf');
             Route::get('inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
             Route::get('inquiries/{inquiry}', [InquiryController::class, 'show'])->name('inquiries.show');
             Route::delete('inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');

@@ -212,7 +212,7 @@ class StockFlowTest extends TestCase
         $response->assertJsonStructure(['success', 'product_id']);
     }
 
-    public function test_stock_activity_page_loads()
+    public function test_monitoring_page_loads()
     {
         $product = Product::factory()->create();
         $this->actingAs($this->user)->post(route('stock.in.confirm'), [
@@ -221,9 +221,9 @@ class StockFlowTest extends TestCase
             'quantity' => 10,
         ]);
 
-        $response = $this->actingAs($this->user)->get(route('stock.activity'));
+        $this->user = User::factory()->superadmin()->create();
+        $response = $this->actingAs($this->user)->get(route('monitoring.index'));
         $response->assertStatus(200);
-        $response->assertViewHas('transactions');
     }
 
     public function test_stock_out_confirm_returns_product_id()

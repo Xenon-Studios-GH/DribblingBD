@@ -36,16 +36,27 @@ class SendCapiEvent implements ShouldQueue, ShouldBeUniqueUntilProcessing
     {
         $result = $capi->send($this->pixelId, $this->eventName, $this->data);
 
-        TrackingEventLog::where('pixel_id', $this->pixelId)
+        $log = TrackingEventLog::where('pixel_id', $this->pixelId)
             ->where('event_name', $this->eventName)
             ->where('status', 'queued')
             ->latest()
-            ->first()
-            ?->update([
-                'status' => $result['status'] ?? 'failed',
-                'response' => $result['response'] ?? [],
-                'sent_at' => now(),
-            ]);
+            ->first();
+
+        $log?->update([
+            'status' => $result['status'] ?? 'failed',
+            'response' => $result['response'] ?? [],
+            'sent_at' => now(),
+        ]);
+
+        $status = $result['status'] ?? 'failed';
+        $description = "CAPI event '{$this->eventName}' " . ($status === 'sent' ? 'sent' : 'failed') . " (pixel #{$this->pixelId})";
+
+        app(\App\Services\WorkLogService::class)->log(
+            action: 'Tracking Event',
+            module: 'seo',
+            referenceId: $log?->id,
+            description: $description,
+        );
 
         if (($result['success'] ?? false) === false) {
             $this->fail(new \RuntimeException(

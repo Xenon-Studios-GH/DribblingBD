@@ -154,7 +154,7 @@
                 <div class="space-y-2">
                     <x-mini-stat icon="broadcast-tower" color="#3B82F6" label="Active Pixels" :value="$activePixels" :sub="$totalPixels . ' total'" />
                     <x-mini-stat icon="vial" color="#F59E0B" label="Diagnostics" value="Test" :href="admin_route('tracking.diagnostics')" />
-                    <x-mini-stat icon="list" color="#22C55E" label="Event Log" value="View" :href="admin_route('tracking.events')" />
+                    <x-mini-stat icon="list" color="#22C55E" label="Event Log" value="View" :href="admin_route('monitoring.index')" />
                 </div>
             </div>
             @endif
