@@ -7,12 +7,6 @@
             </div>
         </div>
 
-        @if (session('success'))
-        <div class="mb-4 rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-3 text-sm text-[#22C55E]">
-            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        </div>
-        @endif
-
         @if ($inquiries->isEmpty())
         <x-card>
             <div class="py-12 text-center">

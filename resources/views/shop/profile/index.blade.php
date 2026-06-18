@@ -2,11 +2,6 @@
 
 @section('content')
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" x-data="{ tab: 'personal' }">
-        @if (session('success'))
-            <div class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-                {{ session('success') }}
-            </div>
-        @endif
 
         @auth
             @if (Auth::id() === $client->user_id)

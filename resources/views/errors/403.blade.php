@@ -15,12 +15,10 @@
         <p class="mt-2 text-sm text-[#94A3B8]">You do not have permission to view this page.</p>
         @php
             $user = auth()->user();
-            $homeUrl = '/';
-            $role = $user?->role;
-            $dashUrl = $user ? url('controlPanel/' . $role) : url('/');
+            $dashUrl = $user ? route('dashboard') : url('/');
         @endphp
-        <a href="{{ $role === 'customer' ? $homeUrl : $dashUrl }}" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#3B82F6] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
-            {{ $role === 'customer' ? 'Back to Home' : 'Back to Dashboard' }}
+        <a href="{{ $user && $user->role !== 'customer' ? $dashUrl : url('/') }}" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#3B82F6] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
+            {{ $user && $user->role !== 'customer' ? 'Back to Dashboard' : 'Back to Home' }}
         </a>
     </div>
 </body>

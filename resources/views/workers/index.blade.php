@@ -11,18 +11,6 @@
             </a>
         </div>
 
-        @if (session('success'))
-        <div class="rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-3 text-sm text-[#22C55E]">
-            {{ session('success') }}
-        </div>
-        @endif
-
-        @if (session('error'))
-        <div class="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/10 px-4 py-3 text-sm text-[#EF4444]">
-            {{ session('error') }}
-        </div>
-        @endif
-
         @if ($admins->isNotEmpty())
         <div>
             <h2 class="mb-3 text-lg font-semibold text-[#E6EDF3]">Admins</h2>

@@ -7,12 +7,6 @@
             </button>
         </div>
 
-        @if(session('error'))
-        <div class="rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/30 px-4 py-3 text-sm text-[#EF4444]">
-            {{ session('error') }}
-        </div>
-        @endif
-
         <x-card>
             <div class="space-y-1">
                 @forelse($categories->whereNull('parent_id') as $cat)

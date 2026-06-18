@@ -7,12 +7,6 @@
             </div>
         </div>
 
-        @if (session('success'))
-        <div class="mb-4 rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-3 text-sm text-[#22C55E]">
-            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        </div>
-        @endif
-
         {{-- Tab nav --}}
         <div class="mb-6 flex gap-1 border-b border-[#232A36] overflow-x-auto">
             <button @click="tab = 'faqs'" :class="tab === 'faqs' ? 'border-b-2 border-[#3B82F6] text-[#E6EDF3]' : 'text-[#94A3B8] hover:text-[#E6EDF3]'" class="whitespace-nowrap px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors">

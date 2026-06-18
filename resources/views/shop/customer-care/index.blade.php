@@ -125,11 +125,6 @@
                     </div>
                 </div>
 
-                @if (session('success'))
-                <div class="mb-4 p-4 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700">
-                    <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-                </div>
-                @endif
 
                 <form method="POST" action="{{ route('shop.customer-care.store') }}" enctype="multipart/form-data" class="space-y-4">
                     @csrf
