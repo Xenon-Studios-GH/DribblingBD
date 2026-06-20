@@ -42,7 +42,7 @@ class NotificationController extends Controller
             abort(403);
         }
 
-        $notification->update(['is_read' => true]);
+        $notification->update(['is_read' => true, 'read_at' => now()]);
 
         return response()->json(['success' => true]);
     }
@@ -51,7 +51,7 @@ class NotificationController extends Controller
     {
         Notification::where('user_id', Auth::id())
             ->where('is_read', false)
-            ->update(['is_read' => true]);
+            ->update(['is_read' => true, 'read_at' => now()]);
 
         return redirect()->back()->with('success', 'All notifications marked as read.');
     }

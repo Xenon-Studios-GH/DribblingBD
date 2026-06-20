@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\ActivityLog;
-use App\Models\Notification;
 use App\Models\Order;
 use App\Models\StockTransaction;
 use App\Models\WorkLog;
@@ -39,10 +38,6 @@ class CleanOldData extends Command
             ->where('created_at', '<', now()->subYear())
             ->delete();
         $this->info("Deleted {$deletedOtherLogs} other work log(s) older than 1 year.");
-
-        // Notifications: 90 days
-        $deletedNotifications = Notification::where('created_at', '<', now()->subDays(90))->delete();
-        $this->info("Deleted {$deletedNotifications} notification(s) older than 90 days.");
 
         $this->info('Data cleanup completed successfully.');
     }

@@ -8,6 +8,7 @@ use App\Console\Commands\PurgeOldFinanceData;
 use App\Console\Commands\CleanOldData;
 use App\Console\Commands\SeoAutoGenerateCommand;
 use App\Console\Commands\CleanOldPdfDownloads;
+use App\Console\Commands\CleanReadNotifications;
 use Illuminate\Support\Facades\Schedule;
 
 // Data cleanup: single command with per-entity retention periods
@@ -17,6 +18,7 @@ Schedule::command(PurgeOldFinanceData::class, ['--force'])->daily()->withoutOver
 Schedule::command(SeoAutoGenerateCommand::class)->daily()->withoutOverlapping();
 Schedule::command('app:clean-pending-images')->daily()->withoutOverlapping();
 Schedule::command(CleanOldPdfDownloads::class)->daily()->withoutOverlapping();
+Schedule::command(CleanReadNotifications::class)->hourly()->withoutOverlapping();
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

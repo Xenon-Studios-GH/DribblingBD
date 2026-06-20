@@ -31,6 +31,7 @@ class Order extends Model
         'status',
         'notes',
         'created_by',
+        'auto_restored_at',
     ];
 
     protected function casts(): array
@@ -44,6 +45,7 @@ class Order extends Model
             'pending_payment' => 'decimal:2',
             'patch_price' => 'decimal:2',
             'delivery_charge' => 'decimal:2',
+            'auto_restored_at' => 'datetime',
         ];
     }
 
