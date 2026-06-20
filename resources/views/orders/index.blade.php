@@ -385,7 +385,7 @@
                                         order.auto_restored_at = u.auto_restored_at;
                                     }
                                 });
-                                this.showToast(data.updated.length + ' order(s) auto-restored from out of stock', 'success');
+                                this.showToast(data.updated.length + ' order(s) status auto-updated', 'success');
                             }
                         })
                         .catch(() => {});

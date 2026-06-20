@@ -534,14 +534,17 @@
                             }
                         } catch (e) {}
                     }
-                    let hadOutOfStock = false;
+                    let anyOutOfStock = false;
                     this.products.forEach((_, i) => {
                         this.checkStock(i);
-                        if (this.products[i].out_of_stock) hadOutOfStock = true;
+                        if (this.products[i].out_of_stock) anyOutOfStock = true;
                     });
-                    if (!hadOutOfStock && this.status === 'out_of_stock') {
+                    const protectedStatuses = ['delivered', 'refund', 'return'];
+                    if (protectedStatuses.includes(this.status)) return;
+                    if (anyOutOfStock && this.status !== 'out_of_stock') {
+                        this.status = 'out_of_stock';
+                    } else if (!anyOutOfStock && this.status === 'out_of_stock') {
                         this.status = 'on_hold';
-                        this.calcTotal();
                     }
                 },
 
