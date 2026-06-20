@@ -17,6 +17,11 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\OrderCreateController;
+use App\Http\Controllers\Admin\OrderEditController;
+use App\Http\Controllers\Admin\OrderDeleteController;
+use App\Http\Controllers\Admin\OrderStatusController;
+use App\Http\Controllers\Admin\OrderStockController;
 use App\Http\Controllers\Admin\OrderDraftController;
 use App\Http\Controllers\Shop\Auth\RegisterController;
 
@@ -93,8 +98,8 @@ Route::middleware(['auth', 'trap'])->group(function () {
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/trash', [OrderController::class, 'trash'])->name('orders.trash');
         Route::post('orders/{order}/restore', [OrderController::class, 'restore'])->name('orders.restore');
-        Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
-        Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
+        Route::get('orders/create', [OrderCreateController::class, 'create'])->name('orders.create');
+        Route::post('orders', [OrderCreateController::class, 'store'])->name('orders.store');
 
         // Order Drafts (must come before parameterized orders/{order})
         Route::get('orders/drafts', [OrderDraftController::class, 'index'])->name('order-drafts.index');
@@ -102,14 +107,14 @@ Route::middleware(['auth', 'trap'])->group(function () {
         Route::get('orders/drafts/{orderDraft}', [OrderDraftController::class, 'show'])->name('order-drafts.show');
         Route::delete('orders/drafts/{orderDraft}', [OrderDraftController::class, 'destroy'])->name('order-drafts.destroy');
 
-        Route::get('orders/product-stock/{product}', [OrderController::class, 'productStock'])->name('orders.product-stock');
-        Route::post('orders/check-stock', [OrderController::class, 'checkStockAuto'])->name('orders.check-stock');
-        Route::get('orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
-        Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+        Route::get('orders/product-stock/{product}', [OrderStockController::class, 'productStock'])->name('orders.product-stock');
+        Route::post('orders/check-stock', [OrderStatusController::class, 'checkStockAuto'])->name('orders.check-stock');
+        Route::get('orders/{order}/edit', [OrderEditController::class, 'edit'])->name('orders.edit');
+        Route::put('orders/{order}', [OrderEditController::class, 'update'])->name('orders.update');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-        Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
-        Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
-        Route::delete('orders/{order}/force-delete', [OrderController::class, 'forceDestroy'])->name('orders.force-delete');
+        Route::post('orders/{order}/update-status', [OrderStatusController::class, 'updateStatus'])->name('orders.update-status');
+        Route::delete('orders/{order}', [OrderDeleteController::class, 'destroy'])->name('orders.destroy');
+        Route::delete('orders/{order}/force-delete', [OrderDeleteController::class, 'forceDestroy'])->name('orders.force-delete');
 
         // Product
         Route::middleware('role:superadmin,admin')->group(function () {

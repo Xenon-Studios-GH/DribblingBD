@@ -1,0 +1,219 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Stock;
+use App\Services\StockService;
+use App\Services\WorkLogService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class OrderStatusController extends BaseOrderController
+{
+    public function __construct(StockService $stockService, WorkLogService $workLogService)
+    {
+        parent::__construct($stockService, $workLogService);
+    }
+
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => 'required|in:on_hold,packed,picked,delivered,return,refund',
+        ]);
+
+        $newStatus = $request->status;
+
+        if ($order->status === $newStatus) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => "Order is already {$newStatus}."], 422);
+            }
+            return back()->withErrors(['status' => "Order is already {$newStatus}."]);
+        }
+
+        $allowed = self::VALID_TRANSITIONS[$order->status] ?? [];
+        if (!in_array($newStatus, $allowed, true)) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => "Cannot transition from \"{$order->status}\" to \"{$newStatus}\"."], 422);
+            }
+            return back()->withErrors(['status' => "Cannot transition from \"{$order->status}\" to \"{$newStatus}\"."]);
+        }
+
+        try {
+            DB::transaction(function () use ($order, $newStatus) {
+                $orderProducts = $order->products;
+                $productIds = collect($orderProducts)->pluck('product_id')->filter()->unique()->values()->all();
+                $productMap = Product::whereIn('id', $productIds)->get()->keyBy('id');
+                $patchProduct = $order->patch
+                    ? $this->getPatchProduct()
+                    : null;
+
+                if ($order->status === 'pending' && $newStatus === 'on_hold') {
+                    $hasOutOfStock = false;
+                    foreach ($orderProducts as $item) {
+                        $product = $productMap->get($item['product_id']);
+                        if (!$product) continue;
+                        $stock = Stock::where('product_id', $product->id)
+                            ->where('size', $item['size'])
+                            ->lockForUpdate()
+                            ->first();
+                        if (!$stock || $stock->quantity < (int) $item['quantity']) {
+                            $hasOutOfStock = true;
+                            break;
+                        }
+                    }
+                    if (!$hasOutOfStock && $order->patch && $patchProduct) {
+                        $patchStock = Stock::where('product_id', $patchProduct->id)
+                            ->where('size', config('shop.patch_size'))
+                            ->lockForUpdate()
+                            ->first();
+                        if (!$patchStock || $patchStock->quantity < config('shop.patch_quantity')) {
+                            $hasOutOfStock = true;
+                        }
+                    }
+                    if ($hasOutOfStock) {
+                        $newStatus = 'out_of_stock';
+                    }
+                }
+
+                $wasStockDeducted = in_array($order->status, ['packed', 'picked', 'delivered']);
+                $shouldDeduct = !$wasStockDeducted && in_array($newStatus, ['packed', 'picked', 'delivered']);
+
+                if ($shouldDeduct) {
+                    foreach ($orderProducts as $item) {
+                        $product = $productMap->get($item['product_id']);
+                        if (!$product) continue;
+                        $this->stockService->stockOut(
+                            $product, $item['size'], (int) $item['quantity'],
+                            "Order {$order->order_no}", Auth::id()
+                        );
+                    }
+
+                    if ($patchProduct) {
+                        $this->stockService->stockOut(
+                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity'),
+                            "Order {$order->order_no} (patch)", Auth::id()
+                        );
+                    } elseif ($order->patch) {
+                        throw new \RuntimeException("No patch product found for order {$order->order_no}.");
+                    }
+                }
+
+                if ($newStatus === 'return') {
+                    foreach ($orderProducts as $item) {
+                        $product = $productMap->get($item['product_id']);
+                        if (!$product) continue;
+                        $this->stockService->stockIn(
+                            $product, $item['size'], (int) $item['quantity'],
+                            "Return: Order {$order->order_no}", Auth::id()
+                        );
+                    }
+
+                    if ($patchProduct) {
+                        $this->stockService->stockIn(
+                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity'),
+                            "Return: Order {$order->order_no} (patch)", Auth::id()
+                        );
+                    } elseif ($order->patch) {
+                        throw new \RuntimeException("No patch product found for return on order {$order->order_no}.");
+                    }
+                }
+
+                $order->update(['status' => $newStatus, 'auto_restored_at' => null]);
+            });
+
+            $newStatus = $order->fresh()->status;
+        } catch (\RuntimeException $e) {
+            Log::error($e->getMessage(), ['order' => $order->id]);
+            return back()->withErrors(['status' => $e->getMessage()]);
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['status' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            Log::error('Order status update failed', ['order' => $order->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['status' => 'Failed to update status: ' . $e->getMessage()]);
+        }
+
+        $this->workLogService->log("Order {$newStatus}", 'order', $order->id, "Order #{$order->order_no} status changed from {$order->status} to {$newStatus}");
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'new_status' => $newStatus,
+                'message' => "Order {$order->order_no} marked as {$newStatus}.",
+            ]);
+        }
+
+        return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} marked as {$newStatus}.");
+    }
+
+    public function checkStockAuto()
+    {
+        $updated = [];
+        $protectedStatuses = ['delivered', 'refund', 'return'];
+        $orders = Order::whereNotIn('status', $protectedStatuses)->lockForUpdate()->get();
+
+        foreach ($orders as $order) {
+            $products = $order->products;
+            if (empty($products)) continue;
+
+            $allInStock = true;
+            foreach ($products as $item) {
+                $productId = $item['product_id'] ?? null;
+                $size = $item['size'] ?? '';
+                $qty = (int) ($item['quantity'] ?? 0);
+                if (!$productId || !$size || $qty <= 0) continue;
+
+                $stock = Stock::where('product_id', $productId)
+                    ->where('size', $size)
+                    ->first();
+
+                if (!$stock || $stock->quantity < $qty) {
+                    $allInStock = false;
+                    break;
+                }
+            }
+
+            if (!$allInStock) {
+                if ($order->status !== 'out_of_stock') {
+                    $order->update(['status' => 'out_of_stock', 'auto_restored_at' => null]);
+                    $updated[] = [
+                        'id' => $order->id,
+                        'order_no' => $order->order_no,
+                        'status' => 'out_of_stock',
+                        'auto_restored_at' => null,
+                    ];
+                    $this->workLogService->log(
+                        'Order Auto Out of Stock',
+                        'order',
+                        $order->id,
+                        "Order #{$order->order_no} auto-set to out_of_stock (stock insufficient)"
+                    );
+                }
+            } else {
+                if ($order->status === 'out_of_stock') {
+                    $order->update(['status' => 'on_hold', 'auto_restored_at' => now()]);
+                    $updated[] = [
+                        'id' => $order->id,
+                        'order_no' => $order->order_no,
+                        'status' => 'on_hold',
+                        'auto_restored_at' => $order->auto_restored_at?->toISOString(),
+                    ];
+                    $this->workLogService->log(
+                        'Order Auto-Restored',
+                        'order',
+                        $order->id,
+                        "Order #{$order->order_no} auto-restored to on_hold (stock returned)"
+                    );
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'updated' => $updated,
+        ]);
+    }
+}
