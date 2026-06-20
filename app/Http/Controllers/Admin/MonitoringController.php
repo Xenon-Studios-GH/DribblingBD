@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\LoginTrap;
 use App\Models\User;
 use App\Models\WorkLog;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
@@ -41,34 +40,6 @@ class MonitoringController extends Controller
         $logs = $this->fetchLogs($request);
 
         return view('monitoring.index', compact('users', 'logs'));
-    }
-
-    public function exportPdf(Request $request)
-    {
-        $logs = $this->fetchLogs($request, 9999);
-        $filterLabel = $this->filterLabel($request);
-
-        $pdf = Pdf::loadView('monitoring.pdf', compact('logs', 'filterLabel'));
-        $pdf->setPaper('A4', 'landscape');
-
-        return $pdf->download('monitoring-report.pdf');
-    }
-
-    private function filterLabel(Request $request): string
-    {
-        $tab = $request->tab ? ucfirst($request->tab) : 'All';
-        $parts = [$tab . ' Logs'];
-        if ($request->date_from && $request->date_to) {
-            $parts[] = '(' . $request->date_from . ' — ' . $request->date_to . ')';
-        } elseif ($request->date_from) {
-            $parts[] = '(from ' . $request->date_from . ')';
-        } elseif ($request->date_to) {
-            $parts[] = '(until ' . $request->date_to . ')';
-        }
-        if ($request->search) {
-            $parts[] = 'search: "' . e($request->search) . '"';
-        }
-        return implode(' ', $parts);
     }
 
     private function fetchLogs(Request $request, int $perPage = 20)

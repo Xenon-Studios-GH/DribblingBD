@@ -378,8 +378,11 @@
                 },
 
                 showToast(message, type = 'success') {
-                    // simple alert-based toast
-                    alert(message);
+                    if (typeof window.notify === 'function') {
+                        window.notify(message, type);
+                    } else {
+                        alert(message);
+                    }
                 },
             }
         }

@@ -101,6 +101,7 @@ Route::middleware(['auth', 'trap'])->group(function () {
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+        Route::delete('orders/{order}/force-delete', [OrderController::class, 'forceDestroy'])->name('orders.force-delete');
 
         // Product
         Route::middleware('role:superadmin,admin')->group(function () {
@@ -117,7 +118,6 @@ Route::middleware(['auth', 'trap'])->group(function () {
             Route::put('users/{worker}', [WorkerController::class, 'update'])->name('workers.update');
             Route::post('users/{worker}/toggle-status', [WorkerController::class, 'toggleStatus'])->name('workers.toggle-status');
             Route::get('monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
-            Route::get('monitoring/pdf', [MonitoringController::class, 'exportPdf'])->name('monitoring.pdf');
             Route::post('monitoring/traps/{trap}/release', function (\App\Models\LoginTrap $trap) {
                 $trap->release();
                 return back()->with('success', 'Trap released successfully.');

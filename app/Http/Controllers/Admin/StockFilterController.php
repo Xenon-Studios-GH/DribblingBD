@@ -49,7 +49,7 @@ class StockFilterController extends Controller
         };
 
         $products = $query->paginate(20);
-        $html = view('stock-management._table', compact('products'))->render();
+        $html = view('stock-management._table', compact('products', 'size'))->render();
 
         return response()->json(['html' => $html]);
     }

@@ -23,7 +23,7 @@
 </head>
 <body>
     <h1>Stock Report</h1>
-    <p class="subtitle">Period: {{ ucfirst($period) }} @if($period === 'day') - {{ $date }} @endif | Generated: {{ now()->format('d M Y h:i A') }}</p>
+    <p class="subtitle">Period: {{ ucfirst($period) }} @if($period === 'day') - {{ $date }} @elseif($period === 'custom' && request('date_from')) - {{ request('date_from') }} to {{ request('date_to') }} @elseif(in_array($period, ['week','month','year'])) - {{ $date }} @endif | Generated: {{ now()->format('d M Y h:i A') }}</p>
 
     <div class="summary">
         <div class="summary-row"><strong>Total Stock In:</strong> <span class="text-green">+{{ number_format($totals->total_in ?? 0) }}</span></div>

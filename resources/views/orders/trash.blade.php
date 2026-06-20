@@ -52,12 +52,21 @@
                                     <td class="whitespace-nowrap px-4 py-3 text-right text-xs font-semibold text-[#E6EDF3]">৳{{ number_format($order->total_amount, 2) }}</td>
                                     <td class="whitespace-nowrap px-4 py-3 text-xs text-[#94A3B8]">{{ $order->deleted_at->format('d M, Y H:i') }}</td>
                                     <td class="whitespace-nowrap px-4 py-3 text-center">
-                                        <form action="{{ admin_route('orders.restore', $order->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-[#22C55E]/10 px-3 py-1.5 text-xs font-medium text-[#22C55E] hover:bg-[#22C55E]/20 transition-colors">
-                                                <i class="fas fa-undo"></i> Restore
-                                            </button>
-                                        </form>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <form action="{{ admin_route('orders.restore', $order->order_no) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-[#22C55E]/10 px-3 py-1.5 text-xs font-medium text-[#22C55E] hover:bg-[#22C55E]/20 transition-colors">
+                                                    <i class="fas fa-undo"></i> Restore
+                                                </button>
+                                            </form>
+                                            <form action="{{ admin_route('orders.force-delete', $order->order_no) }}" method="POST" onsubmit="return confirm('Permanently delete this order? This cannot be undone.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-[#EF4444]/10 px-3 py-1.5 text-xs font-medium text-[#EF4444] hover:bg-[#EF4444]/20 transition-colors">
+                                                    <i class="fas fa-trash"></i> Delete Forever
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

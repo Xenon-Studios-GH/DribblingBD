@@ -35,9 +35,6 @@
         <x-nav-link href="{{ admin_route('seo.index') }}" :active="request()->routeIs('seo*')" icon="seo">
             SEO Management
         </x-nav-link>
-        <x-nav-link href="{{ admin_route('seo.dashboard') }}" :active="request()->routeIs('seo.dashboard')" icon="chart">
-            SEO Dashboard
-        </x-nav-link>
         <x-nav-link href="{{ admin_route('seo.redirects.index') }}" :active="request()->routeIs('seo.redirects.*')" icon="activity">
             Redirects
         </x-nav-link>
@@ -57,9 +54,6 @@
             Add Product
         </x-nav-link>
         @endif
-        <x-nav-link href="{{ admin_route('stock.report') }}" :active="request()->routeIs('stock.report*')" icon="report">
-            Stock Report
-        </x-nav-link>
 
         <div class="my-2 border-t border-[#232A36]"></div>
         <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Orders</p>
@@ -67,6 +61,18 @@
         <x-nav-link href="{{ admin_route('orders.index') }}" :active="request()->routeIs('orders.*')" icon="order">
             All Orders
         </x-nav-link>
+
+        <div class="my-2 border-t border-[#232A36]"></div>
+        <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Reports &amp; Analytics</p>
+
+        <x-nav-link href="{{ admin_route('stock.report') }}" :active="request()->routeIs('stock.report*')" icon="report">
+            Stock Report
+        </x-nav-link>
+        @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+        <x-nav-link href="{{ admin_route('finance.reports') }}" :active="request()->routeIs('finance.reports')" icon="chart">
+            Finance Reports
+        </x-nav-link>
+        @endif
 
         @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
         <div class="my-2 border-t border-[#232A36]"></div>
@@ -80,9 +86,6 @@
         </x-nav-link>
         <x-nav-link href="{{ admin_route('finance.categories') }}" :active="request()->routeIs('finance.categories*')" icon="category">
             Categories
-        </x-nav-link>
-        <x-nav-link href="{{ admin_route('finance.reports') }}" :active="request()->routeIs('finance.reports')" icon="report">
-            Reports
         </x-nav-link>
         @endif
         @if (in_array(Auth::user()->role, ['superadmin', 'admin']))

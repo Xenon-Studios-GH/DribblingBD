@@ -80,11 +80,11 @@
                 pdfUrl() {
                     const params = new URLSearchParams();
                     params.set('period', this.period);
-                    if (this.period === 'day') {
-                        params.set('date', this.date);
-                    } else if (this.period === 'custom') {
+                    if (this.period === 'custom') {
                         if (this.dateFrom) params.set('date_from', this.dateFrom);
                         if (this.dateTo) params.set('date_to', this.dateTo);
+                    } else {
+                        params.set('date', this.date);
                     }
                     return '{{ route('stock.report.pdf') }}?' + params.toString();
                 },

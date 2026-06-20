@@ -61,10 +61,7 @@
                 <div class="flex items-center gap-2 w-full md:w-auto">
                     <button @click="resetFilters()"
                         class="rounded-xl border border-[#232A36] px-5 py-2 text-sm text-[#94A3B8] hover:bg-[#1C2333]">Reset</button>
-                    <button @click="generatePdf()"
-                        class="rounded-xl bg-[#2563EB] px-5 py-2 text-sm font-medium text-white hover:bg-[#1D4ED8] transition-colors">
-                        <i class="fas fa-file-pdf mr-1.5"></i>PDF
-                    </button>
+
                 </div>
             </div>
         </x-card>
@@ -210,16 +207,7 @@
                     this.fetch();
                 },
 
-                generatePdf() {
-                    const params = new URLSearchParams();
-                    if (this.tab && this.tab !== 'all') params.append('tab', this.tab);
-                    if (this.search) params.append('search', this.search);
-                    if (this.userId) params.append('user_id', this.userId);
-                    if (this.module) params.append('module', this.module);
-                    if (this.dateFrom) params.append('date_from', this.dateFrom);
-                    if (this.dateTo) params.append('date_to', this.dateTo);
-                    window.open('{{ admin_route('monitoring.pdf') }}?' + params.toString(), '_blank');
-                },
+
             }
         }
     </script>

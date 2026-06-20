@@ -370,9 +370,9 @@
             </x-card>
 
             <!-- Submit -->
-            <div class="flex items-center justify-end gap-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                 <a href="{{ admin_route('orders.index') }}"
-                   class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333] transition-colors">
+                   class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333] transition-colors text-center">
                     Cancel
                 </a>
                 <button type="button" @click="saveDraft(JSON.stringify(getFormData()))"

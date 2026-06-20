@@ -534,6 +534,17 @@ class OrderController extends Controller
         return redirect(admin_route('orders.index'))->with('success', "Order {$orderNo} deleted.");
     }
 
+    public function forceDestroy($orderNo)
+    {
+        $order = Order::onlyTrashed()->where('order_no', $orderNo)->firstOrFail();
+        $orderNoVal = $order->order_no;
+        $order->forceDelete();
+
+        $this->workLogService->log('Order Force Deleted', 'order', $order->id, "Order #{$orderNoVal} permanently deleted");
+
+        return redirect(admin_route('orders.trash'))->with('success', "Order {$orderNoVal} permanently deleted.");
+    }
+
     public function productStock($productId)
     {
         $product = Product::with('stocks')->findOrFail($productId);

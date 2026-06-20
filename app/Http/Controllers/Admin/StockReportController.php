@@ -179,17 +179,32 @@ class StockReportController extends Controller
         $period = $request->get('period', 'day');
         $date = $request->get('date', now()->toDateString());
 
-        $transactions = StockTransaction::with(['product:id,product_name,product_code', 'user:id,name'])
-            ->whereDate('created_at', $date)
-            ->orderByDesc('created_at')
-            ->get();
+        $query = StockTransaction::with(['product:id,product_name,product_code', 'user:id,name']);
+
+        match ($period) {
+            'week' => $query->whereBetween('created_at', [
+                now()->parse($date)->startOfWeek()->toDateTimeString(),
+                now()->parse($date)->endOfWeek()->toDateTimeString(),
+            ]),
+            'month' => $query->whereBetween('created_at', [
+                now()->parse($date)->startOfMonth()->toDateTimeString(),
+                now()->parse($date)->endOfMonth()->toDateTimeString(),
+            ]),
+            'year' => $query->whereYear('created_at', now()->parse($date)->year),
+            'custom' => $query->where('created_at', '>=', $request->get('date_from', now()->subMonth()) . ' 00:00:00')
+                ->where('created_at', '<=', $request->get('date_to', now()) . ' 23:59:59'),
+            default => $query->whereDate('created_at', $date),
+        };
+
+        $transactions = $query->orderByDesc('created_at')->get();
 
         $totals = (object) [
             'total_in' => $transactions->where('type', 'in')->sum('quantity'),
             'total_out' => $transactions->where('type', 'out')->sum('quantity'),
         ];
 
-        $filename = "stock-report-{$period}-{$date}.pdf";
+        $label = $period === 'custom' ? ($request->get('date_from') . '_to_' . $request->get('date_to')) : $date;
+        $filename = "stock-report-{$period}-{$label}.pdf";
 
         $filepath = $reportService->savePdf('stock-report.pdf', compact('period', 'date', 'totals', 'transactions'), $filename);
 
