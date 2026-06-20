@@ -27,9 +27,6 @@ Route::middleware(['auth', 'role:superadmin,admin'])
     Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-    Route::get('reports', ReportController::class)->name('reports');
-    Route::get('reports/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
-
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');

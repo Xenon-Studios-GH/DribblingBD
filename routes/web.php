@@ -53,16 +53,23 @@ Route::middleware(['auth', 'trap'])->group(function () {
 
         Route::get('dashboard', DashboardController::class)->name('dashboard');
 
+        // Reports & Analytics
+        Route::prefix('reports-and-analytics')->name('admin.reports')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('.index');
+            Route::get('/data', [\App\Http\Controllers\Admin\ReportController::class, 'data'])->name('.data');
+            Route::get('/details', [\App\Http\Controllers\Admin\ReportController::class, 'details'])->name('.details');
+            Route::get('/pdf', [\App\Http\Controllers\Admin\ReportController::class, 'exportPdf'])->name('.pdf');
+        });
+
         // Stock
         Route::get('stock', StockManagementController::class)->name('stock.management');
 
         // Static stock routes must come BEFORE parameterized stock/{product}
         Route::get('stock/search', StockSearchController::class)->name('stock.search');
         Route::get('stock/filter', StockFilterController::class)->name('stock.filter');
-        Route::get('stock/report', [StockReportController::class, 'index'])->name('stock.report');
+        // Stock report PDF (keep for backward compat with generated PDFs)
         Route::get('stock/report/pdf', [StockReportController::class, 'exportPdf'])->name('stock.report.pdf');
         Route::get('stock/report/pdf/{filename}', [StockReportController::class, 'viewPdf'])->name('stock.report.view');
-        Route::get('stock/report/details', [StockReportController::class, 'details'])->name('stock.report.details');
 
         // Stock In (staff cannot access)
         Route::middleware('role:superadmin,admin')->group(function () {
