@@ -292,6 +292,10 @@ class ReportController extends Controller
         $period = $request->get('period', 'day');
         $label = $request->get('label');
 
+        if (!$label) {
+            return response()->json(['html' => '<p class="text-sm text-[#94A3B8] px-2 py-2">No period selected.</p>']);
+        }
+
         $html = match ($tab) {
             'stock' => $this->stockDetails($period, $label),
             'orders' => $this->orderDetails($period, $label),
@@ -303,49 +307,22 @@ class ReportController extends Controller
 
     protected function stockDetails(string $period, string $label)
     {
-        $transactions = $this->getStockTransactionsForPeriod($period, $label);
-        $html = view('admin.reports._slideout', compact('transactions', 'period', 'label'))->render();
-        return $html;
+        $transactions = $this->getTransactionsForPeriod(StockTransaction::class, $period, $label, ['product:id,product_name,product_code', 'user:id,name']);
+        return view('admin.reports._slideout', compact('transactions', 'period', 'label'))->render();
     }
 
     protected function orderDetails(string $period, string $label)
     {
-        $orders = $this->getOrdersForPeriod($period, $label);
-        $html = view('admin.reports._slideout', compact('orders', 'period', 'label'))->render();
-        return $html;
+        $orders = $this->getTransactionsForPeriod(Order::class, $period, $label);
+        return view('admin.reports._slideout', compact('orders', 'period', 'label'))->render();
     }
 
-    protected function getStockTransactionsForPeriod(string $period, string $label)
+    protected function getTransactionsForPeriod(string $model, string $period, string $label, array $with = [])
     {
-        $query = StockTransaction::with(['product:id,product_name,product_code', 'user:id,name']);
-        $driver = $query->getConnection()->getDriverName();
-
-        if (in_array($period, ['day', 'custom'])) {
-            $query->whereDate('created_at', $label);
-        } elseif ($period === 'week' && str_contains($label, '-W')) {
-            $parts = explode('-W', $label);
-            if ($driver === 'mysql') {
-                $query->whereRaw("YEAR(created_at) = ? AND WEEK(created_at) = ?", [(int)$parts[0], (int)$parts[1]]);
-            } else {
-                $query->whereRaw("strftime('%Y', created_at) = ? AND strftime('%W', created_at) = ?", [(int)$parts[0], str_pad((int)$parts[1], 2, '0', STR_PAD_LEFT)]);
-            }
-        } elseif ($period === 'month' && str_contains($label, '-')) {
-            $parts = explode('-', $label);
-            if ($driver === 'mysql') {
-                $query->whereRaw("YEAR(created_at) = ? AND MONTH(created_at) = ?", [(int)$parts[0], (int)$parts[1]]);
-            } else {
-                $query->whereRaw("strftime('%Y', created_at) = ? AND strftime('%m', created_at) = ?", [(int)$parts[0], str_pad((int)$parts[1], 2, '0', STR_PAD_LEFT)]);
-            }
-        } elseif ($period === 'year') {
-            $query->whereYear('created_at', (int)$label);
+        $query = $model::query();
+        if ($with) {
+            $query->with($with);
         }
-
-        return $query->orderByDesc('created_at')->get();
-    }
-
-    protected function getOrdersForPeriod(string $period, string $label)
-    {
-        $query = Order::query();
         $driver = $query->getConnection()->getDriverName();
 
         if (in_array($period, ['day', 'custom'])) {
@@ -439,6 +416,8 @@ class ReportController extends Controller
             'week' => $query->whereBetween('created_at', [now()->parse($date)->startOfWeek(), now()->parse($date)->endOfWeek()]),
             'month' => $query->whereBetween('created_at', [now()->parse($date)->startOfMonth(), now()->parse($date)->endOfMonth()]),
             'year' => $query->whereYear('created_at', now()->parse($date)->year),
+            'custom' => $query->where('created_at', '>=', ($request->get('date_from') ?? now()->subMonth()) . ' 00:00:00')
+                ->where('created_at', '<=', ($request->get('date_to') ?? now()) . ' 23:59:59'),
             default => $query->whereDate('created_at', $date),
         };
 
@@ -458,19 +437,26 @@ class ReportController extends Controller
     protected function exportFinancePdf(Request $request, ReportService $reportService)
     {
         $period = $request->get('period', 'month');
-        $dateFrom = match ($period) {
-            'day' => now()->startOfDay(),
-            'week' => now()->subWeek()->startOfDay(),
-            'month' => now()->subMonth()->startOfDay(),
-            'year' => now()->subYear()->startOfDay(),
-            default => now()->subMonth()->startOfDay(),
-        };
+        $dateFrom = $request->get('date_from')
+            ? now()->parse($request->get('date_from'))->startOfDay()
+            : match ($period) {
+                'day' => now()->startOfDay(),
+                'week' => now()->subWeek()->startOfDay(),
+                'month' => now()->subMonth()->startOfDay(),
+                'year' => now()->subYear()->startOfDay(),
+                'custom' => now()->subMonth()->startOfDay(),
+                default => now()->subMonth()->startOfDay(),
+            };
+        $dateTo = $request->get('date_to')
+            ? now()->parse($request->get('date_to'))->endOfDay()
+            : now();
 
         $incomeByCategory = DB::table('finance_transactions')
             ->selectRaw('COALESCE(fc.name, "Uncategorized") as name, SUM(amount) as total')
             ->leftJoin('finance_categories as fc', 'finance_transactions.category_id', '=', 'fc.id')
             ->where('finance_transactions.type', 'income')
             ->where('finance_transactions.date', '>=', $dateFrom)
+            ->where('finance_transactions.date', '<=', $dateTo)
             ->whereNull('finance_transactions.deleted_at')
             ->groupBy('fc.name')
             ->orderByDesc('total')
@@ -481,6 +467,7 @@ class ReportController extends Controller
             ->leftJoin('finance_categories as fc', 'finance_transactions.category_id', '=', 'fc.id')
             ->where('finance_transactions.type', 'expense')
             ->where('finance_transactions.date', '>=', $dateFrom)
+            ->where('finance_transactions.date', '<=', $dateTo)
             ->whereNull('finance_transactions.deleted_at')
             ->groupBy('fc.name')
             ->orderByDesc('total')
