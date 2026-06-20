@@ -19,7 +19,7 @@
         </div>
 
         <!-- Filters -->
-        <x-card>
+        <x-card x-show="tab !== 'traps'">
             <div class="flex flex-col md:flex-row md:flex-wrap items-stretch md:items-end gap-3 md:gap-4">
                 <div class="flex-1 min-w-full md:min-w-[220px]">
                     <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Search</label>
@@ -75,8 +75,15 @@
         </div>
 
         <!-- Table container -->
-        <div id="monitoringTable" x-html="logsHtml" x-cloak>
+        <div id="monitoringTable" x-show="tab !== 'traps'" x-html="logsHtml" x-cloak>
             @include('monitoring._table')
+        </div>
+
+        <!-- Traps table container -->
+        <div id="trapsTable" x-show="tab === 'traps'" x-html="trapsHtml" x-cloak>
+            @if (isset($traps))
+                @include('monitoring._traps_table')
+            @endif
         </div>
     </div>
 
@@ -91,6 +98,7 @@
                 dateTo: @js(request('date_to', '')),
                 page: 1,
                 logsHtml: '',
+                trapsHtml: '',
                 loading: false,
 
                 tabs: [
@@ -100,6 +108,7 @@
                     { key: 'stock', label: 'Stock Logs' },
                     { key: 'finance', label: 'Finance Logs' },
                     { key: 'web', label: 'Web Logs' },
+                    { key: 'traps', label: 'Traps' },
                 ],
 
                 moduleOptions: {
@@ -129,6 +138,7 @@
 
                 init() {
                     this.logsHtml = document.getElementById('monitoringTable').innerHTML;
+                    this.trapsHtml = document.getElementById('trapsTable').innerHTML;
                     window.monitoringGoToPage = (p) => { this.page = p; this.fetch(); };
                 },
 
@@ -136,6 +146,12 @@
                     this.tab = newTab;
                     this.module = '';
                     this.page = 1;
+                    if (newTab === 'traps') {
+                        this.search = '';
+                        this.userId = '';
+                        this.dateFrom = '';
+                        this.dateTo = '';
+                    }
                     this.fetch();
                 },
 
@@ -145,6 +161,23 @@
 
                     const params = new URLSearchParams();
                     if (this.tab && this.tab !== 'all') params.append('tab', this.tab);
+
+                    if (this.tab === 'traps') {
+                        fetch('{{ admin_route('monitoring.index') }}?' + params.toString(), {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                        .then(r => r.text())
+                        .then(html => {
+                            this.trapsHtml = html;
+                            this.loading = false;
+                            const url = new URL(window.location);
+                            url.search = params.toString();
+                            window.history.replaceState({}, '', url);
+                        })
+                        .catch(() => { this.loading = false; });
+                        return;
+                    }
+
                     if (this.search) params.append('search', this.search);
                     if (this.userId) params.append('user_id', this.userId);
                     if (this.module) params.append('module', this.module);

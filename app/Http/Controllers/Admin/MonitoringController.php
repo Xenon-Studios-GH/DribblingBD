@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\LoginTrap;
 use App\Models\User;
 use App\Models\WorkLog;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -21,6 +22,16 @@ class MonitoringController extends Controller
 
     public function index(Request $request)
     {
+        if ($request->tab === 'traps') {
+            $traps = LoginTrap::latest('trapped_at')->paginate(20);
+            if ($request->ajax()) {
+                return view('monitoring._traps_table', compact('traps'));
+            }
+            $users = User::whereHas('workLogs')->orderBy('name')->get(['id', 'name']);
+            $logs = $this->fetchLogs($request);
+            return view('monitoring.index', compact('users', 'logs', 'traps'));
+        }
+
         if ($request->ajax()) {
             $logs = $this->fetchLogs($request);
             return view('monitoring._table', compact('logs'));

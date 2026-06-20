@@ -24,5 +24,6 @@ yarn-error.log
 /.zed
 /docs
 /.opencode/
-/V4.zip
+/V6.zip
 /V5.zip
+/tests

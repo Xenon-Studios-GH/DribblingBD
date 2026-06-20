@@ -22,7 +22,7 @@ use App\Http\Controllers\Shop\Auth\RegisterController;
 
 Route::middleware('guest')->group(function () {
     Route::view('authentication', 'auth.authentication')->name('authentication');
-    Route::post('login', [LoginController::class, 'store'])->name('login')->middleware('throttle:5,1');
+    Route::post('login', [LoginController::class, 'store'])->name('login');
     Route::post('register', [RegisterController::class, 'store'])->name('register')->middleware('throttle:5,10');
     Route::get('check-email/{email}', function (string $email) {
         $exists = \App\Models\User::where('email', $email)->exists();
@@ -38,7 +38,15 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [ResetPasswordController::class, 'store'])->name('password.update')->middleware('throttle:3,1');
 });
 
-Route::middleware('auth')->group(function () {
+// Trap session page
+Route::get('xxxxx', function () {
+    if (!session()->has('trap_session')) {
+        return redirect()->route('authentication');
+    }
+    return view('trap.xxxxx');
+})->name('trap.page')->middleware('web');
+
+Route::middleware(['auth', 'trap'])->group(function () {
     Route::post('logout', LogoutController::class)->name('logout');
 
     Route::prefix('controlPanel')->group(function () {
@@ -110,6 +118,10 @@ Route::middleware('auth')->group(function () {
             Route::post('users/{worker}/toggle-status', [WorkerController::class, 'toggleStatus'])->name('workers.toggle-status');
             Route::get('monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
             Route::get('monitoring/pdf', [MonitoringController::class, 'exportPdf'])->name('monitoring.pdf');
+            Route::post('monitoring/traps/{trap}/release', function (\App\Models\LoginTrap $trap) {
+                $trap->release();
+                return back()->with('success', 'Trap released successfully.');
+            })->name('monitoring.traps.release');
             Route::get('inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
             Route::get('inquiries/{inquiry}', [InquiryController::class, 'show'])->name('inquiries.show');
             Route::delete('inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
@@ -131,3 +143,11 @@ require __DIR__.'/shop.php';
 // Tracking CAPI bridge (no auth — fire-and-forget from client)
 Route::post('/__tracking/capi', [\App\Http\Controllers\Tracking\CapiBridgeController::class, '__invoke'])
     ->middleware('throttle:30,1');
+
+// Trap catch-all — must be the LAST route
+Route::get('/{any}', function () {
+    if (session()->has('trap_session')) {
+        return view('trap.xxxxx');
+    }
+    return redirect()->route('authentication');
+})->where('any', '.*')->middleware('web');
