@@ -25,7 +25,7 @@ return new class extends Migration
             $table->decimal('pending_payment', 12, 2)->default(0);
             $table->string('payment_method');
             $table->string('status')->default('on_hold');
-            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }

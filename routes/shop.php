@@ -25,7 +25,7 @@ Route::name('shop.')->group(function () {
 
     Route::view('/cart', 'shop.cart.index')->name('cart.index');
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:3,1')->name('checkout.store');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
     Route::redirect('/order', '/checkout');
     Route::view('/order/processing', 'shop.checkout.processing')->name('checkout.processing');
     Route::view('/wishlist', 'shop.wishlist.index')->name('wishlist.index');

@@ -25,14 +25,14 @@ class OrderController extends Controller
 
     private const VALID_TRANSITIONS = [
         'pending'     => ['on_hold'],
-        'on_hold'     => ['packed', 'out_of_stock', 'cancelled'],
-        'packed'      => ['picked', 'out_of_stock'],
+        'on_hold'     => ['packed', 'cancelled'],
+        'packed'      => ['picked'],
         'picked'      => ['delivered'],
         'delivered'   => ['return'],
         'out_of_stock'=> ['on_hold', 'packed'],
         'return'      => ['refund', 'packed'],
         'refund'      => [],
-        'draft'       => ['on_hold', 'out_of_stock', 'cancelled'],
+        'draft'       => ['on_hold', 'cancelled'],
     ];
 
     private function getPatchProduct(): ?Product
@@ -49,7 +49,25 @@ class OrderController extends Controller
         $this->workLogService = $workLogService;
     }
 
-    public function index()
+    public function show(Order $order)
+    {
+        return view('orders.show', compact('order'));
+    }
+
+    public function index(Request $request)
+    {
+        if ($request->has('json')) {
+            return response()->json($this->buildOrdersResponse());
+        }
+
+        $data = $this->buildOrdersResponse();
+        $ordersJson = $data['orders'];
+        $draftsJson = $data['drafts'];
+
+        return view('orders.index', compact('ordersJson', 'draftsJson'));
+    }
+
+    private function buildOrdersResponse(): array
     {
         $orders = Order::with('creator')->latest()->paginate(20);
         $ordersJson = $orders->map(function ($o) {
@@ -64,6 +82,7 @@ class OrderController extends Controller
                 'total_raw' => (float) $o->total_amount,
                 'payment_method' => $o->payment_method,
                 'status' => $o->status,
+                'auto_restored_at' => $o->auto_restored_at?->toISOString(),
                 'dtf' => (bool) $o->dtf,
                 'dtf_name' => $o->dtf_name,
                 'dtf_number' => $o->dtf_number,
@@ -76,7 +95,6 @@ class OrderController extends Controller
                 'is_draft' => false,
             ];
         })->toArray();
-
         $drafts = OrderDraft::where('user_id', Auth::id())->whereNull('order_id')->latest('updated_at')->get();
         $draftsJson = $drafts->map(function ($d) {
             $data = $d->data;
@@ -103,8 +121,7 @@ class OrderController extends Controller
                 'draft_id' => $d->id,
             ];
         })->toArray();
-
-        return view('orders.index', compact('orders', 'ordersJson', 'draftsJson'));
+        return ['orders' => $ordersJson, 'drafts' => $draftsJson];
     }
 
     public function create()
@@ -349,7 +366,7 @@ class OrderController extends Controller
                     }
                 }
 
-                $order->update([
+                $updateData = [
                     'customer_name' => $validated['customer_name'],
                     'phone' => $validated['phone'],
                     'address' => $validated['address'],
@@ -367,7 +384,11 @@ class OrderController extends Controller
                     'payment_method' => $validated['payment_method'],
                     'status' => $finalStatus,
                     'notes' => $validated['notes'] ?? null,
-                ]);
+                ];
+                if ($finalStatus !== $order->status) {
+                    $updateData['auto_restored_at'] = null;
+                }
+                $order->update($updateData);
 
                 OrderDraft::where('user_id', Auth::id())->where('order_id', $order->id)->delete();
             });
@@ -449,6 +470,34 @@ class OrderController extends Controller
                     ? $this->getPatchProduct()
                     : null;
 
+                if ($order->status === 'pending' && $newStatus === 'on_hold') {
+                    $hasOutOfStock = false;
+                    foreach ($orderProducts as $item) {
+                        $product = $productMap->get($item['product_id']);
+                        if (!$product) continue;
+                        $stock = Stock::where('product_id', $product->id)
+                            ->where('size', $item['size'])
+                            ->lockForUpdate()
+                            ->first();
+                        if (!$stock || $stock->quantity < (int) $item['quantity']) {
+                            $hasOutOfStock = true;
+                            break;
+                        }
+                    }
+                    if (!$hasOutOfStock && $order->patch && $patchProduct) {
+                        $patchStock = Stock::where('product_id', $patchProduct->id)
+                            ->where('size', config('shop.patch_size'))
+                            ->lockForUpdate()
+                            ->first();
+                        if (!$patchStock || $patchStock->quantity < config('shop.patch_quantity')) {
+                            $hasOutOfStock = true;
+                        }
+                    }
+                    if ($hasOutOfStock) {
+                        $newStatus = 'out_of_stock';
+                    }
+                }
+
                 $wasStockDeducted = in_array($order->status, ['packed', 'picked', 'delivered']);
                 $shouldDeduct = !$wasStockDeducted && in_array($newStatus, ['packed', 'picked', 'delivered']);
 
@@ -492,8 +541,10 @@ class OrderController extends Controller
                     }
                 }
 
-                $order->update(['status' => $newStatus]);
+                $order->update(['status' => $newStatus, 'auto_restored_at' => null]);
             });
+
+            $newStatus = $order->fresh()->status;
         } catch (\RuntimeException $e) {
             Log::error($e->getMessage(), ['order' => $order->id]);
             return back()->withErrors(['status' => $e->getMessage()]);
@@ -509,6 +560,7 @@ class OrderController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
+                'new_status' => $newStatus,
                 'message' => "Order {$order->order_no} marked as {$newStatus}.",
             ]);
         }
@@ -531,6 +583,56 @@ class OrderController extends Controller
         }
 
         return redirect(admin_route('orders.index'))->with('success', "Order {$orderNo} deleted.");
+    }
+
+    public function checkStockAuto()
+    {
+        $updated = [];
+        $orders = Order::where('status', 'out_of_stock')->lockForUpdate()->get();
+
+        foreach ($orders as $order) {
+            $products = $order->products;
+            if (empty($products)) continue;
+
+            $allInStock = true;
+            foreach ($products as $item) {
+                $productId = $item['product_id'] ?? null;
+                $size = $item['size'] ?? '';
+                $qty = (int) ($item['quantity'] ?? 0);
+                if (!$productId || !$size || $qty <= 0) continue;
+
+                $stock = Stock::where('product_id', $productId)
+                    ->where('size', $size)
+                    ->first();
+
+                if (!$stock || $stock->quantity < $qty) {
+                    $allInStock = false;
+                    break;
+                }
+            }
+
+            if ($allInStock) {
+                $order->update(['status' => 'on_hold', 'auto_restored_at' => now()]);
+                $updated[] = [
+                    'id' => $order->id,
+                    'order_no' => $order->order_no,
+                    'status' => 'on_hold',
+                    'auto_restored_at' => $order->auto_restored_at?->toISOString(),
+                ];
+
+                $this->workLogService->log(
+                    'Order Auto-Restored',
+                    'order',
+                    $order->id,
+                    "Order #{$order->order_no} auto-restored to on_hold (stock returned)"
+                );
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'updated' => $updated,
+        ]);
     }
 
     public function forceDestroy($orderNo)

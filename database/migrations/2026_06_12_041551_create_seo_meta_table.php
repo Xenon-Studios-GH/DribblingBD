@@ -12,14 +12,14 @@ return new class extends Migration
             $table->id();
             $table->morphs('seoable');
 
-            $table->string('meta_title', 70)->nullable();
+            $table->string('meta_title', 255)->nullable();
             $table->text('meta_description')->nullable();
             $table->json('focus_keywords')->nullable();
-            $table->string('og_title', 70)->nullable();
+            $table->string('og_title', 255)->nullable();
             $table->text('og_description')->nullable();
             $table->string('og_image', 500)->nullable();
             $table->string('og_url', 500)->nullable();
-            $table->string('twitter_title', 70)->nullable();
+            $table->string('twitter_title', 255)->nullable();
             $table->string('twitter_description', 200)->nullable();
             $table->string('twitter_image', 500)->nullable();
             $table->string('canonical_url', 500)->nullable();

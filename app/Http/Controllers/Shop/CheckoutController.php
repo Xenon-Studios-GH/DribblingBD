@@ -31,7 +31,7 @@ class CheckoutController extends Controller
     {
         $client = null;
         if (Auth::check()) {
-            $client = Auth::user()->client;
+            $client = Auth::user()->client ?? Auth::user();
         }
         return view('shop.checkout.index', compact('client'));
     }
@@ -135,7 +135,7 @@ class CheckoutController extends Controller
                     'delivery_charge' => $deliveryCharge,
                     'payment_method' => $validated['payment_method'],
                     'notes' => $validated['notes'] ?? null,
-                    'status' => $hasOutOfStock ? 'out_of_stock' : 'pending',
+                    'status' => 'pending',
                     'created_by' => Auth::id(),
                 ]);
 

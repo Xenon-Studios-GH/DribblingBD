@@ -52,14 +52,14 @@ class Order extends Model
         return 'order_no';
     }
 
-    // NOTE: Callers must wrap order creation in a DB transaction with lockForUpdate
-    // to prevent race conditions between generateOrderNo() and the INSERT.
     public static function generateOrderNo(): string
     {
         return DB::transaction(function () {
-            $last = static::lockForUpdate()->latest('id')->value('order_no');
-            $next = $last ? ((int) substr($last, 15)) + 1 : 1;
-            return 'DribblingOrder-' . str_pad($next, 5, '0', STR_PAD_LEFT);
+            // Must include soft-deleted rows — the order_no UNIQUE constraint
+            // applies to ALL rows including soft-deleted ones.
+            $maxId = static::withTrashed()->lockForUpdate()->max('id');
+            $nextNumber = ($maxId ?? 0) + 1;
+            return 'DribblingOrder-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
         });
     }
 

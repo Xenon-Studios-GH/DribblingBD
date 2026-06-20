@@ -39,9 +39,17 @@ class SeoService
             $originalTitle = $data['meta_title'];
             $counter = 1;
             while (\App\Models\SeoMeta::where('meta_title', $data['meta_title'])->exists()) {
-                $data['meta_title'] = $originalTitle . ' (' . $counter++ . ')';
+                $data['meta_title'] = Str::limit($originalTitle, 245, '') . ' (' . $counter++ . ')';
                 if ($counter > 10) break;
             }
+        }
+
+        if (isset($data['og_title']) && $data['og_title']) {
+            $data['og_title'] = Str::limit($data['og_title'], 255, '');
+        }
+
+        if (isset($data['twitter_title']) && $data['twitter_title']) {
+            $data['twitter_title'] = Str::limit($data['twitter_title'], 255, '');
         }
 
         $seoMeta = $model->seoMeta()->firstOrCreate(

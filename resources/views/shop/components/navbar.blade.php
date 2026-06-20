@@ -43,61 +43,61 @@
 
             {{-- Right icons --}}
             <div class="flex items-center gap-1 sm:gap-2">
-                @auth
-                    {{-- Wishlist --}}
-                    <a href="{{ route('shop.wishlist.index') }}" aria-label="Wishlist" class="flex relative items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                        <i class="fas fa-heart w-5 h-5"></i>
-                        <span x-show="wishlistCount > 0" x-cloak x-text="wishlistCount" class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-[#E85D2C] rounded-full"></span>
-                    </a>
+                {{-- Wishlist (visible to all) --}}
+                <a href="{{ route('shop.wishlist.index') }}" aria-label="Wishlist" class="flex relative items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                    <i class="fas fa-heart w-5 h-5"></i>
+                    <span x-show="wishlistCount > 0" x-cloak x-text="wishlistCount" class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-[#E85D2C] rounded-full"></span>
+                </a>
 
-                    {{-- Cart --}}
-                    <div class="relative" @click.outside="cartDropdownOpen = false">
-                        <button @click="cartDropdownOpen = !cartDropdownOpen" aria-label="Shopping cart" class="relative flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                            <i class="fas fa-shopping-cart w-5 h-5"></i>
-                            <span x-show="cartCount > 0" x-cloak x-text="cartCount" class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-[#E85D2C] rounded-full"></span>
-                        </button>
+                {{-- Cart (visible to all) --}}
+                <div class="relative" @click.outside="cartDropdownOpen = false">
+                    <button @click="cartDropdownOpen = !cartDropdownOpen" aria-label="Shopping cart" class="relative flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                        <i class="fas fa-shopping-cart w-5 h-5"></i>
+                        <span x-show="cartCount > 0" x-cloak x-text="cartCount" class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-[#E85D2C] rounded-full"></span>
+                    </button>
 
-                        <div x-show="cartDropdownOpen" x-cloak x-transition class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-200 bg-white shadow-xl z-50">
-                            <div class="p-4 border-b border-gray-100">
-                                <p class="text-sm font-semibold text-gray-900">{{ $settings['ui_shopping_cart'] ?? 'Shopping Cart' }}</p>
-                            </div>
-                            <div class="max-h-64 overflow-y-auto">
-                                <template x-if="cart.length === 0">
-                                    <p class="px-4 py-6 text-sm text-gray-500 text-center" x-text="'{{ $settings['ui_cart_empty'] ?? 'Your cart is empty' }}'"></p>
-                                </template>
-                                <template x-for="(item, index) in cart" :key="index">
-                                    <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-50">
-                                        <template x-if="item.image">
-                                            <img :src="item.image" :alt="item.name" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 bg-gray-100">
-                                        </template>
-                                        <template x-if="!item.image">
-                                            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-[#E85D2C] to-[#F59E0B] flex-shrink-0"></div>
-                                        </template>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-medium text-gray-900 truncate" x-text="item.name"></p>
-                                            <p class="text-xs text-gray-500">
-                                                <span x-text="item.size"></span> × <span x-text="item.quantity"></span>
-                                            </p>
-                                            <p class="text-sm font-semibold text-[#E85D2C]">৳<span x-text="item.price * item.quantity"></span></p>
-                                        </div>
-                                        <button @click="removeFromCart(index)" class="text-gray-400 hover:text-red-500">
-                                            <i class="fas fa-trash-alt w-4 h-4"></i>
-                                        </button>
+                    <div x-show="cartDropdownOpen" x-cloak x-transition class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-200 bg-white shadow-xl z-50">
+                        <div class="p-4 border-b border-gray-100">
+                            <p class="text-sm font-semibold text-gray-900">{{ $settings['ui_shopping_cart'] ?? 'Shopping Cart' }}</p>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto">
+                            <template x-if="cart.length === 0">
+                                <p class="px-4 py-6 text-sm text-gray-500 text-center" x-text="'{{ $settings['ui_cart_empty'] ?? 'Your cart is empty' }}'"></p>
+                            </template>
+                            <template x-for="(item, index) in cart" :key="index">
+                                <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-50">
+                                    <template x-if="item.image">
+                                        <img :src="item.image" :alt="item.name" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 bg-gray-100">
+                                    </template>
+                                    <template x-if="!item.image">
+                                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-[#E85D2C] to-[#F59E0B] flex-shrink-0"></div>
+                                    </template>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate" x-text="item.name"></p>
+                                        <p class="text-xs text-gray-500">
+                                            <span x-text="item.size"></span> × <span x-text="item.quantity"></span>
+                                        </p>
+                                        <p class="text-sm font-semibold text-[#E85D2C]">৳<span x-text="item.price * item.quantity"></span></p>
                                     </div>
-                                </template>
-                            </div>
-                            <div class="p-4 border-t border-gray-100">
-                                <div class="flex justify-between mb-3">
-                                    <span class="text-sm font-medium text-gray-900">{{ $settings['ui_total'] ?? 'Total' }}</span>
-                                    <span class="text-sm font-bold text-[#E85D2C]">৳<span x-text="cartTotal"></span></span>
+                                    <button @click="removeFromCart(index)" class="text-gray-400 hover:text-red-500">
+                                        <i class="fas fa-trash-alt w-4 h-4"></i>
+                                    </button>
                                 </div>
-                                <a href="{{ route('shop.cart.index') }}" class="block w-full text-center rounded-xl bg-[#E85D2C] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#d14d1f] transition-colors">
-                                    {{ $settings['ui_view_cart'] ?? 'View Cart' }}
-                                </a>
+                            </template>
+                        </div>
+                        <div class="p-4 border-t border-gray-100">
+                            <div class="flex justify-between mb-3">
+                                <span class="text-sm font-medium text-gray-900">{{ $settings['ui_total'] ?? 'Total' }}</span>
+                                <span class="text-sm font-bold text-[#E85D2C]">৳<span x-text="cartTotal"></span></span>
                             </div>
+                            <a href="{{ route('shop.cart.index') }}" class="block w-full text-center rounded-xl bg-[#E85D2C] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#d14d1f] transition-colors">
+                                {{ $settings['ui_view_cart'] ?? 'View Cart' }}
+                            </a>
                         </div>
                     </div>
+                </div>
 
+                @auth
                     {{-- Profile / Dashboard --}}
                     <div class="flex items-center gap-1 sm:gap-2 ml-2">
                         @if (Auth::user()->client)

@@ -138,11 +138,17 @@
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-3 text-center">
-                                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
-                                                  x-bind:class="statusClass(order.status)">
-                                                <i class="fas" x-bind:class="statusIcon(order.status)"></i>
-                                                <span x-text="statusLabel(order.status)"></span>
-                                            </span>
+                                            <div class="flex items-center justify-center gap-1">
+                                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                                      x-bind:class="statusClass(order.status)">
+                                                    <i class="fas" x-bind:class="statusIcon(order.status)"></i>
+                                                    <span x-text="statusLabel(order.status)"></span>
+                                                </span>
+                                                <span x-show="order.auto_restored_at"
+                                                      class="inline-flex items-center rounded-md bg-[#A855F7]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#A855F7]">
+                                                    Auto
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-3 text-center">
                                             <template x-if="order.status === 'pending'">
@@ -197,11 +203,17 @@
                                        x-text="order.order_no"></a>
                                     <div class="text-[10px] text-[#6B7280]" x-text="order.date_formatted"></div>
                                 </div>
-                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
-                                      x-bind:class="statusClass(order.status)">
-                                    <i class="fas" x-bind:class="statusIcon(order.status)"></i>
-                                    <span x-text="statusLabel(order.status)"></span>
-                                </span>
+                                <div class="flex items-center gap-1">
+                                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                          x-bind:class="statusClass(order.status)">
+                                        <i class="fas" x-bind:class="statusIcon(order.status)"></i>
+                                        <span x-text="statusLabel(order.status)"></span>
+                                    </span>
+                                    <span x-show="order.auto_restored_at"
+                                          class="inline-flex items-center rounded-md bg-[#A855F7]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#A855F7]">
+                                        Auto
+                                    </span>
+                                </div>
                             </div>
                             <div class="mt-2 text-xs text-[#E6EDF3]" x-text="order.customer_name"></div>
                             <div class="text-[11px] text-[#6B7280]" x-text="order.phone"></div>
@@ -273,6 +285,7 @@
                 filterExtras: '',
                 orders: @json($ordersJson),
                 drafts: @json($draftsJson),
+                _reloadTimer: null,
 
                 get allOrders() {
                     return [...this.orders, ...this.drafts];
@@ -337,8 +350,63 @@
                     return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 },
 
+                init() {
+                    this.startReloadTimer();
+                    this.startStockCheck();
+                },
+
+                startReloadTimer() {
+                    if (this._reloadTimer) clearInterval(this._reloadTimer);
+                    const baseUrl = window.location.origin + window.location.pathname;
+                    this._reloadTimer = setInterval(() => {
+                        fetch(baseUrl + '?json=1')
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.orders) this.orders = data.orders;
+                                if (data.drafts) this.drafts = data.drafts;
+                            })
+                            .catch(() => {});
+                    }, 60000);
+                },
+
+                startStockCheck() {
+                    setInterval(() => {
+                        fetch('{{ route('orders.check-stock') }}', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.updated && data.updated.length > 0) {
+                                data.updated.forEach(u => {
+                                    const order = this.orders.find(o => o.id === u.id);
+                                    if (order) {
+                                        order.status = u.status;
+                                        order.auto_restored_at = u.auto_restored_at;
+                                    }
+                                });
+                                this.showToast(data.updated.length + ' order(s) auto-restored from out of stock', 'success');
+                            }
+                        })
+                        .catch(() => {});
+                    }, 30000);
+                },
+
                 async confirmOrder(order) {
-                    if (!confirm('Confirm this order?')) return;
+                    const result = await Swal.fire({
+                        icon: 'question',
+                        title: 'Confirm Order?',
+                        text: `Mark order ${order.order_no} as confirmed?`,
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Confirm',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#22C55E',
+                        cancelButtonColor: '#6B7280',
+                        background: '#161B22',
+                        color: '#E6EDF3',
+                        reverseButtons: true,
+                    });
+                    if (!result.isConfirmed) return;
                     try {
                         const resp = await fetch(order.update_url, {
                             method: 'POST',
@@ -347,8 +415,9 @@
                         });
                         const data = await resp.json();
                         if (data.success) {
-                            order.status = 'on_hold';
-                            this.showToast('Order confirmed', 'success');
+                            order.status = data.new_status || 'on_hold';
+                            this.showToast(data.message || 'Order confirmed', 'success');
+                            this.startReloadTimer();
                         } else {
                             this.showToast(data.message || 'Failed to confirm', 'error');
                         }
@@ -358,7 +427,20 @@
                 },
 
                 async deleteOrder(order) {
-                    if (!confirm('Delete this order? This cannot be undone.')) return;
+                    const result = await Swal.fire({
+                        icon: 'warning',
+                        title: 'Delete Order?',
+                        text: `Delete ${order.order_no}? This cannot be undone.`,
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Delete',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#EF4444',
+                        cancelButtonColor: '#6B7280',
+                        background: '#161B22',
+                        color: '#E6EDF3',
+                        reverseButtons: true,
+                    });
+                    if (!result.isConfirmed) return;
                     try {
                         const resp = await fetch(order.delete_url, {
                             method: 'DELETE',
@@ -369,6 +451,7 @@
                             const idx = this.orders.indexOf(order);
                             if (idx > -1) this.orders.splice(idx, 1);
                             this.showToast('Order deleted', 'success');
+                            this.startReloadTimer();
                         } else {
                             this.showToast(data.message || 'Failed to delete', 'error');
                         }

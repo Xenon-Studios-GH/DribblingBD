@@ -11,10 +11,10 @@ class PixelRendererService
     public function renderHead(): string
     {
         $pixels = $this->getActivePixels('head');
-        if ($pixels->isEmpty()) return '';
 
-        $html = "<!-- Tracking Head -->\n";
-        $html .= $this->initDribblingTrack();
+        $html = $this->initDribblingTrack();
+
+        if ($pixels->isEmpty()) return $html;
 
         foreach ($pixels as $pixel) {
             $html .= match ($pixel->platform) {

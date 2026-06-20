@@ -1,5 +1,5 @@
 <x-layouts.app title="Edit Order">
-    <div class="mx-auto max-w-4xl"
+    <form method="POST" action="{{ admin_route('orders.update', $order->order_no) }}"
           x-data="editForm({{ Js::from($products->map(fn($p) => [
                   'id' => (int) $p->id,
                   'name' => $p->product_name . ' (' . $p->product_code . ')',
@@ -9,7 +9,16 @@
                   'stocks' => collect(\App\Models\Stock::SIZES)->mapWithKeys(fn($s) => [
                       $s => $p->stocks->where('size', $s)->first()?->quantity ?? 0
                   ])->toArray(),
-              ])->values()) }}, {{ $patchPrice }}, {{ $patchStock }})">
+              ])->values()) }}, {{ $patchPrice }}, {{ $patchStock }})"
+          data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '80' }}"
+          data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '130' }}"
+          data-free-threshold="{{ $settings['shipping_free_threshold'] ?? '3000' }}"
+          @submit.prevent="submitForm()" novalidate>
+        @csrf
+        @method('PUT')
+        <input type="hidden" name="products" x-model="JSON.stringify(products)">
+        <input type="hidden" name="status" x-model="status">
+
         <div class="mb-6 flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-[#E6EDF3]">Edit Order</h1>
@@ -21,47 +30,7 @@
             </a>
         </div>
 
-        <!-- Drafts -->
-        <div x-show="drafts.length > 0" class="mb-6">
-            <x-card>
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
-                        <i class="fas fa-pen text-[#A855F7]"></i>
-                    </div>
-                    <h2 class="text-lg font-semibold text-[#E6EDF3]">Saved Drafts</h2>
-                </div>
-                <div class="space-y-2">
-                    <template x-for="draft in drafts" :key="draft.id">
-                        <div class="flex items-center justify-between rounded-lg border border-[#232A36] bg-[#0F1117] p-3">
-                            <div class="text-sm text-[#94A3B8]">
-                                <span class="text-[#E6EDF3] font-medium">Draft</span>
-                                &middot; Saved <span x-text="new Date(draft.updated_at).toLocaleString()"></span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button type="button" @click="restoreDraft(draft)"
-                                        class="rounded-lg bg-[#3B82F6] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2563EB]">
-                                    <i class="fas fa-rotate-left mr-1"></i> Restore
-                                </button>
-                                <button type="button" @click="deleteDraft(draft.id)"
-                                        class="rounded-lg bg-[#EF4444]/10 px-3 py-1.5 text-xs font-medium text-[#EF4444] hover:bg-[#EF4444]/20">
-                                    <i class="fas fa-trash mr-1"></i> Delete
-                                </button>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </x-card>
-        </div>
-
-        <form method="POST" action="{{ admin_route('orders.update', $order->order_no) }}"
-              data-dhaka-rate="{{ $settings['shipping_dhaka_rate'] ?? '80' }}"
-              data-outside-rate="{{ $settings['shipping_outside_rate'] ?? '130' }}"
-              data-free-threshold="{{ $settings['shipping_free_threshold'] ?? '3000' }}"
-              @submit.prevent="submitForm()" novalidate>
-            @csrf
-            @method('PUT')
-            <input type="hidden" name="products" x-model="JSON.stringify(products)">
-            <input type="hidden" name="status" x-model="status">
+        <div class="mx-auto max-w-4xl">
 
             <!-- Order Info -->
             <x-card class="mb-6">
@@ -337,49 +306,38 @@
                 <div class="mt-4 rounded-xl bg-[#0F1117] p-4">
                     <div class="flex items-center gap-3">
                         <label class="text-sm font-medium text-[#E6EDF3]">Status</label>
-                            <select name="status" x-model="status" class="rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] focus:border-[#3B82F6] focus:outline-none">
+                            <select name="status" x-model="status" :disabled="status === 'out_of_stock'"
+                                    class="rounded-xl border px-3 py-2 text-sm focus:outline-none"
+                                    :class="status === 'out_of_stock' ? 'border-[#EF4444]/40 bg-[#EF4444]/5 text-[#EF4444] cursor-not-allowed' : 'border-[#232A36] bg-[#0F1117] text-[#E6EDF3] focus:border-[#3B82F6]'">
                                 <option value="on_hold">On Hold</option>
                                 <option value="packed">Packed</option>
                                 <option value="picked">Picked</option>
                                 <option value="delivered">Delivered</option>
                                 <option value="refund">Refund</option>
                                 <option value="return">Return</option>
-                                <option value="out_of_stock">Out Of Stock</option>
+                                <option value="out_of_stock" x-show="hasOutOfStock">Out of Stock</option>
                             </select>
                     </div>
                 </div>
             </x-card>
+        </div>
 
-            <!-- Submit -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
-                <a href="{{ admin_route('orders.show', $order->order_no) }}"
-                   class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333] transition-colors text-center">
-                    Cancel
-                </a>
-                <button type="button" @click="saveDraft(JSON.stringify(getFormData()))"
-                        class="rounded-xl border border-[#A855F7] px-6 py-2.5 text-sm font-medium text-[#A855F7] hover:bg-[#A855F7]/10 transition-colors">
-                    <i class="fas fa-pen mr-2"></i> Save Draft
-                </button>
-                <button type="submit"
-                        class="rounded-xl bg-[#3B82F6] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB] transition-colors">
-                    <i class="fas fa-save mr-2"></i> Update Order
-                </button>
+        <!-- Fixed Footer -->
+        <div class="sticky bottom-0 z-30 -mx-4 mt-8 border-t border-[#232A36] bg-[#0F1117]/95 backdrop-blur-sm px-4 py-4 md:-mx-8 md:px-8">
+            <div class="mx-auto max-w-4xl">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                    <a href="{{ admin_route('orders.show', $order->order_no) }}"
+                    class="rounded-xl border border-[#232A36] px-6 py-2.5 text-sm font-medium text-[#94A3B8] hover:bg-[#1C2333] transition-colors text-center">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                            class="rounded-xl bg-[#3B82F6] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#2563EB] transition-colors">
+                        <i class="fas fa-save mr-2"></i> Update Order
+                    </button>
+                </div>
             </div>
-
-            <!-- Auto-save indicator -->
-            <div class="mt-4 flex items-center gap-2 justify-end">
-                <span x-show="draftStatus === 'saving'" class="text-xs text-[#94A3B8]">
-                    <i class="fas fa-circle-notch fa-spin mr-1"></i> Saving...
-                </span>
-                <span x-show="draftStatus === 'saved'" class="text-xs text-[#22C55E]">
-                    <i class="fas fa-check-circle mr-1"></i> Draft saved
-                </span>
-                <span x-show="draftStatus === 'idle'" class="text-xs text-[#94A3B8]">
-                    <i class="fas fa-clock mr-1"></i> Auto-save active
-                </span>
-            </div>
-        </form>
-    </div>
+        </div>
+    </form>
 
     <script>
         function editForm(productOptions, patchPrice = 0, patchStockS = 0) {
@@ -415,11 +373,7 @@
                 payment_method: @json($order->payment_method),
                 notes: @json($order->notes ?? ''),
                 status: @json($order->status),
-                drafts: [],
-                draftStatus: 'idle',
-                lastSaved: '',
-                autoSaveInterval: null,
-                draftLoaded: false,
+                stockInterval: null,
 
                 init() {
                     this._initiating = true;
@@ -430,43 +384,7 @@
                     });
                     this._initiating = false;
                     this.calcTotal();
-                    this.loadDrafts();
-                    this.autoSaveInterval = setInterval(() => this.tryAutoSave(), 3000);
-                },
-
-                getFormData() {
-                    return {
-                        customer_name: this.customer_name,
-                        phone: this.phone,
-                        address: this.address,
-                        city: this.city,
-                        delivery_charge: this.delivery_charge,
-                        products: this.products,
-                        dtf: this.dtf,
-                        dtf_name: this.dtf_name,
-                        dtf_number: this.dtf_number,
-                        patch: this.patch,
-                        patch_price: this.patch_price,
-                        total_amount: this.total_amount,
-                        advanced_payment: this.advanced_payment,
-                        payment_method: this.payment_method,
-                        notes: this.notes,
-                        status: 'draft',
-                    };
-                },
-
-                tryAutoSave() {
-                    if (this.draftLoaded) return;
-                    const current = JSON.stringify(this.getFormData());
-                    if (current === this.lastSaved) return;
-                    this.saveDraft(current);
-                },
-
-                stopAutoSave() {
-                    if (this.autoSaveInterval) {
-                        clearInterval(this.autoSaveInterval);
-                        this.autoSaveInterval = null;
-                    }
+                    this.startStockPolling();
                 },
 
                 getProductById(id) {
@@ -507,6 +425,15 @@
                     this.products[i].out_of_stock = false;
                     this.products[i].in_stock = false;
                     this.calcTotal();
+                },
+
+                filteredRowProducts(i) {
+                    const q = (this.rowSearch[i] || '').toLowerCase();
+                    if (!q) return this.productOptions;
+                    return this.productOptions.filter(p =>
+                        p.product_name.toLowerCase().includes(q) ||
+                        (p.product_code || '').toLowerCase().includes(q)
+                    );
                 },
 
                 getStock(i) {
@@ -556,9 +483,10 @@
 
                 calcDeliveryCharge() {
                     let total = (parseFloat(this.total_amount) || 0) - (parseFloat(this.delivery_charge) || 0);
-                    const freeThreshold = parseFloat(this.$el.querySelector('[data-free-threshold]')?.dataset.freeThreshold || 3000);
-                    const dhakaRate = parseFloat(this.$el.querySelector('[data-dhaka-rate]')?.dataset.dhakaRate || 80);
-                    const outsideRate = parseFloat(this.$el.querySelector('[data-outside-rate]')?.dataset.outsideRate || 130);
+                    const form = this.$el;
+                    const freeThreshold = parseFloat(form.dataset.freeThreshold || 3000);
+                    const dhakaRate = parseFloat(form.dataset.dhakaRate || 80);
+                    const outsideRate = parseFloat(form.dataset.outsideRate || 130);
                     if (total >= freeThreshold || !this.city) {
                         this.delivery_charge = 0;
                     } else if (this.city.toLowerCase() === 'dhaka') {
@@ -575,70 +503,46 @@
                     this.pending_payment = Math.max(0, total - adv);
                 },
 
-                async loadDrafts() {
-                    try {
-                        const res = await fetch('{{ admin_route("order-drafts.index") }}?order_id={{ $order->id }}');
-                        if (res.ok && res.headers.get('content-type')?.includes('json')) {
-                            this.drafts = await res.json();
-                        }
-                    } catch (e) {}
+                get hasOutOfStock() {
+                    return this.products.some(p => p.out_of_stock);
                 },
 
-                async saveDraft(dataStr) {
-                    this.draftStatus = 'saving';
-                    try {
-                        const res = await fetch('{{ admin_route("order-drafts.store") }}', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify({ order_id: {{ $order->id }}, data: dataStr }),
-                        });
-                        if (res.ok && res.headers.get('content-type')?.includes('json')) {
-                            this.lastSaved = dataStr;
-                            this.draftStatus = 'saved';
-                            await this.loadDrafts();
-                            setTimeout(() => { if (this.draftStatus === 'saved') this.draftStatus = 'idle'; }, 2000);
-                        } else {
-                            this.draftStatus = 'idle';
-                        }
-                    } catch (e) {
-                        this.draftStatus = 'idle';
+                startStockPolling() {
+                    this.pollStock();
+                    this.stockInterval = setInterval(() => this.pollStock(), 30000);
+                },
+
+                stopStockPolling() {
+                    if (this.stockInterval) {
+                        clearInterval(this.stockInterval);
+                        this.stockInterval = null;
                     }
                 },
 
-                restoreDraft(draft) {
-                    this.draftLoaded = true;
-                    const data = draft.data;
-                    this.customer_name = data.customer_name || '';
-                    this.phone = data.phone || '';
-                    this.address = data.address || '';
-                    this.city = data.city || '';
-                    this.delivery_charge = data.delivery_charge || 0;
-                    this.products = data.products || [{ product_id: '', product_name: '', size: '', quantity: 1, price: 0, out_of_stock: false, in_stock: false }];
-                    this.dtf = data.dtf || false;
-                    this.dtf_name = data.dtf_name || '';
-                    this.dtf_number = data.dtf_number || '';
-                    this.patch = data.patch || false;
-                    this.patch_price = data.patch_price || this.patch_price;
-                    this.total_amount = data.total_amount || 0;
-                    this.advanced_payment = data.advanced_payment || 0;
-                    this.payment_method = data.payment_method || '';
-                    this.notes = data.notes || '';
-                    this.calcTotal();
-                    this.products.forEach((_, i) => this.checkStock(i));
-                    this.lastSaved = '';
-                    this.draftLoaded = false;
-                },
-
-                async deleteDraft(id) {
-                    try {
-                        const res = await fetch('{{ route("order-drafts.destroy", "__ID__") }}'.replace('__ID__', id), {
-                            method: 'DELETE',
-                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        });
-                        if (res.ok) {
-                            this.drafts = this.drafts.filter(d => d.id !== id);
-                        }
-                    } catch (e) {}
+                async pollStock() {
+                    for (const p of this.products) {
+                        if (!p.product_id) continue;
+                        try {
+                            const res = await fetch('{{ route("orders.product-stock", "__ID__") }}'.replace('__ID__', p.product_id));
+                            if (res.ok) {
+                                const data = await res.json();
+                                const opt = this.productOptions.find(o => o.id == data.id);
+                                if (opt) {
+                                    opt.stocks = data.stocks;
+                                    opt.price = data.price;
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    let hadOutOfStock = false;
+                    this.products.forEach((_, i) => {
+                        this.checkStock(i);
+                        if (this.products[i].out_of_stock) hadOutOfStock = true;
+                    });
+                    if (!hadOutOfStock && this.status === 'out_of_stock') {
+                        this.status = 'on_hold';
+                        this.calcTotal();
+                    }
                 },
 
                 submitForm() {
@@ -654,11 +558,10 @@
                         Swal.fire({ icon: 'warning', title: 'Payment method', text: 'Please select a payment method.', background: '#161B22', color: '#E6EDF3', confirmButtonColor: '#3B82F6' });
                         return;
                     }
-                    this.stopAutoSave();
+                    this.stopStockPolling();
                     this.$el.submit();
                 }
             }
         }
     </script>
-    </div>
 </x-layouts.app>

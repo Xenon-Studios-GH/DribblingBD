@@ -103,6 +103,7 @@ Route::middleware(['auth', 'trap'])->group(function () {
         Route::delete('orders/drafts/{orderDraft}', [OrderDraftController::class, 'destroy'])->name('order-drafts.destroy');
 
         Route::get('orders/product-stock/{product}', [OrderController::class, 'productStock'])->name('orders.product-stock');
+        Route::post('orders/check-stock', [OrderController::class, 'checkStockAuto'])->name('orders.check-stock');
         Route::get('orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
         Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
