@@ -26,6 +26,9 @@
         <x-nav-link href="{{ admin_route('inquiries.index') }}" :active="request()->routeIs('inquiries.*')" icon="inquiry">
             Inquiries
         </x-nav-link>
+        <x-nav-link href="{{ admin_route('admin.reports.index') }}" :active="request()->routeIs('admin.reports*')" icon="chart">
+            Reports &amp; Analytics
+        </x-nav-link>
         @endif
 
         @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
@@ -61,18 +64,6 @@
         <x-nav-link href="{{ admin_route('orders.index') }}" :active="request()->routeIs('orders.*')" icon="order">
             All Orders
         </x-nav-link>
-
-        <div class="my-2 border-t border-[#232A36]"></div>
-        <p class="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-[#94A3B8]">Reports &amp; Analytics</p>
-
-        <x-nav-link href="{{ admin_route('stock.report') }}" :active="request()->routeIs('stock.report*')" icon="report">
-            Stock Report
-        </x-nav-link>
-        @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
-        <x-nav-link href="{{ admin_route('finance.reports') }}" :active="request()->routeIs('finance.reports')" icon="chart">
-            Finance Reports
-        </x-nav-link>
-        @endif
 
         @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
         <div class="my-2 border-t border-[#232A36]"></div>
