@@ -124,8 +124,13 @@ class OrderController extends Controller
             return back()->withErrors(['products' => 'At least one product is required.'])->withInput();
         }
 
-        $hasOutOfStock = false;
-        DB::transaction(function () use ($products, &$hasOutOfStock, $request) {
+        $advancedPayment = $validated['advanced_payment'] ?? 0;
+        $deliveryCharge = $validated['delivery_charge'] ?? 0;
+        $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
+
+        $order = DB::transaction(function () use ($validated, $products, $request, $advancedPayment, $pendingPayment, $deliveryCharge) {
+            $hasOutOfStock = false;
+
             foreach ($products as &$item) {
                 $product = Product::lockForUpdate()->find($item['product_id']);
                 if (!$product) {
@@ -156,13 +161,7 @@ class OrderController extends Controller
                     }
                 }
             }
-        });
 
-        $advancedPayment = $validated['advanced_payment'] ?? 0;
-        $deliveryCharge = $validated['delivery_charge'] ?? 0;
-        $pendingPayment = max(0, $validated['total_amount'] - $advancedPayment);
-
-        $order = DB::transaction(function () use ($validated, $products, $hasOutOfStock, $request, $advancedPayment, $pendingPayment, $deliveryCharge) {
             $order = Order::create([
                 'order_no' => Order::generateOrderNo(),
                 'customer_name' => $validated['customer_name'],

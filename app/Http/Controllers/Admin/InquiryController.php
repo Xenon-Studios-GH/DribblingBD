@@ -25,7 +25,7 @@ class InquiryController extends Controller
     public function show(Inquiry $inquiry)
     {
         if (! $inquiry->read_at) {
-            $inquiry->update(['read_at' => now()]);
+            $inquiry->update(['read_at' => now(), 'is_read' => true]);
             $this->workLogService->log('Inquiry Read', 'inquiry', $inquiry->id, "Inquiry from {$inquiry->name} marked as read");
         }
         return view('inquiries.show', compact('inquiry'));

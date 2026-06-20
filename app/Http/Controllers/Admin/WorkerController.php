@@ -84,7 +84,7 @@ class WorkerController extends Controller
             'email' => ['required', 'email', Rule::unique('users')->ignore($worker->id)],
             'phone' => ['nullable', 'string', 'max:20'],
             'role' => ['required', Rule::in($allowedRoles)],
-            'password' => ['nullable', 'string', 'min:8'],
+            'password' => ['nullable', 'string', Password::min(8)->letters()->mixedCase()->numbers()],
         ]);
 
         if (!empty($validated['password'])) {

@@ -23,7 +23,7 @@ class NotificationController extends Controller
         $count = Notification::where('user_id', Auth::id())->where('is_read', false)->count();
 
         $notifications = Notification::where('user_id', Auth::id())->latest('created_at')
-            ->when($request->filled('limit'), fn($q) => $q->take($request->limit))
+            ->when($request->filled('limit'), fn($q) => $q->limit((int) $request->limit))
             ->get()
             ->map(fn($n) => [
                 'id' => $n->id,

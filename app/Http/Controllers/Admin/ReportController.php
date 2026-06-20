@@ -55,8 +55,8 @@ class ReportController extends Controller
                     now()->parse($date)->endOfMonth()->toDateTimeString(),
                 ]),
                 'year' => $query->whereYear('created_at', now()->parse($date)->year),
-                'custom' => $query->where('created_at', '>=', ($dateFrom ?? now()->subMonth()) . ' 00:00:00')
-                    ->where('created_at', '<=', ($dateTo ?? now()) . ' 23:59:59'),
+                'custom' => $query->whereDate('created_at', '>=', $dateFrom ?? now()->subMonth()->toDateString())
+                    ->whereDate('created_at', '<=', $dateTo ?? now()->toDateString()),
                 default => null,
             };
         }
@@ -156,8 +156,8 @@ class ReportController extends Controller
                     now()->parse($date)->endOfMonth()->toDateString(),
                 ]),
                 'year' => $query->whereYear($dateCol, now()->parse($date)->year),
-                'custom' => $query->where($dateCol, '>=', $dateFrom ?? now()->subMonth()->toDateString())
-                    ->where($dateCol, '<=', $dateTo ?? now()->toDateString()),
+                'custom' => $query->whereDate($dateCol, '>=', $dateFrom ?? now()->subMonth()->toDateString())
+                    ->whereDate($dateCol, '<=', $dateTo ?? now()->toDateString()),
                 default => null,
             };
         }
@@ -189,15 +189,20 @@ class ReportController extends Controller
             'week' => $query->whereBetween($col, [now()->parse($date)->startOfWeek()->toDateString(), now()->parse($date)->endOfWeek()->toDateString()]),
             'month' => $query->whereBetween($col, [now()->parse($date)->startOfMonth()->toDateString(), now()->parse($date)->endOfMonth()->toDateString()]),
             'year' => $query->whereYear($col, now()->parse($date)->year),
-            'custom' => $query->where($col, '>=', ($dateFrom ?? now()->subMonth()) . ' 00:00:00')->where($col, '<=', ($dateTo ?? now()) . ' 23:59:59'),
+            'custom' => $query->whereDate($col, '>=', $dateFrom ?? now()->subMonth()->toDateString())->whereDate($col, '<=', $dateTo ?? now()->toDateString()),
             default => $query,
         };
     }
 
     protected function pnlTrend($from, $to): array
     {
+        $driver = FinanceTransaction::query()->getConnection()->getDriverName();
+        $monthExpr = $driver === 'mysql'
+            ? "DATE_FORMAT(date, '%Y-%m')"
+            : "strftime('%Y-%m', date)";
+
         $transactions = FinanceTransaction::whereBetween('date', [$from, $to])
-            ->selectRaw("DATE_FORMAT(date, '%Y-%m') as month")
+            ->selectRaw("{$monthExpr} as month")
             ->selectRaw("COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income")
             ->selectRaw("COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expense")
             ->groupBy('month')
@@ -380,9 +385,9 @@ class ReportController extends Controller
                 now()->parse($date)->endOfMonth()->toDateTimeString(),
             ]),
             'year' => $query->whereYear('created_at', now()->parse($date)->year),
-            'custom' => $query->where('created_at', '>=', ($request->get('date_from') ?? now()->subMonth()) . ' 00:00:00')
-                ->where('created_at', '<=', ($request->get('date_to') ?? now()) . ' 23:59:59'),
-            default => $query->whereDate('created_at', $date),
+            'custom' => $query->whereDate('created_at', '>=', $request->get('date_from', now()->subMonth()->toDateString()))
+                ->whereDate('created_at', '<=', $request->get('date_to', now()->toDateString())),
+        default => $query->whereDate('created_at', $date),
         };
 
         $transactions = $query->orderByDesc('created_at')->get();
@@ -416,8 +421,8 @@ class ReportController extends Controller
             'week' => $query->whereBetween('created_at', [now()->parse($date)->startOfWeek(), now()->parse($date)->endOfWeek()]),
             'month' => $query->whereBetween('created_at', [now()->parse($date)->startOfMonth(), now()->parse($date)->endOfMonth()]),
             'year' => $query->whereYear('created_at', now()->parse($date)->year),
-            'custom' => $query->where('created_at', '>=', ($request->get('date_from') ?? now()->subMonth()) . ' 00:00:00')
-                ->where('created_at', '<=', ($request->get('date_to') ?? now()) . ' 23:59:59'),
+            'custom' => $query->whereDate('created_at', '>=', $request->get('date_from', now()->subMonth()->toDateString()))
+                ->whereDate('created_at', '<=', $request->get('date_to', now()->toDateString())),
             default => $query->whereDate('created_at', $date),
         };
 
@@ -437,6 +442,7 @@ class ReportController extends Controller
     protected function exportFinancePdf(Request $request, ReportService $reportService)
     {
         $period = $request->get('period', 'month');
+        $date = $request->get('date', now()->toDateString());
         $dateFrom = $request->get('date_from')
             ? now()->parse($request->get('date_from'))->startOfDay()
             : match ($period) {
@@ -455,8 +461,8 @@ class ReportController extends Controller
             ->selectRaw('COALESCE(fc.name, "Uncategorized") as name, SUM(amount) as total')
             ->leftJoin('finance_categories as fc', 'finance_transactions.category_id', '=', 'fc.id')
             ->where('finance_transactions.type', 'income')
-            ->where('finance_transactions.date', '>=', $dateFrom)
-            ->where('finance_transactions.date', '<=', $dateTo)
+            ->where('finance_transactions.date', '>=', $dateFrom->toDateString())
+            ->where('finance_transactions.date', '<=', $dateTo->toDateString())
             ->whereNull('finance_transactions.deleted_at')
             ->groupBy('fc.name')
             ->orderByDesc('total')
@@ -466,8 +472,8 @@ class ReportController extends Controller
             ->selectRaw('COALESCE(fc.name, "Uncategorized") as name, SUM(amount) as total')
             ->leftJoin('finance_categories as fc', 'finance_transactions.category_id', '=', 'fc.id')
             ->where('finance_transactions.type', 'expense')
-            ->where('finance_transactions.date', '>=', $dateFrom)
-            ->where('finance_transactions.date', '<=', $dateTo)
+            ->where('finance_transactions.date', '>=', $dateFrom->toDateString())
+            ->where('finance_transactions.date', '<=', $dateTo->toDateString())
             ->whereNull('finance_transactions.deleted_at')
             ->groupBy('fc.name')
             ->orderByDesc('total')
@@ -478,8 +484,8 @@ class ReportController extends Controller
         $balance = $income - $expense;
 
         $filename = "finance-report-{$period}-" . now()->format('Y-m-d') . ".pdf";
-        return $reportService->generatePdf('admin.reports.pdf', compact(
-            'period', 'incomeByCategory', 'expenseByCategory', 'income', 'expense', 'balance'
+        return $reportService->generatePdf('admin.reports.pdf-finance', compact(
+            'period', 'date', 'incomeByCategory', 'expenseByCategory', 'income', 'expense', 'balance'
         ), $filename);
     }
 }
