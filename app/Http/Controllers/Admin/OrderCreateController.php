@@ -61,18 +61,23 @@ class OrderCreateController extends BaseOrderController
             }
             unset($item);
 
-            if ($request->boolean('patch')) {
+            $patchCount = collect($products)->filter(fn($p) => !empty($p['patch']))->count();
+            if ($patchCount > 0) {
                 $patchProduct = $this->getPatchProduct();
                 if ($patchProduct) {
                     $patchStock = Stock::where('product_id', $patchProduct->id)
                         ->where('size', config('shop.patch_size'))
                         ->lockForUpdate()
                         ->first();
-                    if (!$patchStock || $patchStock->quantity < config('shop.patch_quantity')) {
+                    $requiredPatchQty = config('shop.patch_quantity') * $patchCount;
+                    if (!$patchStock || $patchStock->quantity < $requiredPatchQty) {
                         $hasOutOfStock = true;
                     }
                 }
             }
+
+            $hasDtf = collect($products)->contains(fn($p) => !empty($p['dtf']) || !empty($p['dtf_name']) || !empty($p['dtf_number']));
+            $hasPatch = $patchCount > 0;
 
             $order = Order::create([
                 'order_no' => Order::generateOrderNo(),
@@ -81,10 +86,8 @@ class OrderCreateController extends BaseOrderController
                 'address' => $validated['address'],
                 'city' => $validated['city'],
                 'products' => $products,
-                'dtf' => $request->boolean('dtf'),
-                'dtf_name' => $validated['dtf_name'] ?? null,
-                'dtf_number' => $validated['dtf_number'] ?? null,
-                'patch' => $request->boolean('patch'),
+                'dtf' => $hasDtf,
+                'patch' => $hasPatch,
                 'patch_price' => $validated['patch_price'] ?? 0,
                 'total_amount' => (float) $validated['total_amount'],
                 'delivery_charge' => $deliveryCharge,
