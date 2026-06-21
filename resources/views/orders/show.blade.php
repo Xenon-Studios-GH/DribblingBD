@@ -78,31 +78,28 @@
                     <tbody>
                         @foreach ($order->products as $item)
                         <tr class="border-b border-[#232A36] last:border-0">
-                            <td class="px-4 py-3 text-[#E6EDF3]">{{ $item['product_name'] }}</td>
+                            <td class="px-4 py-3 text-[#E6EDF3]">
+                                {{ $item['product_name'] }}
+                                @if (!empty($item['dtf_name']) || !empty($item['dtf_number']))
+                                <span class="ml-2 inline-flex items-center gap-1 rounded-md bg-[#A855F7]/10 px-1.5 py-0.5 text-[10px] text-[#A855F7]">
+                                    <i class="fas fa-print"></i>
+                                    DTF: {{ $item['dtf_name'] ?? '' }} {{ $item['dtf_number'] ?? '' }}
+                                </span>
+                                @endif
+                                @if (!empty($item['patch']))
+                                <span class="ml-1 inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-1.5 py-0.5 text-[10px] text-[#F59E0B]">
+                                    <i class="fas fa-tshirt"></i>
+                                    Patch
+                                </span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3 text-center text-[#94A3B8]">{{ $item['size'] }}</td>
                             <td class="px-4 py-3 text-center text-[#E6EDF3]">{{ $item['quantity'] }}</td>
                             <td class="px-4 py-3 text-right text-[#94A3B8]">৳{{ number_format($item['price'], 2) }}</td>
                             <td class="px-4 py-3 text-right text-[#E6EDF3] font-medium">৳{{ number_format($item['price'] * $item['quantity'], 2) }}</td>
                         </tr>
                         @endforeach
-                        @if ($order->patch)
-                        <tr class="border-t border-[#232A36] bg-[#F59E0B]/5">
-                            <td class="px-4 py-3 text-[#F59E0B] font-medium" colspan="4">
-                                <i class="fas fa-tshirt mr-2"></i> Patch (x2 — Size S)
-                            </td>
-                            <td class="px-4 py-3 text-right text-[#E6EDF3] font-medium">৳{{ number_format($order->patch_price * 2, 2) }}</td>
-                        </tr>
-                        @endif
                     </tbody>
-                    @if ($order->dtf)
-                    <tfoot>
-                        <tr class="border-t border-[#A855F7]/20 bg-[#A855F7]/5">
-                            <td class="px-4 py-3 text-[#A855F7] font-medium" colspan="5">
-                                <i class="fas fa-print mr-2"></i> DTF: {{ $order->dtf_name }} — {{ $order->dtf_number }}
-                            </td>
-                        </tr>
-                    </tfoot>
-                    @endif
                 </table>
             </div>
         </x-card>

@@ -116,63 +116,71 @@
 
             <!-- Products -->
             <x-card class="mb-6">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#22C55E]/10">
-                            <i class="fas fa-shopping-bag text-[#22C55E]"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-[#E6EDF3]">Products</h2>
-                            <p class="text-sm text-[#94A3B8]">
-                                <span x-show="!noProducts">Search and add products to this order.</span>
-                                <span x-show="noProducts" class="text-[#F59E0B]"><i class="fas fa-info-circle mr-1"></i> No products — DTF/Patch only</span>
-                            </p>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#22C55E]/10">
+                                <i class="fas fa-shopping-bag text-[#22C55E]"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-[#E6EDF3]">Products</h2>
+                                <p class="text-sm text-[#94A3B8]">
+                                    <span x-text="`${products.length} product${products.length !== 1 ? 's' : ''}, ${products.reduce((a, p) => a + (parseInt(p.quantity) || 0), 0)} total jerseys`"></span>
+                                    <span class="ml-3 text-[#A855F7]">DTF: + ৳200 each</span>
+                                    <span class="ml-3 text-[#F59E0B]">Patch: + ৳<span x-text="(2 * patch_price).toFixed(2)"></span> each</span>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <button type="button" @click="setNoProducts()"
-                            :class="noProducts ? 'bg-[#F59E0B] text-white shadow-lg shadow-[#F59E0B]/25' : 'border border-[#232A36] text-[#94A3B8] hover:bg-[#1C2333]'"
-                            class="rounded-xl px-4 py-2 text-sm font-medium transition-all">
-                        None
-                    </button>
-                </div>
-
-                <!-- No products indicator -->
-                <template x-if="noProducts">
-                    <div class="rounded-xl border border-dashed border-[#F59E0B]/40 bg-[#F59E0B]/5 p-8 text-center">
-                        <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F59E0B]/10">
-                            <i class="fas fa-ban text-xl text-[#F59E0B]"></i>
-                        </div>
-                        <h3 class="text-base font-semibold text-[#E6EDF3]">No Products</h3>
-                        <p class="mt-1 text-sm text-[#94A3B8]">This order is for DTF or Patch services only.</p>
-                    </div>
-                </template>
 
                 <!-- Pending products list -->
-                <template x-if="!noProducts && products.length > 0">
+                <template x-if="products.length > 0">
                     <div class="mb-4 space-y-2">
                         <template x-for="(p, i) in products" :key="i">
-                            <div class="flex items-center justify-between rounded-xl border border-[#232A36] bg-[#0F1117] p-3">
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-[#E6EDF3] truncate" x-text="p.product_name"></p>
-                                    <p class="text-xs text-[#94A3B8] mt-0.5">
-                                        Size: <span x-text="p.size"></span> —
-                                        Qty: <span x-text="p.quantity"></span> —
-                                        ৳<span x-text="p.price * p.quantity"></span>
-                                        <span x-show="p.out_of_stock" class="ml-2 text-[#EF4444]"><i class="fas fa-exclamation-circle"></i> Out of Stock</span>
-                                        <span x-show="p.in_stock" class="ml-2 text-[#22C55E]"><i class="fas fa-check-circle"></i> In Stock</span>
-                                    </p>
+                            <div class="rounded-xl border border-[#232A36] bg-[#0F1117] p-3">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-[#E6EDF3] truncate" x-text="p.product_name"></p>
+                                        <p class="text-xs text-[#94A3B8] mt-0.5">
+                                            Size: <span x-text="p.size"></span> —
+                                            Qty: <span x-text="p.quantity"></span> —
+                                            ৳<span x-text="p.price * p.quantity"></span>
+                                            <span x-show="p.out_of_stock" class="ml-2 text-[#EF4444]"><i class="fas fa-exclamation-circle"></i> Out of Stock</span>
+                                            <span x-show="p.in_stock" class="ml-2 text-[#22C55E]"><i class="fas fa-check-circle"></i> In Stock</span>
+                                        </p>
+                                    </div>
+                                    <button type="button" @click="removeProduct(i)"
+                                            class="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EF4444]/10 text-[#EF4444] hover:bg-[#EF4444]/20 transition-colors">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
                                 </div>
-                                <button type="button" @click="removeProduct(i)"
-                                        class="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EF4444]/10 text-[#EF4444] hover:bg-[#EF4444]/20 transition-colors">
-                                    <i class="fas fa-times text-xs"></i>
-                                </button>
+                                <div class="mt-2 flex items-center gap-2 border-t border-[#232A36] pt-2">
+                                    <button type="button" @click="toggleDtf(p); calcTotal()"
+                                            class="rounded-lg px-2.5 py-1 text-xs font-medium transition-all"
+                                            :class="p.dtf ? 'bg-[#A855F7] text-white' : 'border border-[#232A36] text-[#94A3B8] hover:bg-[#1C2333]'">
+                                        <i class="fas fa-print mr-1"></i> DTF
+                                    </button>
+                                    <template x-if="p.dtf">
+                                        <div class="flex items-center gap-2">
+                                            <input type="text" x-model="p.dtf_name" placeholder="Name"
+                                                   class="w-24 rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1 text-xs text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none" @input.debounce="calcTotal()">
+                                            <input type="text" x-model="p.dtf_number" placeholder="Number"
+                                                   class="w-24 rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1 text-xs text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none" @input.debounce="calcTotal()">
+                                            <span class="text-[10px] text-[#A855F7] font-medium">+ ৳200</span>
+                                        </div>
+                                    </template>
+                                    <button type="button" @click="togglePatch(p); calcTotal()"
+                                            class="rounded-lg px-2.5 py-1 text-xs font-medium transition-all"
+                                            :class="p.patch ? 'bg-[#F59E0B] text-white' : 'border border-[#232A36] text-[#94A3B8] hover:bg-[#1C2333]'">
+                                        <i class="fas fa-tshirt mr-1"></i> Patch
+                                    </button>
+                                    <span x-show="p.patch" class="text-[10px] text-[#F59E0B] font-medium">+ ৳<span x-text="(2 * patch_price).toFixed(2)"></span></span>
+                                </div>
                             </div>
                         </template>
                     </div>
                 </template>
 
                 <!-- Search product -->
-                <template x-if="!noProducts">
                 <div class="space-y-4">
                     <div class="relative">
                         <label class="mb-2 block text-sm font-medium text-[#E6EDF3]">Search Product</label>
@@ -224,97 +232,9 @@
                         </div>
                     </template>
                 </div>
-                </template>
             </x-card>
 
-            <!-- DTF & Patch -->
-            <div class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                <x-card>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
-                            <i class="fas fa-print text-[#A855F7]"></i>
-                        </div>
-                        <h3 class="font-semibold text-[#E6EDF3]">DTF</h3>
-                    </div>
-                    <div class="flex gap-2 mb-4">
-                        <button type="button" @click="dtf = true; calcTotal()"
-                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                                :class="dtf ? 'bg-[#22C55E] text-white shadow-lg shadow-[#22C55E]/25' : 'bg-[#232A36] text-[#94A3B8] hover:bg-[#2A3344]'">
-                            Yes
-                        </button>
-                        <button type="button" @click="dtf = false; calcTotal()"
-                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                                :class="!dtf ? 'bg-[#232A36] text-[#E6EDF3] border border-[#22C55E]/30' : 'bg-[#161B22] text-[#94A3B8] hover:bg-[#232A36]'">
-                            No
-                        </button>
-                    </div>
-                    <input type="hidden" name="dtf" :value="dtf ? '1' : '0'">
-                    <div x-show="dtf" x-transition class="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Name</label>
-                            <input type="text" name="dtf_name" x-model="dtf_name"
-                                   class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Number</label>
-                            <input type="text" name="dtf_number" x-model="dtf_number"
-                                   class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none">
-                        </div>
-                    </div>
-                    <div x-show="dtf" x-transition class="rounded-lg bg-[#0F1117] p-3">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-[#E6EDF3]">
-                                <i class="fas fa-print mr-2 text-[#A855F7]"></i>
-                                DTF Service Fee
-                            </span>
-                            <span class="font-semibold text-[#A855F7]">
-                                + ৳200.00
-                            </span>
-                        </div>
-                    </div>
-                </x-card>
-
-                <x-card>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F59E0B]/10">
-                            <i class="fas fa-tshirt text-[#F59E0B]"></i>
-                        </div>
-                        <h3 class="font-semibold text-[#E6EDF3]">Patch</h3>
-                    </div>
-                    <div class="flex gap-2 mb-4">
-                        <button type="button" @click="patch = true; calcTotal()"
-                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                                :class="patch ? 'bg-[#22C55E] text-white shadow-lg shadow-[#22C55E]/25' : 'bg-[#232A36] text-[#94A3B8] hover:bg-[#2A3344]'">
-                            Yes
-                        </button>
-                        <button type="button" @click="patch = false; calcTotal()"
-                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                                :class="!patch ? 'bg-[#232A36] text-[#E6EDF3] border border-[#22C55E]/30' : 'bg-[#161B22] text-[#94A3B8] hover:bg-[#232A36]'">
-                            No
-                        </button>
-                    </div>
-                    <input type="hidden" name="patch" :value="patch ? '1' : '0'">
-                    <div x-show="patch" x-transition class="rounded-lg bg-[#0F1117] p-3">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-[#E6EDF3]">
-                                <i class="fas fa-tshirt mr-2 text-[#F59E0B]"></i>
-                                2 × Patch (Size S)
-                            </span>
-                            <span class="font-semibold text-[#F59E0B]">
-                                + ৳<span x-text="(2 * patch_price).toFixed(2)"></span>
-                            </span>
-                        </div>
-                        <div class="mt-2 text-xs">
-                            <span class="text-[#94A3B8]">Available: </span>
-                            <span x-text="patch_stock" :class="patch_stock < 2 ? 'text-[#EF4444]' : 'text-[#22C55E]'"></span>
-                            <span x-show="patch_stock < 2" class="ml-2 text-[#EF4444]">
-                                <i class="fas fa-exclamation-circle"></i> Out of Stock
-                            </span>
-                        </div>
-                        <input type="hidden" name="patch_price" :value="patch_price">
-                    </div>
-                </x-card>
-            </div>
+            <input type="hidden" name="patch_price" :value="patch_price">
 
             <!-- Payment -->
             <x-card class="mb-6">
@@ -405,10 +325,7 @@
                 selected: null,
                 selectedSize: '',
                 selectedQty: '',
-                dtf: false,
-                dtf_name: '',
-                dtf_number: '',
-                patch: false,
+                drafts: [],
                 patch_price: patchPrice,
                 patch_stock: patchStockS,
                 total_amount: 0,
@@ -417,7 +334,6 @@
                 payment_method: '',
                 status: 'on_hold',
                 notes: '',
-                noProducts: false,
                 stockInterval: null,
 
                 init() {
@@ -458,31 +374,26 @@
                     const qty = parseInt(this.selectedQty) || 1;
                     const available = prod.stocks[this.selectedSize] || 0;
                     const outOfStock = qty > available;
-                    this.products.push({
-                        product_id: prod.id,
-                        product_name: prod.product_name,
-                        size: this.selectedSize,
-                        quantity: qty,
-                        price: prod.price,
-                        out_of_stock: outOfStock,
-                        in_stock: !outOfStock && qty > 0,
-                    });
+                    for (let j = 0; j < qty; j++) {
+                        this.products.push({
+                            product_id: prod.id,
+                            product_name: prod.product_name,
+                            size: this.selectedSize,
+                            quantity: 1,
+                            price: prod.price,
+                            out_of_stock: outOfStock,
+                            in_stock: !outOfStock,
+                            dtf: false,
+                            dtf_name: null,
+                            dtf_number: null,
+                            patch: false,
+                        });
+                    }
                     this.selected = null;
                     this.selectedSize = '';
                     this.selectedQty = '';
                     this.search = '';
                     this.calcTotal();
-                },
-
-                setNoProducts() {
-                    this.noProducts = !this.noProducts;
-                    if (this.noProducts) {
-                        this.products = [];
-                        this.selected = null;
-                        this.selectedSize = '';
-                        this.selectedQty = '';
-                        this.search = '';
-                    }
                 },
 
                 removeProduct(i) {
@@ -523,12 +434,12 @@
                         const price = prod ? prod.price : 0;
                         const qty = parseInt(p.quantity) || 0;
                         total += price * qty;
-                    }
-                    if (this.patch) {
-                        total += 2 * (parseFloat(this.patch_price) || 0);
-                    }
-                    if (this.dtf) {
-                        total += 200;
+                        if (p.dtf) {
+                            total += 200;
+                        }
+                        if (p.patch) {
+                            total += 2 * (parseFloat(this.patch_price) || 0);
+                        }
                     }
                     this.total_amount = total;
                     this.calcDeliveryCharge();
@@ -596,6 +507,18 @@
                     } else if (!anyOutOfStock && this.status === 'out_of_stock') {
                         this.status = 'on_hold';
                     }
+                },
+
+                toggleDtf(p) {
+                    p.dtf = !p.dtf;
+                    if (!p.dtf) {
+                        p.dtf_name = null;
+                        p.dtf_number = null;
+                    }
+                },
+
+                togglePatch(p) {
+                    p.patch = !p.patch;
                 },
 
                 submitForm() {

@@ -20,8 +20,11 @@
         <x-nav-link href="{{ admin_route('workers.index') }}" :active="request()->routeIs('workers.*')" icon="users">
             Users
         </x-nav-link>
-        <x-nav-link href="{{ admin_route('monitoring.index') }}" :active="request()->routeIs('monitoring.*')" icon="activity">
+        <x-nav-link href="{{ admin_route('monitoring.index') }}" :active="request()->routeIs('monitoring.index')" icon="activity">
             Monitoring
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('monitoring.automation') }}" :active="request()->routeIs('monitoring.automation')" icon="cog">
+            Automation
         </x-nav-link>
         <x-nav-link href="{{ admin_route('inquiries.index') }}" :active="request()->routeIs('inquiries.*')" icon="inquiry">
             Inquiries
@@ -74,6 +77,9 @@
         </x-nav-link>
         <x-nav-link href="{{ admin_route('finance.transactions') }}" :active="request()->routeIs('finance.transactions*')" icon="transaction">
             Transactions
+        </x-nav-link>
+        <x-nav-link href="{{ admin_route('finance.pending-orders') }}" :active="request()->routeIs('finance.pending-orders*')" icon="clock">
+            Pending Orders
         </x-nav-link>
         <x-nav-link href="{{ admin_route('finance.categories') }}" :active="request()->routeIs('finance.categories*')" icon="category">
             Categories

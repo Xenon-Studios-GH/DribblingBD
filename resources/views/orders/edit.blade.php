@@ -98,7 +98,11 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-semibold text-[#E6EDF3]">Products</h2>
-                            <p class="text-sm text-[#94A3B8]">Edit products in this order.</p>
+                            <p class="text-sm text-[#94A3B8]">
+                                <span x-text="`${products.length} product${products.length !== 1 ? 's' : ''}, ${products.reduce((a, p) => a + (parseInt(p.quantity) || 0), 0)} total jerseys`"></span>
+                                <span class="ml-3 text-[#A855F7]">DTF: + ৳200 each</span>
+                                <span class="ml-3 text-[#F59E0B]">Patch: + ৳<span x-text="(2 * patch_price).toFixed(2)"></span> each</span>
+                            </p>
                         </div>
                     </div>
                     <button type="button" @click="addProduct()"
@@ -167,98 +171,33 @@
                                 <i class="fas fa-check-circle"></i> In Stock
                             </span>
                         </div>
+                        <div class="mt-2 flex items-center gap-2 border-t border-[#232A36] pt-2">
+                            <button type="button" @click="toggleDtf(p); calcTotal()"
+                                    class="rounded-lg px-2.5 py-1 text-xs font-medium transition-all"
+                                    :class="p.dtf ? 'bg-[#A855F7] text-white' : 'border border-[#232A36] text-[#94A3B8] hover:bg-[#1C2333]'">
+                                <i class="fas fa-print mr-1"></i> DTF
+                            </button>
+                            <template x-if="p.dtf">
+                                <div class="flex items-center gap-2">
+                                    <input type="text" x-model="p.dtf_name" placeholder="Name"
+                                           class="w-24 rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1 text-xs text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none" @input.debounce="calcTotal()">
+                                    <input type="text" x-model="p.dtf_number" placeholder="Number"
+                                           class="w-24 rounded-lg border border-[#232A36] bg-[#161B22] px-2 py-1 text-xs text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none" @input.debounce="calcTotal()">
+                                    <span class="text-[10px] text-[#A855F7] font-medium">+ ৳200</span>
+                                </div>
+                            </template>
+                            <button type="button" @click="togglePatch(p); calcTotal()"
+                                    class="rounded-lg px-2.5 py-1 text-xs font-medium transition-all"
+                                    :class="p.patch ? 'bg-[#F59E0B] text-white' : 'border border-[#232A36] text-[#94A3B8] hover:bg-[#1C2333]'">
+                                <i class="fas fa-tshirt mr-1"></i> Patch
+                            </button>
+                            <span x-show="p.patch" class="text-[10px] text-[#F59E0B] font-medium">+ ৳<span x-text="(2 * patch_price).toFixed(2)"></span></span>
+                        </div>
                     </div>
                 </template>
             </x-card>
 
-            <!-- DTF & Patch -->
-            <div class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                <x-card>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A855F7]/10">
-                            <i class="fas fa-print text-[#A855F7]"></i>
-                        </div>
-                        <h3 class="font-semibold text-[#E6EDF3]">DTF</h3>
-                    </div>
-                    <div class="flex gap-2 mb-4">
-                        <button type="button" @click="dtf = true; calcTotal()"
-                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                                :class="dtf ? 'bg-[#22C55E] text-white shadow-lg shadow-[#22C55E]/25' : 'bg-[#232A36] text-[#94A3B8] hover:bg-[#2A3344]'">
-                            Yes
-                        </button>
-                        <button type="button" @click="dtf = false; calcTotal()"
-                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                                :class="!dtf ? 'bg-[#232A36] text-[#E6EDF3] border border-[#22C55E]/30' : 'bg-[#161B22] text-[#94A3B8] hover:bg-[#232A36]'">
-                            No
-                        </button>
-                    </div>
-                    <input type="hidden" name="dtf" :value="dtf ? '1' : '0'">
-                    <div x-show="dtf" x-transition class="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Name</label>
-                            <input type="text" name="dtf_name" x-model="dtf_name"
-                                   class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-[#94A3B8]">Number</label>
-                            <input type="text" name="dtf_number" x-model="dtf_number"
-                                   class="w-full rounded-xl border border-[#232A36] bg-[#0F1117] px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#94A3B8] focus:border-[#A855F7] focus:outline-none">
-                        </div>
-                    </div>
-                    <div x-show="dtf" x-transition class="rounded-lg bg-[#0F1117] p-3">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-[#E6EDF3]">
-                                <i class="fas fa-print mr-2 text-[#A855F7]"></i>
-                                DTF Service Fee
-                            </span>
-                            <span class="font-semibold text-[#A855F7]">
-                                + ৳200.00
-                            </span>
-                        </div>
-                    </div>
-                </x-card>
-
-                <x-card>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F59E0B]/10">
-                            <i class="fas fa-tshirt text-[#F59E0B]"></i>
-                        </div>
-                        <h3 class="font-semibold text-[#E6EDF3]">Patch</h3>
-                    </div>
-                    <div class="flex gap-2 mb-4">
-                        <button type="button" @click="patch = true; calcTotal()"
-                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                                :class="patch ? 'bg-[#22C55E] text-white shadow-lg shadow-[#22C55E]/25' : 'bg-[#232A36] text-[#94A3B8] hover:bg-[#2A3344]'">
-                            Yes
-                        </button>
-                        <button type="button" @click="patch = false; calcTotal()"
-                                class="flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                                :class="!patch ? 'bg-[#232A36] text-[#E6EDF3] border border-[#22C55E]/30' : 'bg-[#161B22] text-[#94A3B8] hover:bg-[#232A36]'">
-                            No
-                        </button>
-                    </div>
-                    <input type="hidden" name="patch" :value="patch ? '1' : '0'">
-                    <div x-show="patch" x-transition class="rounded-lg bg-[#0F1117] p-3">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-[#E6EDF3]">
-                                <i class="fas fa-tshirt mr-2 text-[#F59E0B]"></i>
-                                2 × Patch (Size S)
-                            </span>
-                            <span class="font-semibold text-[#F59E0B]">
-                                + ৳<span x-text="(2 * patch_price).toFixed(2)"></span>
-                            </span>
-                        </div>
-                        <div class="mt-2 text-xs">
-                            <span class="text-[#94A3B8]">Available: </span>
-                            <span x-text="patch_stock" :class="patch_stock < 2 ? 'text-[#EF4444]' : 'text-[#22C55E]'"></span>
-                            <span x-show="patch_stock < 2" class="ml-2 text-[#EF4444]">
-                                <i class="fas fa-exclamation-circle"></i> Out of Stock
-                            </span>
-                        </div>
-                        <input type="hidden" name="patch_price" :value="patch_price">
-                    </div>
-                </x-card>
-            </div>
+            <input type="hidden" name="patch_price" :value="patch_price">
 
             <!-- Payment -->
             <x-card class="mb-6">
@@ -358,13 +297,13 @@
                     price: p.price || 0,
                     out_of_stock: false,
                     in_stock: false,
+                    dtf: !!p.dtf || !!(p.dtf_name || p.dtf_number),
+                    dtf_name: p.dtf_name || null,
+                    dtf_number: p.dtf_number || null,
+                    patch: !!p.patch,
                 })),
                 rowSearch: orderProducts.map(p => p.product_name || ''),
                 rowShowResults: orderProducts.map(() => false),
-                dtf: {{ $order->dtf ? 'true' : 'false' }},
-                dtf_name: @json($order->dtf_name ?? ''),
-                dtf_number: @json($order->dtf_number ?? ''),
-                patch: {{ $order->patch ? 'true' : 'false' }},
                 patch_price: {{ $order->patch_price ?? $patchPrice }},
                 patch_stock: patchStockS,
                 total_amount: {{ $order->total_amount }},
@@ -400,7 +339,13 @@
                         price: 0,
                         out_of_stock: false,
                         in_stock: false,
+                        dtf: false,
+                        dtf_name: null,
+                        dtf_number: null,
+                        patch: false,
                     });
+                    this.rowSearch.push('');
+                    this.rowShowResults.push(false);
                 },
 
                 removeProduct(i) {
@@ -469,12 +414,12 @@
                         const price = prod ? prod.price : 0;
                         const qty = parseInt(p.quantity) || 0;
                         total += price * qty;
-                    }
-                    if (this.patch) {
-                        total += 2 * (parseFloat(this.patch_price) || 0);
-                    }
-                    if (this.dtf) {
-                        total += 200;
+                        if (p.dtf) {
+                            total += 200;
+                        }
+                        if (p.patch) {
+                            total += 2 * (parseFloat(this.patch_price) || 0);
+                        }
                     }
                     this.total_amount = total;
                     this.calcDeliveryCharge();
@@ -546,6 +491,18 @@
                     } else if (!anyOutOfStock && this.status === 'out_of_stock') {
                         this.status = 'on_hold';
                     }
+                },
+
+                toggleDtf(p) {
+                    p.dtf = !p.dtf;
+                    if (!p.dtf) {
+                        p.dtf_name = null;
+                        p.dtf_number = null;
+                    }
+                },
+
+                togglePatch(p) {
+                    p.patch = !p.patch;
                 },
 
                 submitForm() {

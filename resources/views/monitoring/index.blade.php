@@ -105,6 +105,7 @@
                     { key: 'stock', label: 'Stock Logs' },
                     { key: 'finance', label: 'Finance Logs' },
                     { key: 'web', label: 'Web Logs' },
+                    { key: 'automation', label: 'Automation' },
                     { key: 'traps', label: 'Traps' },
                 ],
 
@@ -127,6 +128,7 @@
                         { value: 'website', label: 'Website' },
                         { value: 'seo', label: 'SEO' },
                     ],
+                    automation: [{ value: 'Audit', label: 'Audit' }],
                 },
 
                 get availableModules() {

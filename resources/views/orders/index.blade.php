@@ -123,13 +123,13 @@
                                         <td class="whitespace-nowrap px-3 py-3 text-center">
                                             <div class="flex items-center justify-center gap-1">
                                                 <template x-if="order.dtf">
-                                                    <span class="inline-flex items-center gap-1 rounded-md bg-[#A855F7]/10 px-1.5 py-0.5 text-[10px] text-[#A855F7]" x-bind:title="'DTF: ' + order.dtf_name + ' — ' + order.dtf_number">
-                                                        <i class="fas fa-print"></i>
+                                                    <span class="inline-flex items-center gap-1 rounded-md bg-[#A855F7]/10 px-1.5 py-0.5 text-[10px] text-[#A855F7]" title="DTF">
+                                                        <i class="fas fa-print"></i> DTF
                                                     </span>
                                                 </template>
                                                 <template x-if="order.patch">
-                                                    <span class="inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-1.5 py-0.5 text-[10px] text-[#F59E0B]" title="Patch (S×2)">
-                                                        <i class="fas fa-tshirt"></i>
+                                                    <span class="inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-1.5 py-0.5 text-[10px] text-[#F59E0B]" title="Patch">
+                                                        <i class="fas fa-tshirt"></i> Patch
                                                     </span>
                                                 </template>
                                                 <template x-if="!order.dtf && !order.patch">

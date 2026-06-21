@@ -36,16 +36,7 @@
                     <span>Today: <strong class="text-[#E6EDF3]">{{ $ordersToday }}</strong></span>
                     <span>Revenue: <strong class="text-[#22C55E]">৳{{ number_format($revenueToday, 0) }}</strong></span>
                 </div>
-                @if ($recentOrders->count())
-                <div class="mt-3 pt-3 border-t border-[#232A36] space-y-1.5">
-                    @foreach ($recentOrders as $o)
-                    <a href="{{ admin_route('orders.show', $o->order_no) }}" class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-[#1C2333] transition-colors">
-                        <span class="text-xs font-medium text-[#3B82F6]">{{ $o->order_no }}</span>
-                        <span class="text-xs text-[#6B7280]">৳{{ number_format($o->total_amount, 0) }}</span>
-                    </a>
-                    @endforeach
-                </div>
-                @endif
+
             </div>
 
             {{-- Stock Activity --}}
@@ -71,11 +62,14 @@
                         <p class="text-lg font-bold text-[#22C55E]">৳{{ number_format($stockValue, 0) }}</p>
                         <p class="text-xs text-[#94A3B8]">Stock Value</p>
                     </div>
-                </div>
-                <div class="mt-3 flex items-center justify-between text-xs text-[#94A3B8]">
-                    <span>In today: <strong class="text-[#22C55E]">+{{ number_format($stockInToday) }}</strong></span>
-                    <span>Out today: <strong class="text-[#EF4444]">-{{ number_format($stockOutToday) }}</strong></span>
-                    <span>Out of stock: <strong class="text-[#EF4444]">{{ $outOfStockProducts }}</strong></span>
+                    <div class="rounded-lg bg-[#22C55E]/10 p-3 text-center">
+                        <p class="text-2xl font-bold text-[#22C55E]">+{{ number_format($stockInToday) }}</p>
+                        <p class="text-xs text-[#94A3B8]">Stock In (24h)</p>
+                    </div>
+                    <div class="rounded-lg bg-[#EF4444]/10 p-3 text-center">
+                        <p class="text-2xl font-bold text-[#EF4444]">-{{ number_format($stockOutToday) }}</p>
+                        <p class="text-xs text-[#94A3B8]">Stock Out (24h)</p>
+                    </div>
                 </div>
             </div>
 
@@ -86,26 +80,30 @@
                     <h2 class="text-sm font-semibold text-[#E6EDF3]">Finance</h2>
                     <a href="{{ admin_route('finance.dashboard') }}" class="text-xs text-[#3B82F6] hover:underline">Details</a>
                 </div>
-                <div class="space-y-2.5">
-                    <div class="flex items-center justify-between px-2">
-                        <span class="text-xs text-[#94A3B8]">Balance</span>
-                        <span class="text-sm font-bold {{ $balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">৳{{ number_format($balance, 0) }}</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="rounded-lg bg-[#1C2333] p-3 text-center">
+                        <p class="text-2xl font-bold {{ $balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">৳{{ number_format($balance, 0) }}</p>
+                        <p class="text-xs text-[#94A3B8]">Balance</p>
                     </div>
-                    <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-[#22C55E]/5">
-                        <span class="text-xs text-[#94A3B8]">Total Income</span>
-                        <span class="text-sm font-bold text-[#22C55E]">৳{{ number_format($totalIncome, 0) }}</span>
+                    <div class="rounded-lg bg-[#22C55E]/10 p-3 text-center">
+                        <p class="text-2xl font-bold text-[#22C55E]">৳{{ number_format($totalIncome, 0) }}</p>
+                        <p class="text-xs text-[#94A3B8]">Total Income (12mo)</p>
                     </div>
-                    <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-[#EF4444]/5">
-                        <span class="text-xs text-[#94A3B8]">Total Expense</span>
-                        <span class="text-sm font-bold text-[#EF4444]">৳{{ number_format($totalExpense, 0) }}</span>
+                    <div class="rounded-lg bg-[#EF4444]/10 p-3 text-center">
+                        <p class="text-2xl font-bold text-[#EF4444]">৳{{ number_format($totalExpense, 0) }}</p>
+                        <p class="text-xs text-[#94A3B8]">Total Expense (12mo)</p>
                     </div>
-                    <div class="flex items-center justify-between px-2 text-xs text-[#94A3B8]">
-                        <span>This month</span>
-                        <span><strong class="text-[#22C55E]">+৳{{ number_format($monthIncome, 0) }}</strong> / <strong class="text-[#EF4444]">-৳{{ number_format($monthExpense, 0) }}</strong></span>
+                    <div class="rounded-lg p-3 text-center" style="background-color: #14B8A615;">
+                        <p class="text-lg font-bold" style="color: #14B8A6;">৳{{ number_format($monthIncome - $monthExpense, 0) }}</p>
+                        <p class="text-xs text-[#94A3B8]">This Month</p>
                     </div>
-                    <div class="flex items-center justify-between px-2 text-xs text-[#94A3B8]">
-                        <span>Today</span>
-                        <span><strong class="text-[#22C55E]">+৳{{ number_format($todayIncome, 0) }}</strong> / <strong class="text-[#EF4444]">-৳{{ number_format($todayExpense, 0) }}</strong></span>
+                    <div class="rounded-lg bg-[#22C55E]/10 p-3 text-center">
+                        <p class="text-xl font-bold text-[#22C55E]">+৳{{ number_format($todayIncome, 0) }}</p>
+                        <p class="text-xs text-[#94A3B8]">Today Income</p>
+                    </div>
+                    <div class="rounded-lg bg-[#EF4444]/10 p-3 text-center">
+                        <p class="text-xl font-bold text-[#EF4444]">-৳{{ number_format($todayExpense, 0) }}</p>
+                        <p class="text-xs text-[#94A3B8]">Today Expense</p>
                     </div>
                 </div>
             </div>
