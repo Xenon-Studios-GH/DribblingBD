@@ -161,7 +161,7 @@ class DashboardService
             ")
             ->selectRaw("COALESCE(SUM(CASE WHEN created_at >= ? THEN total_amount ELSE 0 END), 0) as revenue_today", [$todayStart])
             ->selectRaw("COALESCE(SUM(CASE WHEN status = 'pending' THEN pending_payment ELSE 0 END), 0) as pending_revenue")
-            ->selectRaw("COALESCE(SUM(CASE WHEN status = 'pending' THEN total_amount ELSE 0 END), 0) as total_pending_amount")
+            ->selectRaw("COALESCE(SUM(pending_payment), 0) as total_pending_amount")
             ->first();
 
         return [
