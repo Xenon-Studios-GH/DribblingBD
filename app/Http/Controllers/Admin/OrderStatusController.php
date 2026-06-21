@@ -47,7 +47,9 @@ class OrderStatusController extends BaseOrderController
                 $orderProducts = $order->products;
                 $productIds = collect($orderProducts)->pluck('product_id')->filter()->unique()->values()->all();
                 $productMap = Product::whereIn('id', $productIds)->get()->keyBy('id');
-                $patchProduct = $order->patch
+                $patchCount = collect($orderProducts)->filter(fn($p) => !empty($p['patch']))->count();
+                $hasPatch = $patchCount > 0;
+                $patchProduct = $hasPatch
                     ? $this->getPatchProduct()
                     : null;
 
@@ -65,12 +67,13 @@ class OrderStatusController extends BaseOrderController
                             break;
                         }
                     }
-                    if (!$hasOutOfStock && $order->patch && $patchProduct) {
+                    if (!$hasOutOfStock && $hasPatch && $patchProduct) {
                         $patchStock = Stock::where('product_id', $patchProduct->id)
                             ->where('size', config('shop.patch_size'))
                             ->lockForUpdate()
                             ->first();
-                        if (!$patchStock || $patchStock->quantity < config('shop.patch_quantity')) {
+                        $requiredPatchQty = config('shop.patch_quantity') * $patchCount;
+                        if (!$patchStock || $patchStock->quantity < $requiredPatchQty) {
                             $hasOutOfStock = true;
                         }
                     }
@@ -92,12 +95,12 @@ class OrderStatusController extends BaseOrderController
                         );
                     }
 
-                    if ($patchProduct) {
+                    if ($patchProduct && $patchCount > 0) {
                         $this->stockService->stockOut(
-                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity'),
+                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity') * $patchCount,
                             "Order {$order->order_no} (patch)", Auth::id()
                         );
-                    } elseif ($order->patch) {
+                    } elseif ($hasPatch) {
                         throw new \RuntimeException("No patch product found for order {$order->order_no}.");
                     }
                 }
@@ -112,12 +115,12 @@ class OrderStatusController extends BaseOrderController
                         );
                     }
 
-                    if ($patchProduct) {
+                    if ($patchProduct && $patchCount > 0) {
                         $this->stockService->stockIn(
-                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity'),
+                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity') * $patchCount,
                             "Return: Order {$order->order_no} (patch)", Auth::id()
                         );
-                    } elseif ($order->patch) {
+                    } elseif ($hasPatch) {
                         throw new \RuntimeException("No patch product found for return on order {$order->order_no}.");
                     }
                 }
@@ -134,6 +137,10 @@ class OrderStatusController extends BaseOrderController
         } catch (\Throwable $e) {
             Log::error('Order status update failed', ['order' => $order->id, 'error' => $e->getMessage()]);
             return back()->withErrors(['status' => 'Failed to update status: ' . $e->getMessage()]);
+        }
+
+        if ($newStatus === 'delivered') {
+            $this->createPendingTransaction($order->fresh());
         }
 
         $this->workLogService->log("Order {$newStatus}", 'order', $order->id, "Order #{$order->order_no} status changed from {$order->status} to {$newStatus}");
