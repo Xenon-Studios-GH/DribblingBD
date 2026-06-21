@@ -116,14 +116,16 @@ class OrderEditController extends BaseOrderController
                     }
                 }
 
-                $hasPatch = $request->boolean('patch');
+                $patchCount = collect($products)->filter(fn($p) => !empty($p['patch']))->count();
+                $hasPatch = $patchCount > 0;
                 $patchProduct = $hasPatch ? $this->getPatchProduct() : null;
                 if ($hasPatch && $patchProduct) {
                     $patchStock = Stock::where('product_id', $patchProduct->id)
                         ->where('size', config('shop.patch_size'))
                         ->lockForUpdate()
                         ->first();
-                    if (!$patchStock || $patchStock->quantity < config('shop.patch_quantity')) {
+                    $requiredPatchQty = config('shop.patch_quantity') * $patchCount;
+                    if (!$patchStock || $patchStock->quantity < $requiredPatchQty) {
                         $hasOutOfStock = true;
                         $finalStatus = 'out_of_stock';
                         $shouldDeduct = false;
@@ -146,9 +148,9 @@ class OrderEditController extends BaseOrderController
                             "Order {$order->order_no}", Auth::id()
                         );
                     }
-                    if ($patchProduct) {
+                    if ($patchProduct && $patchCount > 0) {
                         $this->stockService->stockOut(
-                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity'),
+                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity') * $patchCount,
                             "Order {$order->order_no} (patch)", Auth::id()
                         );
                     }
@@ -163,23 +165,22 @@ class OrderEditController extends BaseOrderController
                             "Return: Order {$order->order_no}", Auth::id()
                         );
                     }
-                    if ($patchProduct) {
+                    if ($patchProduct && $patchCount > 0) {
                         $this->stockService->stockIn(
-                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity'),
+                            $patchProduct, config('shop.patch_size'), config('shop.patch_quantity') * $patchCount,
                             "Return: Order {$order->order_no} (patch)", Auth::id()
                         );
                     }
                 }
 
+                $hasDtf = collect($products)->contains(fn($p) => !empty($p['dtf']) || !empty($p['dtf_name']) || !empty($p['dtf_number']));
                 $updateData = [
                     'customer_name' => $validated['customer_name'],
                     'phone' => $validated['phone'],
                     'address' => $validated['address'],
                     'city' => $validated['city'],
                     'products' => $products,
-                    'dtf' => $request->boolean('dtf'),
-                    'dtf_name' => $validated['dtf_name'] ?? null,
-                    'dtf_number' => $validated['dtf_number'] ?? null,
+                    'dtf' => $hasDtf,
                     'patch' => $hasPatch,
                     'patch_price' => $validated['patch_price'] ?? 0,
                     'total_amount' => (float) $validated['total_amount'],
@@ -202,6 +203,10 @@ class OrderEditController extends BaseOrderController
         } catch (\Throwable $e) {
             Log::error('Order update failed', ['order' => $order->id, 'error' => $e->getMessage()]);
             return back()->withErrors(['status' => 'Failed to update order: ' . $e->getMessage()]);
+        }
+
+        if ($order->fresh()->status === 'delivered') {
+            $this->createPendingTransaction($order->fresh());
         }
 
         $this->workLogService->log('Order Updated', 'order', $order->id, "Order #{$order->order_no} updated — status: {$order->status}");
