@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Http\Controllers\Admin\Auth\ResetPasswordController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AutomationController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\StockManagementController;
 use App\Http\Controllers\Admin\StockInController;
@@ -131,6 +132,11 @@ Route::middleware(['auth', 'trap'])->group(function () {
             Route::put('users/{worker}', [WorkerController::class, 'update'])->name('workers.update');
             Route::post('users/{worker}/toggle-status', [WorkerController::class, 'toggleStatus'])->name('workers.toggle-status');
             Route::get('monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
+            Route::get('monitoring/automation', AutomationController::class)->name('monitoring.automation');
+            Route::post('monitoring/run-audit', function () {
+                \Illuminate\Support\Facades\Artisan::call('app:audit-consistency', ['--auto-fix' => true]);
+                return back()->with('success', 'Audit completed. ' . \Illuminate\Support\Facades\Artisan::output());
+            })->name('monitoring.run-audit');
             Route::post('monitoring/traps/{trap}/release', function (\App\Models\LoginTrap $trap) {
                 $trap->release();
                 return back()->with('success', 'Trap released successfully.');

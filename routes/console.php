@@ -9,6 +9,7 @@ use App\Console\Commands\CleanOldData;
 use App\Console\Commands\SeoAutoGenerateCommand;
 use App\Console\Commands\CleanOldPdfDownloads;
 use App\Console\Commands\CleanReadNotifications;
+use App\Console\Commands\AuditSystemConsistency;
 use Illuminate\Support\Facades\Schedule;
 
 // Data cleanup: single command with per-entity retention periods
@@ -19,6 +20,7 @@ Schedule::command(SeoAutoGenerateCommand::class)->daily()->withoutOverlapping();
 Schedule::command('app:clean-pending-images')->daily()->withoutOverlapping();
 Schedule::command(CleanOldPdfDownloads::class)->daily()->withoutOverlapping();
 Schedule::command(CleanReadNotifications::class)->hourly()->withoutOverlapping();
+Schedule::command(AuditSystemConsistency::class)->everyFiveMinutes()->withoutOverlapping()->appendOutputTo(storage_path('logs/audit.log'));
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
