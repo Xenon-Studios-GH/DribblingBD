@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Finance\CategoryController;
 use App\Http\Controllers\Admin\Finance\ReportController;
 use App\Http\Controllers\Admin\Finance\NotificationController;
 use App\Http\Controllers\Admin\Finance\ChartCustomizationController;
+use App\Http\Controllers\Admin\Finance\PendingOrderTransactionController;
 
 Route::middleware(['auth', 'role:superadmin,admin'])
     ->prefix('controlPanel/finance')
@@ -21,6 +22,10 @@ Route::middleware(['auth', 'role:superadmin,admin'])
     Route::get('transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
     Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+    Route::get('pending-orders', [PendingOrderTransactionController::class, 'index'])->name('pending-orders');
+    Route::post('pending-orders/{pending}/confirm', [PendingOrderTransactionController::class, 'confirm'])->name('pending-orders.confirm');
+    Route::delete('pending-orders/{pending}', [PendingOrderTransactionController::class, 'destroy'])->name('pending-orders.destroy');
 
     Route::get('categories', [CategoryController::class, 'index'])->name('categories');
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
