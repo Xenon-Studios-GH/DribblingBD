@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\PendingOrderTransaction;
 use App\Models\Product;
 use App\Services\StockService;
 use App\Services\WorkLogService;
@@ -38,5 +40,37 @@ abstract class BaseOrderController extends Controller
             $this->patchProduct = Product::where('product_name', 'like', config('shop.patch_product_name_query'))->first();
         }
         return $this->patchProduct;
+    }
+
+    protected function createPendingTransaction(Order $order): void
+    {
+        if (PendingOrderTransaction::where('order_id', $order->id)->exists()) {
+            return;
+        }
+
+        $deliveryCharge = (float) ($order->delivery_charge ?? 0);
+        $products = $order->products ?? [];
+        $dtfSales = 0;
+        $patchSales = 0;
+        foreach ($products as $p) {
+            if (!empty($p['dtf']) || !empty($p['dtf_name']) || !empty($p['dtf_number'])) {
+                $dtfSales += 200;
+            }
+            if (!empty($p['patch'])) {
+                $patchSales += (float) ($order->patch_price ?? 0) * 2;
+            }
+        }
+        $productSales = (float) $order->total_amount - $deliveryCharge - $dtfSales - $patchSales;
+
+        PendingOrderTransaction::create([
+            'order_id' => $order->id,
+            'order_no' => $order->order_no,
+            'customer_name' => $order->customer_name,
+            'total_amount' => $order->total_amount,
+            'delivery_charge' => $deliveryCharge,
+            'product_sales_amount' => max(0, $productSales),
+            'dtf_sales_amount' => $dtfSales,
+            'patch_sales_amount' => $patchSales,
+        ]);
     }
 }
