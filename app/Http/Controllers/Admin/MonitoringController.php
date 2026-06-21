@@ -17,6 +17,7 @@ class MonitoringController extends Controller
         'stock'   => ['stock'],
         'finance' => ['finance'],
         'web'     => ['website', 'seo'],
+        'automation' => ['Audit'],
     ];
 
     public function index(Request $request)
