@@ -33,11 +33,12 @@ class WorkLogService
         }
 
         if (!empty($filters['action'])) {
-            $query->where('action', 'like', '%' . $filters['action'] . '%');
+            $action = addcslashes($filters['action'], '%_\\');
+            $query->where('action', 'like', '%' . $action . '%');
         }
 
         if (!empty($filters['search'])) {
-            $search = $filters['search'];
+            $search = addcslashes($filters['search'], '%_\\');
             $query->where(function ($q) use ($search) {
                 $q->where('action', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")

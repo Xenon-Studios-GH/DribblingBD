@@ -57,11 +57,13 @@ class Order extends Model
     public static function generateOrderNo(): string
     {
         return DB::transaction(function () {
-            // Must include soft-deleted rows — the order_no UNIQUE constraint
-            // applies to ALL rows including soft-deleted ones.
-            $maxId = static::withTrashed()->lockForUpdate()->max('id');
-            $nextNumber = ($maxId ?? 0) + 1;
-            return 'DribblingOrder-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+            $last = static::withTrashed()->lockForUpdate()->latest('id')->value('order_no');
+            if ($last && preg_match('/(\d+)$/', $last, $m)) {
+                $next = (int) $m[1] + 1;
+            } else {
+                $next = 1;
+            }
+            return 'DribblingOrder-' . str_pad($next, 5, '0', STR_PAD_LEFT);
         });
     }
 

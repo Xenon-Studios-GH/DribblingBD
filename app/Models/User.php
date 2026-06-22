@@ -81,8 +81,8 @@ class User extends Authenticatable
 
     public static function getUniqueClients($perPage = 20)
     {
-        // Using union to combine users who ordered and direct customer data, paginated
-        return \App\Models\Order::select('customer_name as name', 'phone as email')
+        return static::where('role', 'customer')
+            ->select('id', 'name', 'email', 'phone')
             ->distinct()
             ->paginate($perPage);
     }

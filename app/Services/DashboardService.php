@@ -50,12 +50,13 @@ class DashboardService
         $orderStats = $this->getOrderStats($todayStart, now()->startOfMonth());
         $stockStats = $this->getStockStats($todayStart);
         $userStats = $this->getUserStats();
+        $revenueStats = $this->getRevenueStats($todayStart);
 
         return [
             'totalOrders' => $orderStats['totalOrders'],
             'ordersToday' => $orderStats['ordersToday'],
-            'totalRevenue' => $this->getRevenueStats($todayStart)['totalRevenue'],
-            'totalPendingAmount' => $this->getRevenueStats($todayStart)['totalPendingAmount'],
+            'totalRevenue' => $revenueStats['totalRevenue'],
+            'totalPendingAmount' => $revenueStats['totalPendingAmount'],
             'totalStock' => $stockStats['totalStock'],
             'stockValue' => $stockStats['stockValue'],
             'lowStockProducts' => $this->getProductStats()['lowStockProducts'],
@@ -108,8 +109,7 @@ class DashboardService
             ")
             ->first();
 
-        $lowStockProducts = Product::with('stocks')
-            ->where(function ($q) {
+        $lowStockProducts = Product::where(function ($q) {
                 $q->whereHas('stocks', fn($q) => $q->where('quantity', '>', 0)->where('quantity', '<=', 5))
                   ->orWhereDoesntHave('stocks');
             })

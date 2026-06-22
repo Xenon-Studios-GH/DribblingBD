@@ -45,16 +45,6 @@
                 cart: Alpine.$persist([]).as('shop_cart'),
                 wishlist: Alpine.$persist([]).as('shop_wishlist'),
 
-                init() {
-                    [this.cart, this.wishlist].forEach(list => {
-                        list.forEach(item => {
-                            if (item.image && item.image.startsWith('/storage/')) {
-                                item.image = item.image.replace('/storage/', '/uploads/');
-                            }
-                        });
-                    });
-                },
-
                 get cartCount() {
                     return this.cart.reduce((sum, item) => sum + item.quantity, 0);
                 },
@@ -175,6 +165,13 @@
                 mobileMenuOpen: false,
                 searchOpen: false,
                 init() {
+                    [this.cart, this.wishlist].forEach(list => {
+                        list.forEach(item => {
+                            if (item.image && item.image.startsWith('/storage/')) {
+                                item.image = item.image.replace('/storage/', '/uploads/');
+                            }
+                        });
+                    });
                     window.addEventListener('keydown', (e) => {
                         if (e.key === 'Escape') {
                             this.mobileMenuOpen = false;

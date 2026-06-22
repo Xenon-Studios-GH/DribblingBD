@@ -21,12 +21,10 @@ class StockService
     public function getOrCreateStock(Product $product, string $size): Stock
     {
         return DB::transaction(function () use ($product, $size) {
-            $stock = Stock::firstOrCreate(
+            return Stock::lockForUpdate()->firstOrCreate(
                 ['product_id' => $product->id, 'size' => $size],
                 ['quantity' => 0]
             );
-
-            return Stock::lockForUpdate()->findOrFail($stock->id);
         });
     }
 
@@ -85,12 +83,10 @@ class StockService
         $userId ??= Auth::id();
 
         return DB::transaction(function () use ($product, $size, $quantity, $note, $userId) {
-            $stock = Stock::firstOrCreate(
+            $stock = Stock::lockForUpdate()->firstOrCreate(
                 ['product_id' => $product->id, 'size' => $size],
                 ['quantity' => 0]
             );
-
-            $stock = Stock::lockForUpdate()->findOrFail($stock->id);
 
             $stockBefore = $stock->quantity;
             $stock->increment('quantity', $quantity);

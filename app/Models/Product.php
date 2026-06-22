@@ -31,13 +31,15 @@ class Product extends Model
         ];
     }
 
-    // NOTE: Callers must wrap product creation in a DB transaction with lockForUpdate
-    // to prevent race conditions between generateProductCode() and the INSERT.
     public static function generateProductCode(): string
     {
         return DB::transaction(function () {
             $last = static::lockForUpdate()->latest('id')->value('product_code');
-            $next = $last ? ((int) substr($last, 10)) + 1 : 1;
+            if ($last && preg_match('/(\d+)$/', $last, $m)) {
+                $next = (int) $m[1] + 1;
+            } else {
+                $next = 1;
+            }
             return 'Dribbling-' . str_pad($next, 4, '0', STR_PAD_LEFT);
         });
     }

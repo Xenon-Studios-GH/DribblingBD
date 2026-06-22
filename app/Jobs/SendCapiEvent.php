@@ -59,10 +59,10 @@ class SendCapiEvent implements ShouldQueue, ShouldBeUniqueUntilProcessing
         );
 
         if (($result['success'] ?? false) === false) {
-            $this->fail(new \RuntimeException(
+            throw new \RuntimeException(
                 $result['response']['error']['message']
                 ?? 'CAPI request failed'
-            ));
+            );
         }
     }
 }

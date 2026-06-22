@@ -24,19 +24,19 @@ class TrackingPixel extends Model
         ];
     }
 
-    public function scopeActive($query): void
+    public function scopeActive($query)
     {
-        $query->where('is_active', true);
+        return $query->where('is_active', true);
     }
 
-    public function scopeByPlatform($query, string $platform): void
+    public function scopeByPlatform($query, string $platform)
     {
-        $query->where('platform', $platform);
+        return $query->where('platform', $platform);
     }
 
-    public function scopeOrdered($query): void
+    public function scopeOrdered($query)
     {
-        $query->orderBy('sort_order')->orderBy('name');
+        return $query->orderBy('sort_order')->orderBy('name');
     }
 
     public function eventLogs(): HasMany
