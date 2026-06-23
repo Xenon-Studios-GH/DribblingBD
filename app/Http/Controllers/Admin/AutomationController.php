@@ -10,6 +10,7 @@ use App\Models\SeoMeta;
 use App\Models\StockTransaction;
 use App\Models\WorkLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AutomationController extends Controller
 {
@@ -76,17 +77,22 @@ class AutomationController extends Controller
         ];
 
         $clientPolls = [
-            ['name' => 'Stock Auto-Checker', 'interval' => '30s', 'location' => 'Orders Index, Create, Edit'],
-            ['name' => 'KPI Cards Refresh', 'interval' => '60s', 'location' => 'Dashboard'],
-            ['name' => 'Orders Table Refresh', 'interval' => '60s', 'location' => 'Orders Index'],
-            ['name' => 'Stock Table Refresh', 'interval' => '60s', 'location' => 'Stock Management'],
-            ['name' => 'Notifications Poll', 'interval' => '30s', 'location' => 'Global Layout'],
+            ['key' => 'dashboard-clock', 'name' => 'Dashboard Clock', 'default_interval' => 60, 'page' => 'Dashboard', 'description' => 'Updates the dashboard datetime display'],
+            ['key' => 'dashboard-kpi', 'name' => 'KPI Cards Refresh', 'default_interval' => 60, 'page' => 'Dashboard', 'description' => 'Refreshes KPI cards with latest statistics'],
+            ['key' => 'orders-reload', 'name' => 'Orders Table Refresh', 'default_interval' => 60, 'page' => 'Orders Index', 'description' => 'Fetches latest orders and drafts list'],
+            ['key' => 'orders-stock-check', 'name' => 'Stock Auto-Checker', 'default_interval' => 30, 'page' => 'Orders Index', 'description' => 'Checks for out-of-stock orders and auto-restores'],
+            ['key' => 'notification-bell', 'name' => 'Notifications Poll', 'default_interval' => 30, 'page' => 'Global Layout', 'description' => 'Polls unread notification count'],
+            ['key' => 'stock-table', 'name' => 'Stock Table Refresh', 'default_interval' => 60, 'page' => 'Stock Management', 'description' => 'Refreshes the stock management table'],
+            ['key' => 'order-create-stock', 'name' => 'Order Create Stock', 'default_interval' => 30, 'page' => 'Order Create', 'description' => 'Checks stock availability during order creation'],
+            ['key' => 'order-edit-stock', 'name' => 'Order Edit Stock', 'default_interval' => 30, 'page' => 'Order Edit', 'description' => 'Checks stock availability during order editing'],
         ];
 
         $onDemandActions = [
             ['name' => 'Run Audit', 'route' => 'monitoring.run-audit', 'method' => 'POST', 'icon' => 'play'],
             ['name' => 'Auto-Generate SEO', 'route' => 'seo.auto-generate', 'method' => 'POST', 'icon' => 'magic'],
         ];
+
+        $pollTracker = DB::table('tracker')->where('type', 'poll')->get()->keyBy('key');
 
         return view('monitoring.automation', compact(
             'auditLogs',
@@ -102,6 +108,7 @@ class AutomationController extends Controller
             'logFiles',
             'clientPolls',
             'onDemandActions',
+            'pollTracker',
         ));
     }
 
@@ -110,23 +117,70 @@ class AutomationController extends Controller
         if (!file_exists($file)) return [];
 
         $content = file_get_contents($file);
-        preg_match_all('/Schedule::command\(([^,]+)(?:, ([^)]+))?\)->([\w:]+)\(\)/', $content, $matches, PREG_SET_ORDER);
+        preg_match_all('/Schedule::command\(([^)]+)\)->([\w:]+)\(\)/', $content, $matches, PREG_SET_ORDER);
+
+        $taskMeta = [
+            'CleanOldData' => ['name' => 'Clean Old Data', 'description' => 'Removes old records from the database that are no longer needed, keeping the system fast and clean.'],
+            'CleanOldDrafts' => ['name' => 'Clean Old Drafts', 'description' => 'Deletes draft orders that were never completed, preventing clutter in the orders list.'],
+            'PurgeOldFinanceData' => ['name' => 'Purge Old Finance Data', 'description' => 'Removes old financial records to keep the finance section lightweight and organized.'],
+            'SeoAutoGenerateCommand' => ['name' => 'Auto-Generate SEO', 'description' => 'Creates SEO-friendly titles and descriptions for products, categories, and projects automatically.'],
+            'CleanOldPdfDownloads' => ['name' => 'Clean Old PDFs', 'description' => 'Removes old downloaded PDF files to free up storage space on the server.'],
+            'CleanReadNotifications' => ['name' => 'Clean Read Notifications', 'description' => 'Deletes notifications that have already been read, keeping the notification panel tidy.'],
+            'AuditSystemConsistency' => ['name' => 'System Consistency Check', 'description' => 'Scans the entire system for data mismatches, missing records, or inconsistencies and fixes them automatically.'],
+            'app:clean-pending-images' => ['name' => 'Clean Pending Images', 'description' => 'Removes temporary or pending image files that are no longer needed.'],
+            'clean-pending-images' => ['name' => 'Clean Pending Images', 'description' => 'Removes temporary or pending image files that are no longer needed.'],
+        ];
+
+        $commandMap = [
+            'CleanOldData' => 'app:clean-old-data',
+            'CleanOldDrafts' => 'app:clean-old-drafts',
+            'PurgeOldFinanceData' => 'finance:purge-old',
+            'SeoAutoGenerateCommand' => 'seo:auto-generate',
+            'CleanOldPdfDownloads' => 'app:clean-old-pdf-downloads',
+            'CleanReadNotifications' => 'app:clean-read-notifications',
+            'AuditSystemConsistency' => 'app:audit-consistency',
+        ];
+
+        $taskTracker = DB::table('tracker')->where('type', 'task')->get()->keyBy('key');
 
         $tasks = [];
         foreach ($matches as $m) {
-            $command = trim($m[1], "'\" ");
-            $args = isset($m[2]) ? trim($m[2], "'\" []") : '';
-            $freq = $m[3] ?? 'unknown';
-            $name = class_basename(str_replace('::class', '', $command));
+            $raw = trim($m[1], "'\" ");
+            $freq = $m[2] ?? 'unknown';
+            $baseName = class_basename(str_replace('::class', '', $raw));
+            $meta = $taskMeta[$baseName] ?? $taskMeta[$raw] ?? ['name' => $baseName ?: $raw, 'description' => 'System maintenance task.'];
+            $commandSignature = $commandMap[$baseName] ?? (str_starts_with($raw, 'app:') ? $raw : $baseName);
+
+            $tracked = $taskTracker[$commandSignature] ?? null;
+            $lastRunAt = $tracked ? $tracked->last_run_at : null;
+            $runCount = $tracked ? $tracked->run_count : 0;
+
             $tasks[] = [
-                'name' => $name ?: $command,
-                'command' => str_replace('::class', '', $command),
-                'args' => $args,
+                'name' => $meta['name'],
+                'description' => $meta['description'],
+                'command' => $raw,
+                'command_signature' => $commandSignature,
                 'frequency' => $this->freqLabel($freq),
                 'type' => $this->freqType($freq),
+                'last_run_at' => $lastRunAt ? [
+                    'timestamp' => $lastRunAt instanceof \Carbon\Carbon ? $lastRunAt->timestamp : strtotime($lastRunAt),
+                    'formatted' => $lastRunAt instanceof \Carbon\Carbon ? $lastRunAt->format('H:i:s') : date('H:i:s', strtotime($lastRunAt)),
+                    'diff' => $lastRunAt instanceof \Carbon\Carbon ? $lastRunAt->diffForHumans() : \Carbon\Carbon::parse($lastRunAt)->diffForHumans(),
+                ] : null,
+                'run_count' => $runCount,
             ];
         }
         return $tasks;
+    }
+
+    private function getLogForCommand(string $signature): ?string
+    {
+        $logs = [
+            'app:audit-consistency' => 'audit.log',
+            'app:clean-old-data' => 'cleanup.log',
+        ];
+        $f = $logs[$signature] ?? null;
+        return $f && file_exists(storage_path("logs/$f")) ? storage_path("logs/$f") : null;
     }
 
     private function freqLabel(string $freq): string

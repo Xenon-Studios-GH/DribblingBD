@@ -2,7 +2,7 @@
     <div class="space-y-6">
         <div>
             <h1 class="text-2xl font-bold text-[#E6EDF3]">Automation</h1>
-            <p class="mt-1 text-sm text-[#94A3B8]">All automated processes — scheduled tasks, polls, observers, and system health.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Monitor and control everything the system does automatically — live page refreshes, background cleanup tasks, stock checks, and more.</p>
         </div>
 
         {{-- Row 1: Overview Cards --}}
@@ -18,11 +18,11 @@
 
             <div class="rounded-xl border border-[#232A36] bg-[#161B22] p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs text-[#94A3B8]">Client Polling</span>
+                    <span class="text-xs text-[#94A3B8]">Live Page Refreshes</span>
                     <i class="fas fa-sync text-[#22C55E] text-sm"></i>
                 </div>
                 <p class="text-lg font-bold text-[#E6EDF3]">{{ count($clientPolls) }}</p>
-                <p class="text-xs text-[#94A3B8] mt-1">Real-time browser polls</p>
+                <p class="text-xs text-[#94A3B8] mt-1">Auto-refresh in the browser</p>
             </div>
 
             <div class="rounded-xl border border-[#232A36] bg-[#161B22] p-4">
@@ -44,49 +44,187 @@
             </div>
         </div>
 
-        {{-- Row 2: Scheduled Tasks + Client Polling --}}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {{-- Scheduler --}}
-            <div class="rounded-xl border border-[#232A36] bg-[#161B22] p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-semibold text-[#E6EDF3]"><i class="fas fa-clock text-[#3B82F6] mr-2"></i>Scheduled Tasks (Cron)</h2>
-                    <span class="text-xs text-[#94A3B8]">routes/console.php</span>
-                </div>
-                <div class="space-y-1.5">
-                    @forelse ($schedulerTasks as $task)
-                    <div class="flex items-center justify-between rounded-lg bg-[#1C2333] px-3 py-2.5">
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-[#E6EDF3] truncate">{{ $task['name'] }}</p>
-                            <p class="text-[10px] text-[#94A3B8] truncate">{{ $task['command'] }}</p>
-                        </div>
-                        <span class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium
-                            {{ $task['type'] === 'frequent' ? 'bg-[#22C55E]/20 text-[#22C55E]' : '' }}
-                            {{ $task['type'] === 'hourly' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : '' }}
-                            {{ $task['type'] === 'slow' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : '' }}
-                        ">{{ $task['frequency'] }}</span>
+        {{-- Row 2: Interactive Polling Table + Scheduler --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {{-- Interactive Polling Table (2 cols) --}}
+            <div class="lg:col-span-2 rounded-xl border border-[#232A36] bg-[#161B22] p-4" x-data="pollingTable()" x-init="init()">
+                <div class="flex items-center justify-between mb-1">
+                    <h2 class="text-sm font-semibold text-[#E6EDF3]"><i class="fas fa-sync text-[#22C55E] mr-2"></i>Live Page Refreshes</h2>
+                    <div class="flex items-center gap-2">
+                        <button @click="resetAll()" class="rounded-lg bg-[#232A36] px-3 py-1.5 text-[10px] font-medium text-[#94A3B8] hover:text-[#E6EDF3] transition-colors">
+                            <i class="fas fa-redo mr-1"></i> Reset All
+                        </button>
+                        <button @click="pollAllNow()" class="rounded-lg bg-[#22C55E]/20 px-3 py-1.5 text-[10px] font-medium text-[#22C55E] hover:bg-[#22C55E]/30 transition-colors">
+                            <i class="fas fa-play mr-1"></i> Run All Now
+                        </button>
                     </div>
-                    @empty
-                    <p class="text-xs text-[#94A3B8] text-center py-4">No scheduled tasks found.</p>
-                    @endforelse
                 </div>
+                <p class="text-[10px] text-[#6B7280] mb-3">These auto-refresh data on different pages so you always see the latest information. Turn off any you don't need, or change how often they refresh.</p>
+
+                {{-- Table Header --}}
+                <div class="hidden md:grid md:grid-cols-12 gap-2 px-3 py-2 text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider border-b border-[#232A36]">
+                    <div class="col-span-1"></div>
+                    <div class="col-span-3">Name</div>
+                    <div class="col-span-2">Interval (sec)</div>
+                    <div class="col-span-2">Location</div>
+                    <div class="col-span-2">Last Run</div>
+                    <div class="col-span-1">Runs</div>
+                    <div class="col-span-1">On/Off</div>
+                </div>
+
+                {{-- Table Rows --}}
+                <template x-for="(poll, index) in polls" :key="poll.key">
+                    <div>
+                        {{-- Main Row --}}
+                        <div class="grid grid-cols-12 gap-2 items-center px-3 py-2.5 rounded-lg hover:bg-[#1C2333] transition-colors cursor-pointer border-b border-[#232A36]/50"
+                             @click="toggleExpand(poll.key)">
+
+                            {{-- Expand Icon --}}
+                            <div class="col-span-1">
+                                <i class="fas transition-transform duration-200 text-[10px] text-[#6B7280]"
+                                   :class="expanded === poll.key ? 'fa-chevron-down rotate-0' : 'fa-chevron-right'"></i>
+                            </div>
+
+                            {{-- Name --}}
+                            <div class="col-span-3">
+                                <p class="text-xs font-medium text-[#E6EDF3]" x-text="poll.name"></p>
+                                <p class="text-[10px] text-[#6B7280] md:hidden" x-text="poll.page"></p>
+                            </div>
+
+                            {{-- Interval (editable) --}}
+                            <div class="col-span-2" @click.stop>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" min="5" max="300" step="5"
+                                           x-model.number="poll.intervalSec"
+                                           @change="updateInterval(poll)"
+                                           class="w-14 rounded border border-[#232A36] bg-[#0F1117] px-1.5 py-0.5 text-[11px] text-[#E6EDF3] text-center focus:border-[#3B82F6] focus:outline-none">
+                                    <span class="text-[10px] text-[#6B7280]">sec</span>
+                                </div>
+                            </div>
+
+                            {{-- Page --}}
+                            <div class="col-span-2 hidden md:block">
+                        <span class="text-[11px] text-[#94A3B8]" x-text="poll.page"></span>
+                    </div>
+
+                            {{-- Last Run --}}
+                            <div class="col-span-2">
+                                <span class="text-[11px] text-[#94A3B8]" x-text="poll.lastRun || 'Never'"></span>
+                            </div>
+
+                            {{-- Run Count --}}
+                            <div class="col-span-1">
+                                <span class="text-[11px] text-[#E6EDF3] font-medium" x-text="poll.runCount"></span>
+                            </div>
+
+                            {{-- Toggle --}}
+                            <div class="col-span-1" @click.stop>
+                                <button @click="togglePoll(poll)"
+                                        class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
+                                        :class="poll.isActive ? 'bg-[#22C55E]' : 'bg-[#374151]'">
+                                    <span class="inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform duration-200"
+                                          :class="poll.isActive ? 'translate-x-[18px]' : 'translate-x-[2px]'"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Expanded Details --}}
+                        <div x-show="expanded === poll.key" x-collapse x-cloak
+                             class="ml-6 mr-3 mb-2 rounded-lg bg-[#0F1117] border border-[#232A36] p-3">
+                            <p class="text-[11px] text-[#94A3B8] mb-2" x-text="poll.description"></p>
+                            <div class="grid grid-cols-2 gap-3 text-[10px]">
+                                <div>
+                                    <span class="text-[#6B7280]">Interval (ms)</span>
+                                    <p class="text-[#E6EDF3] font-medium" x-text="poll.intervalMs"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[#6B7280]">Default</span>
+                                    <p class="text-[#E6EDF3] font-medium" x-text="poll.defaultInterval + ' sec'"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- Empty State --}}
+                <template x-if="polls.length === 0">
+                    <div class="py-6 text-center">
+                        <p class="text-xs text-[#6B7280]">No polls registered on this page.</p>
+                        <p class="text-[10px] text-[#6B7280] mt-1">Navigate to Dashboard, Orders, or Stock Management to activate polls.</p>
+                    </div>
+                </template>
             </div>
 
-            {{-- Client Polling --}}
+            {{-- Scheduler (1 col) --}}
             <div class="rounded-xl border border-[#232A36] bg-[#161B22] p-4">
                 <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-semibold text-[#E6EDF3]"><i class="fas fa-sync text-[#22C55E] mr-2"></i>Client-Side Polling</h2>
-                    <span class="text-xs text-[#94A3B8]">Browser setInterval</span>
+                    <h2 class="text-sm font-semibold text-[#E6EDF3]"><i class="fas fa-clock text-[#3B82F6] mr-2"></i>Scheduled Tasks</h2>
+                    <span class="text-xs text-[#94A3B8]">{{ count($schedulerTasks) }} tasks</span>
                 </div>
-                <div class="space-y-1.5">
-                    @foreach ($clientPolls as $poll)
-                    <div class="flex items-center justify-between rounded-lg bg-[#1C2333] px-3 py-2.5">
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-[#E6EDF3]">{{ $poll['name'] }}</p>
-                            <p class="text-[10px] text-[#94A3B8]">{{ $poll['location'] }}</p>
+                <p class="text-[10px] text-[#6B7280] mb-3">These tasks run automatically in the background to keep the system clean and healthy. Click <i class="fas fa-play text-[8px]"></i> to run any task immediately.</p>
+
+                {{-- Table Header --}}
+                <div class="hidden md:grid md:grid-cols-12 gap-2 px-3 py-2 text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider border-b border-[#232A36]">
+                    <div class="col-span-1"></div>
+                    <div class="col-span-4">Task</div>
+                    <div class="col-span-2">Schedule</div>
+                    <div class="col-span-2">Last Run</div>
+                    <div class="col-span-3">Run Now</div>
+                </div>
+
+                {{-- Table Rows --}}
+                <div class="space-y-0">
+                    @forelse ($schedulerTasks as $task)
+                    <div x-data="{ expanded: false }">
+                        {{-- Main Row --}}
+                        <div class="grid grid-cols-12 gap-2 items-center px-3 py-2.5 rounded-lg hover:bg-[#1C2333] transition-colors cursor-pointer border-b border-[#232A36]/50"
+                             @click="expanded = !expanded">
+                            <div class="col-span-1">
+                                <i class="fas transition-transform duration-200 text-[10px] text-[#6B7280]"
+                                   :class="expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                            </div>
+                            <div class="col-span-4">
+                                <p class="text-xs font-medium text-[#E6EDF3] truncate">{{ $task['name'] }}</p>
+                                <p class="text-[10px] text-[#6B7280] md:hidden">{{ $task['frequency'] }}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <span class="rounded-full px-2.5 py-0.5 text-[10px] font-medium
+                                    {{ $task['type'] === 'frequent' ? 'bg-[#22C55E]/20 text-[#22C55E]' : '' }}
+                                    {{ $task['type'] === 'hourly' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : '' }}
+                                    {{ $task['type'] === 'slow' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : '' }}
+                                ">{{ $task['frequency'] }}</span>
+                            </div>
+                            <div class="col-span-2">
+                                <span class="text-[11px] text-[#94A3B8]">{{ $task['last_run_at']['formatted'] ?? 'Never' }}</span>
+                            </div>
+                            <div class="col-span-3" @click.stop>
+                                <form action="{{ admin_route('monitoring.run-task') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="command" value="{{ $task['command_signature'] }}">
+                                    <input type="hidden" name="task_name" value="{{ $task['name'] }}">
+                                    <button type="submit" class="rounded-lg bg-[#3B82F6]/20 px-3 py-1 text-[10px] font-medium text-[#3B82F6] hover:bg-[#3B82F6]/30 transition-colors whitespace-nowrap">
+                                        <i class="fas fa-play mr-0.5"></i> Run Now
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <span class="shrink-0 rounded-full bg-[#14B8A6]/20 px-2.5 py-0.5 text-[10px] font-medium text-[#14B8A6]">{{ $poll['interval'] }}</span>
+
+                        {{-- Expanded Details --}}
+                        <div x-show="expanded" x-collapse x-cloak
+                             class="ml-6 mr-3 mb-2 rounded-lg bg-[#0F1117] border border-[#232A36] p-3">
+                            <p class="text-[11px] text-[#94A3B8] mb-2">{{ $task['description'] }}</p>
+                            @if ($task['last_run_at'])
+                            <div class="text-[10px] text-[#6B7280]">
+                                <i class="fas fa-check-circle text-[#22C55E] mr-1"></i>Last completed {{ $task['last_run_at']['diff'] ?? 'N/A' }} · Run {{ $task['run_count'] }} time{{ $task['run_count'] !== 1 ? 's' : '' }}
+                            </div>
+                            @endif
+                        </div>
                     </div>
-                    @endforeach
+                    @empty
+                    <div class="py-6 text-center">
+                        <p class="text-xs text-[#6B7280]">No scheduled tasks found.</p>
+                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -128,9 +266,10 @@
             <div class="rounded-xl border border-[#232A36] bg-[#161B22] p-4">
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="text-sm font-semibold text-[#E6EDF3]"><i class="fas fa-shield-alt text-[#22C55E] mr-2"></i>Audit History</h2>
-                    <span class="text-xs text-[#94A3B8]">Last 10 runs</span>
+                    <span class="text-xs text-[#94A3B8]">Last 10 checks</span>
                 </div>
-                <div class="space-y-2">
+                <p class="text-[10px] text-[#6B7280] mb-3">The system regularly scans itself for problems and fixes them. Each check looks for missing records, wrong data, or broken links.</p>
+                <div class="space-y-2 max-h-[300px] overflow-y-auto">
                     @forelse ($auditLogs as $log)
                     <div class="flex items-start justify-between rounded-lg bg-[#1C2333] p-3">
                         <div class="min-w-0 flex-1">
@@ -308,4 +447,126 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        function pollingTable() {
+            return {
+                polls: [],
+                expanded: null,
+                refreshTimer: null,
+
+                init() {
+                    this.syncFromManager();
+                    this.refreshTimer = setInterval(() => this.refreshStatus(), 3000);
+                },
+
+                destroy() {
+                    if (this.refreshTimer) clearInterval(this.refreshTimer);
+                },
+
+                getSaved(name) {
+                    if (!window.PollingManager) return null;
+                    const all = PollingManager.getSavedConfigs();
+                    return all[name] || null;
+                },
+
+                getDefaultInterval(key) {
+                    const serverPolls = @json($clientPolls);
+                    const sp = serverPolls.find(p => p.key === key);
+                    return sp ? sp.default_interval : 30;
+                },
+
+                syncFromManager() {
+                    const serverPolls = @json($clientPolls);
+                    const serverTracker = @json($pollTracker);
+
+                    this.polls = serverPolls.map(sp => {
+                        const saved = this.getSaved(sp.key);
+                        const tracker = serverTracker[sp.key] || {};
+                        const intervalSec = saved?.intervalMs ? Math.round(saved.intervalMs / 1000) : sp.default_interval;
+                        return {
+                            key: sp.key,
+                            name: sp.name,
+                            description: sp.description,
+                            page: sp.page,
+                            defaultInterval: sp.default_interval,
+                            intervalMs: saved?.intervalMs || (sp.default_interval * 1000),
+                            intervalSec: saved?.intervalMs ? Math.round(saved.intervalMs / 1000) : sp.default_interval,
+                            isActive: saved?.isActive !== undefined ? saved.isActive : tracker.is_active !== undefined ? tracker.is_active : true,
+                            lastRun: tracker.last_run_at ? new Date(tracker.last_run_at.replace(' ', 'T')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : null,
+                            runCount: tracker.run_count || 0,
+                        };
+                    });
+                },
+
+                refreshStatus() {
+                    if (!window.PollingManager) return;
+                    const saved = PollingManager.getSavedConfigs();
+                    for (const poll of this.polls) {
+                        const cfg = saved[poll.key];
+                        if (cfg) {
+                            poll.isActive = cfg.isActive;
+                            if (cfg.intervalMs) {
+                                poll.intervalMs = cfg.intervalMs;
+                                poll.intervalSec = Math.round(cfg.intervalMs / 1000);
+                            }
+                        }
+                    }
+                },
+
+                toggleExpand(key) {
+                    this.expanded = this.expanded === key ? null : key;
+                },
+
+                togglePoll(poll) {
+                    poll.isActive = !poll.isActive;
+                    if (window.PollingManager) {
+                        if (poll.isActive) {
+                            PollingManager.resumePoll(poll.key, poll.intervalMs);
+                        } else {
+                            PollingManager.pausePoll(poll.key, poll.intervalMs);
+                        }
+                    }
+                },
+
+                updateInterval(poll) {
+                    poll.intervalSec = Math.max(5, Math.min(300, poll.intervalSec));
+                    poll.intervalMs = poll.intervalSec * 1000;
+                    if (window.PollingManager) {
+                        PollingManager.setInterval(poll.key, poll.intervalMs);
+                    }
+                },
+
+                pollAllNow() {
+                    if (window.PollingManager) {
+                        PollingManager.pollAll();
+                    }
+                    const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    for (const poll of this.polls) {
+                        fetch('/controlPanel/tracker/sync', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                            body: JSON.stringify({
+                                key: poll.key,
+                                type: 'poll',
+                                is_active: poll.isActive,
+                                interval_ms: poll.intervalMs,
+                                last_run_at: 1,
+                            }),
+                        }).catch(() => {});
+                        poll.lastRun = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    }
+                },
+
+                resetAll() {
+                    if (window.PollingManager) {
+                        PollingManager.resetAllAndClearSaved();
+                    }
+                    this.syncFromManager();
+                },
+            }
+        }
+    </script>
+    @endpush
 </x-layouts.app>

@@ -138,6 +138,19 @@ Route::middleware(['auth', 'trap'])->group(function () {
                 \Illuminate\Support\Facades\Artisan::call('app:audit-consistency', ['--auto-fix' => true]);
                 return back()->with('success', 'Audit completed. ' . \Illuminate\Support\Facades\Artisan::output());
             })->name('monitoring.run-audit');
+            Route::post('monitoring/run-task', function (\Illuminate\Http\Request $r) {
+                $allowed = ['app:audit-consistency', 'app:clean-old-drafts', 'app:clean-pending-images', 'seo:auto-generate', 'app:clean-old-pdf-downloads', 'app:clean-read-notifications', 'app:clean-old-data', 'finance:purge-old'];
+                $command = $r->input('command');
+                if (!in_array($command, $allowed)) {
+                    return back()->with('error', 'Command not allowed.');
+                }
+                \Illuminate\Support\Facades\Artisan::call($command, $command === 'app:audit-consistency' ? ['--auto-fix' => true] : []);
+                \Illuminate\Support\Facades\DB::table('tracker')->updateOrInsert(
+                    ['key' => $command],
+                    ['type' => 'task', 'name' => $r->input('task_name', $command), 'last_run_at' => now(), 'run_count' => \Illuminate\Support\Facades\DB::raw('run_count + 1'), 'updated_at' => now()]
+                );
+                return back()->with('success', "Task [$command] completed. " . \Illuminate\Support\Facades\Artisan::output());
+            })->name('monitoring.run-task');
             Route::post('monitoring/traps/{trap}/release', function (\App\Models\LoginTrap $trap) {
                 $trap->release();
                 return back()->with('success', 'Trap released successfully.');
@@ -145,6 +158,16 @@ Route::middleware(['auth', 'trap'])->group(function () {
             Route::get('inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
             Route::get('inquiries/{inquiry}', [InquiryController::class, 'show'])->name('inquiries.show');
             Route::delete('inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
+
+            // Tracker (polls + tasks)
+            Route::get('tracker', [\App\Http\Controllers\Admin\PollConfigController::class, 'index'])->name('tracker.index');
+            Route::post('tracker/sync', [\App\Http\Controllers\Admin\PollConfigController::class, 'sync'])->name('tracker.sync');
+
+            // System Changelog
+            Route::get('changelog', [\App\Http\Controllers\Admin\SystemChangelogController::class, 'index'])->name('changelog.index');
+            Route::post('changelog', [\App\Http\Controllers\Admin\SystemChangelogController::class, 'store'])->name('changelog.store');
+            Route::put('changelog/{id}', [\App\Http\Controllers\Admin\SystemChangelogController::class, 'update'])->name('changelog.update');
+            Route::delete('changelog/{id}', [\App\Http\Controllers\Admin\SystemChangelogController::class, 'destroy'])->name('changelog.destroy');
         });
 
     });
