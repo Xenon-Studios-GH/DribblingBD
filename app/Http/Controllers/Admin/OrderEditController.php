@@ -94,13 +94,15 @@ class OrderEditController extends BaseOrderController
                     }
                 }
 
-                if (!$shouldDeduct) {
+                if (!$shouldDeduct && $wasStockDeducted) {
                     foreach ($products as $newItem) {
                         $existedBefore = false;
+                        $oldQuantity = 0;
                         foreach ($oldProducts as $oldItem) {
                             if (($newItem['product_id'] ?? null) === ($oldItem['product_id'] ?? null)
                                 && ($newItem['size'] ?? '') === ($oldItem['size'] ?? '')) {
                                 $existedBefore = true;
+                                $oldQuantity = (int) ($oldItem['quantity'] ?? 0);
                                 break;
                             }
                         }
@@ -111,6 +113,25 @@ class OrderEditController extends BaseOrderController
                                     $addedProduct, $newItem['size'], (int) ($newItem['quantity'] ?? 0),
                                     'Order #' . $order->order_no . ' item added (edit)', auth()->id()
                                 );
+                            }
+                        } elseif ($existedBefore && ($newItem['product_id'] ?? null) && ($newItem['size'] ?? '')) {
+                            $newQuantity = (int) ($newItem['quantity'] ?? 0);
+                            $delta = $newQuantity - $oldQuantity;
+                            if ($delta !== 0) {
+                                $adjProduct = Product::find($newItem['product_id']);
+                                if ($adjProduct) {
+                                    if ($delta > 0) {
+                                        $this->stockService->stockOut(
+                                            $adjProduct, $newItem['size'], $delta,
+                                            'Order #' . $order->order_no . ' qty increased (edit)', auth()->id()
+                                        );
+                                    } else {
+                                        $this->stockService->stockIn(
+                                            $adjProduct, $newItem['size'], abs($delta),
+                                            'Order #' . $order->order_no . ' qty decreased (edit)', auth()->id()
+                                        );
+                                    }
+                                }
                             }
                         }
                     }
