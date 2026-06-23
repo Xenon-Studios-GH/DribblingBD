@@ -39,6 +39,8 @@ Route::middleware(['auth', 'role:superadmin,admin'])
     Route::get('customize-charts', [ChartCustomizationController::class, 'index'])->name('customize-charts');
     Route::post('customize-charts', [ChartCustomizationController::class, 'update'])->name('customize-charts.update');
     Route::post('customize-charts/reset', [ChartCustomizationController::class, 'reset'])->name('customize-charts.reset');
+
+    Route::get('reports/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
 });
 
 Route::get('controlPanel/finance/notifications/unread-count', [NotificationController::class, 'unreadCount'])

@@ -11,9 +11,14 @@ class FinanceTransaction extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'type', 'category_id', 'amount',
+        'type', 'category_id', 'order_id', 'amount',
         'description', 'date', 'created_by', 'updated_by',
     ];
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
 
     protected function casts(): array
     {

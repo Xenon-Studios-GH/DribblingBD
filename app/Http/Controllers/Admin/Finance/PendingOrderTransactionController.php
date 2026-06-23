@@ -38,35 +38,33 @@ class PendingOrderTransactionController extends Controller
         }
 
         DB::transaction(function () use ($pending) {
-            FinanceTransaction::create([
+            $baseData = [
                 'type' => 'income',
+                'order_id' => $pending->order_id,
+                'date' => today(),
+                'created_by' => Auth::id(),
+            ];
+
+            FinanceTransaction::create(array_merge($baseData, [
                 'category_id' => 1,
                 'amount' => $pending->product_sales_amount,
                 'description' => "Product sales from Order #{$pending->order_no} ({$pending->customer_name})",
-                'date' => today(),
-                'created_by' => Auth::id(),
-            ]);
+            ]));
 
             if ($pending->dtf_sales_amount > 0) {
-                FinanceTransaction::create([
-                    'type' => 'income',
+                FinanceTransaction::create(array_merge($baseData, [
                     'category_id' => 2,
                     'amount' => $pending->dtf_sales_amount,
                     'description' => "DTF sales from Order #{$pending->order_no} ({$pending->customer_name})",
-                    'date' => today(),
-                    'created_by' => Auth::id(),
-                ]);
+                ]));
             }
 
             if ($pending->patch_sales_amount > 0) {
-                FinanceTransaction::create([
-                    'type' => 'income',
+                FinanceTransaction::create(array_merge($baseData, [
                     'category_id' => 3,
                     'amount' => $pending->patch_sales_amount,
                     'description' => "Patch sales from Order #{$pending->order_no} ({$pending->customer_name})",
-                    'date' => today(),
-                    'created_by' => Auth::id(),
-                ]);
+                ]));
             }
 
             $pending->update(['status' => 'confirmed']);
