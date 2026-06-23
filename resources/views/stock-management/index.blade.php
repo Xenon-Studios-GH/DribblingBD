@@ -127,7 +127,7 @@
                 loadTable(getCurrentParams());
             });
 
-            setInterval(() => loadTable(getCurrentParams()), 60000);
+            PollingManager.add('stock-table', () => loadTable(getCurrentParams()), { page: 'stock-management' });
         });
     </script>
 </x-layouts.app>

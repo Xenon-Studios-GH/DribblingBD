@@ -470,14 +470,11 @@
 
                 startStockPolling() {
                     this.pollStock();
-                    this.stockInterval = setInterval(() => this.pollStock(), 30000);
+                    PollingManager.add('order-create-stock', () => this.pollStock(), { page: 'order-create' });
                 },
 
                 stopStockPolling() {
-                    if (this.stockInterval) {
-                        clearInterval(this.stockInterval);
-                        this.stockInterval = null;
-                    }
+                    PollingManager.remove('order-create-stock');
                 },
 
                 async pollStock() {
@@ -535,6 +532,7 @@
                         return;
                     }
                     this.stopStockPolling();
+                    PollingManager.remove('order-create-stock');
                     this.$el.submit();
                 }
             }

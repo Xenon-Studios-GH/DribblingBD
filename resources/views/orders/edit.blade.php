@@ -454,14 +454,11 @@
 
                 startStockPolling() {
                     this.pollStock();
-                    this.stockInterval = setInterval(() => this.pollStock(), 30000);
+                    PollingManager.add('order-edit-stock', () => this.pollStock(), { page: 'order-edit' });
                 },
 
                 stopStockPolling() {
-                    if (this.stockInterval) {
-                        clearInterval(this.stockInterval);
-                        this.stockInterval = null;
-                    }
+                    PollingManager.remove('order-edit-stock');
                 },
 
                 async pollStock() {

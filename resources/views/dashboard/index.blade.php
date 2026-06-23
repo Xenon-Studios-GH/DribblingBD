@@ -268,10 +268,9 @@
             document.getElementById('dashboard-datetime').textContent = `${day}, ${date} ${month} ${year} - ${hours}:${minutes} ${ampm}`;
         }
         updateDateTime();
-        setInterval(updateDateTime, 60000);
+        PollingManager.add('dashboard-clock', updateDateTime, { page: 'dashboard' });
 
-        // Auto-refresh KPI cards every 60 seconds
-        setInterval(() => {
+        PollingManager.add('dashboard-kpi', () => {
             fetch(window.location.href, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })
@@ -282,7 +281,7 @@
                 }
             })
             .catch(() => {});
-        }, 60000);
+        }, { page: 'dashboard' });
     </script>
     @endpush
 </x-layouts.app>

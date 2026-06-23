@@ -351,14 +351,9 @@
                 },
 
                 init() {
-                    this.startReloadTimer();
-                    this.startStockCheck();
-                },
-
-                startReloadTimer() {
-                    if (this._reloadTimer) clearInterval(this._reloadTimer);
                     const baseUrl = window.location.origin + window.location.pathname;
-                    this._reloadTimer = setInterval(() => {
+
+                    PollingManager.add('orders-reload', () => {
                         fetch(baseUrl + '?json=1')
                             .then(r => r.json())
                             .then(data => {
@@ -366,11 +361,9 @@
                                 if (data.drafts) this.drafts = data.drafts;
                             })
                             .catch(() => {});
-                    }, 60000);
-                },
+                    }, { page: 'orders', immediate: false });
 
-                startStockCheck() {
-                    setInterval(() => {
+                    PollingManager.add('orders-stock-check', () => {
                         fetch('{{ route('orders.check-stock') }}', {
                             method: 'POST',
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
@@ -389,7 +382,7 @@
                             }
                         })
                         .catch(() => {});
-                    }, 30000);
+                    }, { page: 'orders' });
                 },
 
                 async confirmOrder(order) {

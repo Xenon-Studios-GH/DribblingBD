@@ -270,7 +270,7 @@
                 init() {
                     this.fetchUnreadCount();
                     this.fetchNotifications();
-                    setInterval(() => this.fetchUnreadCount(), 30000);
+                    PollingManager.add('notification-bell', () => this.fetchUnreadCount(), { page: 'admin-layout' });
                 },
                 fetchUnreadCount() {
                     fetch('{{ route('finance.notifications.unread', ['role' => Auth::user()->role]) }}')
