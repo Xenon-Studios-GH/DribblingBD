@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\PendingOrderTransaction;
 use App\Models\Product;
+use App\Models\SiteSetting;
 use App\Services\StockService;
 use App\Services\WorkLogService;
 
@@ -54,10 +55,10 @@ abstract class BaseOrderController extends Controller
         $patchSales = 0;
         foreach ($products as $p) {
             if (!empty($p['dtf']) || !empty($p['dtf_name']) || !empty($p['dtf_number'])) {
-                $dtfSales += 200;
+                $dtfSales += (int) (SiteSetting::getValue('dtf_fee', 200));
             }
             if (!empty($p['patch'])) {
-                $patchSales += (float) ($order->patch_price ?? 0) * 2;
+                $patchSales += (float) ($order->patch_price ?? 0) * (int) config('shop.patch_quantity', 2);
             }
         }
         $productSales = (float) $order->total_amount - $deliveryCharge - $dtfSales - $patchSales;

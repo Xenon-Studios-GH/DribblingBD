@@ -197,6 +197,7 @@ class CustomizationController extends Controller
             'shipping_dhaka_rate',
             'shipping_outside_rate',
             'shipping_free_threshold',
+            'dtf_fee',
 
             // Customer Care - Delivery
             'delivery_heading', 'delivery_subtitle', 'delivery_desc',
