@@ -9,6 +9,7 @@ use App\Services\WorkLogService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
@@ -55,8 +56,11 @@ class LoginController extends Controller
             ])->onlyInput('email');
         }
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
+            // 1-device policy — remove all other sessions for this user
+            DB::table('sessions')->where('user_id', Auth::id())->delete();
 
             // Check if this IP was recently trapped/locked
             if ($this->loginThrottleService->shouldTrapOnLogin($email, $ip)) {
@@ -99,6 +103,7 @@ class LoginController extends Controller
         $request->session()->flush();
         $request->session()->put('trap_session', true);
         $request->session()->put('trap_triggered_at', now()->timestamp);
+        $request->session()->put('trap_email', $request->email);
         return redirect()->route('trap.page');
     }
 }

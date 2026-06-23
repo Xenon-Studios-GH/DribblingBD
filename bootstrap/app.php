@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(fn() => auth()->user()?->role === 'customer' ? url('/') : route('dashboard'));
 
         $middleware->validateCsrfTokens(except: [
-            '__tracking/*',
+            '__tracking/capi',
         ]);
 
         $middleware->append(\App\Http\Middleware\CheckSeoRedirects::class);

@@ -17,14 +17,19 @@ class TrapSessionMiddleware
             if ($isExpired) {
                 $request->session()->forget('trap_session');
                 $request->session()->forget('trap_triggered_at');
+                $request->session()->forget('trap_email');
                 return redirect()->route('authentication');
             }
 
             $ip = $request->ip();
-            $activeTrap = LoginTrap::forIp($ip)->active()->first();
+            $trapEmail = $request->session()->get('trap_email');
+            $activeTrap = LoginTrap::forIp($ip)->active()
+                ->when($trapEmail, fn($q) => $q->where('attempted_email', $trapEmail))
+                ->first();
             if (!$activeTrap) {
                 $request->session()->forget('trap_session');
                 $request->session()->forget('trap_triggered_at');
+                $request->session()->forget('trap_email');
                 return redirect()->route('authentication');
             }
 

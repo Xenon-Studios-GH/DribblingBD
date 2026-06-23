@@ -147,7 +147,7 @@ class LoginThrottleService
      */
     public function shouldTrapOnLogin(string $email, string $ip): bool
     {
-        if (LoginTrap::forIp($ip)->active()->exists()) {
+        if (LoginTrap::forIp($ip)->where('attempted_email', $email)->active()->exists()) {
             return true;
         }
         $lockedUntil = Cache::get($this->lockKey($email, $ip));

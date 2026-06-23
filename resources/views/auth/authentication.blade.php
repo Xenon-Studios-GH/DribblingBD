@@ -337,28 +337,6 @@
             transition-delay: 1.2s;
         }
 
-        .remember-row {
-            margin-top: 16px;
-            display: flex;
-            align-items: center;
-        }
-
-        .remember-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .remember-checkbox {
-            width: 16px;
-            height: 16px;
-            accent-color: #e46033;
-            cursor: pointer;
-        }
-
         .error-msg {
             font-size: 12px;
             color: #ff6b6b;
@@ -505,13 +483,6 @@
                     <span class="icon toggle-password" style="cursor:pointer" data-target="password">
                         <i class="fas fa-eye"></i>
                     </span>
-                </div>
-
-                <div class="remember-row animation" style="--D:3; --S:24">
-                    <label class="remember-label">
-                        <input type="checkbox" name="remember" value="1" class="remember-checkbox">
-                        <span>Remember me</span>
-                    </label>
                 </div>
 
                 <div class="input-box animation" style="--D:3; --S:24">
