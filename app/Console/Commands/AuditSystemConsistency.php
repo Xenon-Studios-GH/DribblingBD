@@ -178,8 +178,7 @@ class AuditSystemConsistency extends Command
 
         $confirmed = PendingOrderTransaction::where('status', 'confirmed')->get();
         foreach ($confirmed as $pt) {
-            $expectedDesc = "Order {$pt->order_no}";
-            $matches = FinanceTransaction::where('description', 'like', "%{$pt->order_no}%")->count();
+            $matches = FinanceTransaction::where('order_id', $pt->order_id)->count();
             if ($matches === 0) {
                 $this->addIssue('B2', "PendingOrderTransaction #{$pt->id} (order {$pt->order_no}) confirmed but no FinanceTransaction found");
             }
