@@ -74,6 +74,15 @@ class StockService
         ];
     }
 
+    protected function runStockCheck(): void
+    {
+        try {
+            app(StockCheckService::class)->checkAllOrders();
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
     public function stockIn(Product $product, string $size, int $quantity, ?string $note = null, ?int $userId = null): Stock
     {
         if ($quantity <= 0) {
@@ -82,7 +91,7 @@ class StockService
 
         $userId ??= Auth::id();
 
-        return DB::transaction(function () use ($product, $size, $quantity, $note, $userId) {
+        $stock = DB::transaction(function () use ($product, $size, $quantity, $note, $userId) {
             $stock = Stock::lockForUpdate()->firstOrCreate(
                 ['product_id' => $product->id, 'size' => $size],
                 ['quantity' => 0]
@@ -112,6 +121,10 @@ class StockService
 
             return $stock->fresh();
         });
+
+        $this->runStockCheck();
+
+        return $stock;
     }
 
     public function stockOut(Product $product, string $size, int $quantity, ?string $note = null, ?int $userId = null): Stock
@@ -122,7 +135,7 @@ class StockService
 
         $userId ??= Auth::id();
 
-        return DB::transaction(function () use ($product, $size, $quantity, $note, $userId) {
+        $stock = DB::transaction(function () use ($product, $size, $quantity, $note, $userId) {
             $stock = Stock::where('product_id', $product->id)
                 ->where('size', $size)
                 ->lockForUpdate()
@@ -160,5 +173,9 @@ class StockService
 
             return $stock->fresh();
         });
+
+        $this->runStockCheck();
+
+        return $stock;
     }
 }

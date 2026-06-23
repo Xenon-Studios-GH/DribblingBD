@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Stock;
+use App\Services\StockCheckService;
 use App\Services\StockService;
 use App\Services\WorkLogService;
 use Illuminate\Http\Request;
@@ -156,67 +157,9 @@ class OrderStatusController extends BaseOrderController
         return redirect(admin_route('orders.index'))->with('success', "Order {$order->order_no} marked as {$newStatus}.");
     }
 
-    public function checkStockAuto()
+    public function checkStockAuto(StockCheckService $stockCheckService)
     {
-        $updated = [];
-        $protectedStatuses = ['delivered', 'refund', 'return'];
-        $orders = Order::whereNotIn('status', $protectedStatuses)->lockForUpdate()->get();
-
-        foreach ($orders as $order) {
-            $products = $order->products;
-            if (empty($products)) continue;
-
-            $allInStock = true;
-            foreach ($products as $item) {
-                $productId = $item['product_id'] ?? null;
-                $size = $item['size'] ?? '';
-                $qty = (int) ($item['quantity'] ?? 0);
-                if (!$productId || !$size || $qty <= 0) continue;
-
-                $stock = Stock::where('product_id', $productId)
-                    ->where('size', $size)
-                    ->first();
-
-                if (!$stock || $stock->quantity < $qty) {
-                    $allInStock = false;
-                    break;
-                }
-            }
-
-            if (!$allInStock) {
-                if ($order->status !== 'out_of_stock') {
-                    $order->update(['status' => 'out_of_stock', 'auto_restored_at' => null]);
-                    $updated[] = [
-                        'id' => $order->id,
-                        'order_no' => $order->order_no,
-                        'status' => 'out_of_stock',
-                        'auto_restored_at' => null,
-                    ];
-                    $this->workLogService->log(
-                        'Order Auto Out of Stock',
-                        'order',
-                        $order->id,
-                        "Order #{$order->order_no} auto-set to out_of_stock (stock insufficient)"
-                    );
-                }
-            } else {
-                if ($order->status === 'out_of_stock') {
-                    $order->update(['status' => 'on_hold', 'auto_restored_at' => now()]);
-                    $updated[] = [
-                        'id' => $order->id,
-                        'order_no' => $order->order_no,
-                        'status' => 'on_hold',
-                        'auto_restored_at' => $order->auto_restored_at?->toISOString(),
-                    ];
-                    $this->workLogService->log(
-                        'Order Auto-Restored',
-                        'order',
-                        $order->id,
-                        "Order #{$order->order_no} auto-restored to on_hold (stock returned)"
-                    );
-                }
-            }
-        }
+        $updated = $stockCheckService->checkAllOrders();
 
         return response()->json([
             'success' => true,
