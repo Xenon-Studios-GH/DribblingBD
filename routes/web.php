@@ -191,6 +191,13 @@ Route::middleware(['auth', 'trap'])->group(function () {
             Route::delete('system-controller/categories/{category}', [SystemController::class, 'destroyCategory'])->name('system-controller.categories.destroy');
             Route::post('system-controller/mappings', [SystemController::class, 'updateMappings'])->name('system-controller.mappings');
             Route::post('system-controller/fixed-amounts', [SystemController::class, 'updateFixedAmounts'])->name('system-controller.fixed-amounts');
+
+            // Kronx Integration Logs (superadmin only)
+            Route::prefix('kronx')->name('kronx.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\KronxLogController::class, 'index'])->name('index');
+                Route::post('/sync-products', [\App\Http\Controllers\Admin\KronxLogController::class, 'syncProducts'])->name('sync-products');
+                Route::post('/sync-stock', [\App\Http\Controllers\Admin\KronxLogController::class, 'syncStock'])->name('sync-stock');
+            });
         });
 
     });
