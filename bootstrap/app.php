@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             '__tracking/capi',
+            'api/kronx/webhook',
         ]);
 
         $middleware->append(\App\Http\Middleware\CheckSeoRedirects::class);

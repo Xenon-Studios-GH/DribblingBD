@@ -5,6 +5,7 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -22,13 +23,23 @@ return new class extends Migration
         ]);
 
         $admin = User::whereIn('role', ['superadmin', 'admin'])->first();
+        if (!$admin) {
+            $admin = User::create([
+                'name' => 'System',
+                'email' => 'system@dribblingbd.com',
+                'phone' => '01700000000',
+                'password' => Hash::make(str()->random(32)),
+                'role' => 'superadmin',
+                'status' => true,
+            ]);
+        }
         FinanceCategory::firstOrCreate(
             ['name' => 'Advanced Payment'],
             [
                 'type' => 'income',
                 'description' => 'Advance payment received from customers at order confirmation',
                 'is_active' => true,
-                'created_by' => $admin?->id ?? 1,
+                'created_by' => $admin->id,
             ]
         );
     }

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\SiteSetting;
+use App\Services\Kronx\KronxClient;
 use App\Services\LoginLogService;
 use App\Services\SeoService;
 use App\Services\StockService;
@@ -20,6 +21,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(WorkLogService::class);
         $this->app->singleton(LoginLogService::class);
         $this->app->singleton(SeoService::class);
+
+        $this->app->bind(KronxClient::class, function ($app) {
+            return new KronxClient(
+                baseUrl: config('kronx.base_url'),
+                apiKey: config('kronx.api_key'),
+            );
+        });
     }
 
     public function boot(): void

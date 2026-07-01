@@ -53,6 +53,10 @@ Route::get('xxxxx', function () {
     return view('trap.xxxxx');
 })->name('trap.page')->middleware('web');
 
+// Kronx webhook
+Route::post('/api/kronx/webhook', \App\Http\Controllers\Api\KronxWebhookController::class)
+    ->name('api.kronx.webhook');
+
 Route::middleware(['auth', 'trap'])->group(function () {
     Route::post('logout', LogoutController::class)->name('logout');
 

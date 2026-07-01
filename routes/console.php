@@ -21,6 +21,8 @@ Schedule::command('app:clean-pending-images')->daily()->withoutOverlapping();
 Schedule::command(CleanOldPdfDownloads::class)->daily()->withoutOverlapping();
 Schedule::command(CleanReadNotifications::class)->hourly()->withoutOverlapping();
 Schedule::command(AuditSystemConsistency::class)->everyFiveMinutes()->withoutOverlapping()->appendOutputTo(storage_path('logs/audit.log'));
+Schedule::command('kronx:sync-products')->everyFiveMinutes()->withoutOverlapping()->appendOutputTo(storage_path('logs/kronx-sync.log'));
+Schedule::command('kronx:sync-stock')->everyFiveMinutes()->withoutOverlapping()->appendOutputTo(storage_path('logs/kronx-sync.log'));
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
