@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Finance;
 use App\Http\Controllers\Controller;
 use App\Models\FinanceTransaction;
 use App\Models\PendingOrderTransaction;
+use App\Models\SiteSetting;
 use App\Services\Finance\NotificationService;
 use App\Services\WorkLogService;
 use Illuminate\Http\Request;
@@ -20,6 +21,12 @@ class PendingOrderTransactionController extends Controller
     {
         $this->notifications = $notifications;
         $this->workLogService = $workLogService;
+    }
+
+    private function mappedCategoryId(string $purpose): ?int
+    {
+        $val = SiteSetting::getValue("finance_category_{$purpose}");
+        return $val ? (int) $val : null;
     }
 
     public function index()
@@ -45,23 +52,28 @@ class PendingOrderTransactionController extends Controller
                 'created_by' => Auth::id(),
             ];
 
-            FinanceTransaction::create(array_merge($baseData, [
-                'category_id' => 1,
-                'amount' => $pending->product_sales_amount,
-                'description' => "Product sales from Order #{$pending->order_no} ({$pending->customer_name})",
-            ]));
-
-            if ($pending->dtf_sales_amount > 0) {
+            $catProduct = $this->mappedCategoryId('product_sales');
+            if ($catProduct && $pending->product_sales_amount > 0) {
                 FinanceTransaction::create(array_merge($baseData, [
-                    'category_id' => 2,
+                    'category_id' => $catProduct,
+                    'amount' => $pending->product_sales_amount,
+                    'description' => "Product sales from Order #{$pending->order_no} ({$pending->customer_name})",
+                ]));
+            }
+
+            $catDtf = $this->mappedCategoryId('dtf_sales');
+            if ($catDtf && $pending->dtf_sales_amount > 0) {
+                FinanceTransaction::create(array_merge($baseData, [
+                    'category_id' => $catDtf,
                     'amount' => $pending->dtf_sales_amount,
                     'description' => "DTF sales from Order #{$pending->order_no} ({$pending->customer_name})",
                 ]));
             }
 
-            if ($pending->patch_sales_amount > 0) {
+            $catPatch = $this->mappedCategoryId('patch_sales');
+            if ($catPatch && $pending->patch_sales_amount > 0) {
                 FinanceTransaction::create(array_merge($baseData, [
-                    'category_id' => 3,
+                    'category_id' => $catPatch,
                     'amount' => $pending->patch_sales_amount,
                     'description' => "Patch sales from Order #{$pending->order_no} ({$pending->customer_name})",
                 ]));

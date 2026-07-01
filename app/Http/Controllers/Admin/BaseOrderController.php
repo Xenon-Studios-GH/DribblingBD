@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\FinanceCategory;
+use App\Models\FinanceTransaction;
 use App\Models\Order;
 use App\Models\PendingOrderTransaction;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use App\Services\StockService;
 use App\Services\WorkLogService;
+use Illuminate\Support\Facades\Auth;
 
 abstract class BaseOrderController extends Controller
 {
@@ -41,6 +44,33 @@ abstract class BaseOrderController extends Controller
             $this->patchProduct = Product::where('product_name', 'like', config('shop.patch_product_name_query'))->first();
         }
         return $this->patchProduct;
+    }
+
+    protected function recordAdvancePayment(Order $order): void
+    {
+        if ($order->advance_recorded_at !== null) {
+            return;
+        }
+        if ((float) ($order->advanced_payment ?? 0) <= 0) {
+            return;
+        }
+
+        $category = FinanceCategory::where('name', 'Advanced Payment')->where('type', 'income')->first();
+        if (!$category) {
+            return;
+        }
+
+        FinanceTransaction::create([
+            'type' => 'income',
+            'category_id' => $category->id,
+            'order_id' => $order->id,
+            'amount' => $order->advanced_payment,
+            'description' => "Advanced payment from Order #{$order->order_no} ({$order->customer_name})",
+            'date' => today(),
+            'created_by' => Auth::id(),
+        ]);
+
+        $order->update(['advance_recorded_at' => now()]);
     }
 
     protected function createPendingTransaction(Order $order): void

@@ -226,8 +226,13 @@ class OrderEditController extends BaseOrderController
             return back()->withErrors(['status' => 'Failed to update order: ' . $e->getMessage()]);
         }
 
-        if ($order->fresh()->status === 'delivered') {
-            $this->createPendingTransaction($order->fresh());
+        $freshOrder = $order->fresh();
+        if ($freshOrder->status === 'delivered') {
+            $this->createPendingTransaction($freshOrder);
+        }
+
+        if (in_array($freshOrder->status, ['on_hold'])) {
+            $this->recordAdvancePayment($freshOrder);
         }
 
         $this->workLogService->log('Order Updated', 'order', $order->id, "Order #{$order->order_no} updated — status: {$order->status}");

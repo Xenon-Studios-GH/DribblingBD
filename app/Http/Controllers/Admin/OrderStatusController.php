@@ -43,6 +43,10 @@ class OrderStatusController extends BaseOrderController
             return back()->withErrors(['status' => "Cannot transition from \"{$order->status}\" to \"{$newStatus}\"."]);
         }
 
+        if ($order->status === 'packed' && $newStatus === 'picked' && $order->packing_confirmed_at === null) {
+            return back()->withErrors(['status' => 'Packing must be confirmed before moving to picked.']);
+        }
+
         try {
             DB::transaction(function () use ($order, $newStatus) {
                 $orderProducts = $order->products;
@@ -130,6 +134,10 @@ class OrderStatusController extends BaseOrderController
             });
 
             $newStatus = $order->fresh()->status;
+
+            if (in_array($newStatus, ['on_hold'])) {
+                $this->recordAdvancePayment($order->fresh());
+            }
         } catch (\RuntimeException $e) {
             Log::error($e->getMessage(), ['order' => $order->id]);
             return back()->withErrors(['status' => $e->getMessage()]);

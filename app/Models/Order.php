@@ -32,6 +32,9 @@ class Order extends Model
         'notes',
         'created_by',
         'auto_restored_at',
+        'packing_confirmed_at',
+        'packing_confirmed_by',
+        'advance_recorded_at',
     ];
 
     protected function casts(): array
@@ -46,7 +49,14 @@ class Order extends Model
             'patch_price' => 'decimal:2',
             'delivery_charge' => 'decimal:2',
             'auto_restored_at' => 'datetime',
+            'packing_confirmed_at' => 'datetime',
+            'advance_recorded_at' => 'datetime',
         ];
+    }
+
+    public function packingConfirmer()
+    {
+        return $this->belongsTo(User::class, 'packing_confirmed_by');
     }
 
     public function getRouteKeyName(): string

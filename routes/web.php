@@ -24,6 +24,8 @@ use App\Http\Controllers\Admin\OrderDeleteController;
 use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\Admin\OrderStockController;
 use App\Http\Controllers\Admin\OrderDraftController;
+use App\Http\Controllers\Admin\PackingConfirmationController;
+use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Shop\Auth\RegisterController;
 
 Route::middleware('guest')->group(function () {
@@ -168,6 +170,23 @@ Route::middleware(['auth', 'trap'])->group(function () {
             Route::post('changelog', [\App\Http\Controllers\Admin\SystemChangelogController::class, 'store'])->name('changelog.store');
             Route::put('changelog/{id}', [\App\Http\Controllers\Admin\SystemChangelogController::class, 'update'])->name('changelog.update');
             Route::delete('changelog/{id}', [\App\Http\Controllers\Admin\SystemChangelogController::class, 'destroy'])->name('changelog.destroy');
+        });
+
+        // Packing Confirmation (admin + superadmin)
+        Route::middleware('role:superadmin,admin')->group(function () {
+            Route::get('orders/packed-pending', [PackingConfirmationController::class, 'index'])->name('orders.packed-pending');
+            Route::post('orders/{order}/packed-confirm', [PackingConfirmationController::class, 'confirm'])->name('orders.packed-confirm');
+            Route::post('orders/{order}/packed-reject', [PackingConfirmationController::class, 'reject'])->name('orders.packed-reject');
+        });
+
+        // System Controller (superadmin only)
+        Route::middleware('role:superadmin')->group(function () {
+            Route::get('system-controller', [SystemController::class, 'index'])->name('system-controller.index');
+            Route::post('system-controller/categories', [SystemController::class, 'storeCategory'])->name('system-controller.categories.store');
+            Route::put('system-controller/categories/{category}', [SystemController::class, 'updateCategory'])->name('system-controller.categories.update');
+            Route::delete('system-controller/categories/{category}', [SystemController::class, 'destroyCategory'])->name('system-controller.categories.destroy');
+            Route::post('system-controller/mappings', [SystemController::class, 'updateMappings'])->name('system-controller.mappings');
+            Route::post('system-controller/fixed-amounts', [SystemController::class, 'updateFixedAmounts'])->name('system-controller.fixed-amounts');
         });
 
     });

@@ -1,9 +1,14 @@
-@php use App\Models\PendingOrderTransaction; @endphp
+@php use App\Models\Order; use App\Models\PendingOrderTransaction; @endphp
 <x-layouts.app title="Pending Orders">
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-[#E6EDF3]">Pending Order Transactions</h1>
         </div>
+
+        @php
+            $orderIds = $pendingOrders->pluck('order_id')->filter()->unique()->values()->all();
+            $advanceMap = Order::whereIn('id', $orderIds)->pluck('advanced_payment', 'id');
+        @endphp
 
         <x-card class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -11,17 +16,22 @@
                     <tr class="border-b border-[#232A36] text-left text-[#94A3B8]">
                         <th class="pb-3 font-medium">Order</th>
                         <th class="pb-3 font-medium">Customer</th>
+                        <th class="pb-3 font-medium text-right">Advance Paid</th>
                         <th class="pb-3 font-medium text-right">Delivery</th>
                         <th class="pb-3 font-medium text-right">Product Sales</th>
                         <th class="pb-3 font-medium text-right">DTF</th>
                         <th class="pb-3 font-medium text-right">Patch</th>
-                        <th class="pb-3 font-medium text-right">Total</th>
+                        <th class="pb-3 font-medium text-right">Remaining</th>
                         <th class="pb-3 font-medium text-right">Date</th>
                         <th class="pb-3 font-medium text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($pendingOrders as $p)
+                    @php
+                        $advance = (float) ($advanceMap[$p->order_id] ?? 0);
+                        $remaining = max(0, (float) $p->total_amount - $advance);
+                    @endphp
                     <tr class="border-b border-[#232A36]/50 hover:bg-[#1C2333]">
                         <td class="py-3">
                             <a href="{{ admin_route('orders.show', ['order' => $p->order_no]) }}"
@@ -30,6 +40,7 @@
                             </a>
                         </td>
                         <td class="py-3 text-[#E6EDF3]">{{ $p->customer_name }}</td>
+                        <td class="py-3 text-right text-[#3B82F6] font-medium">৳{{ number_format($advance, 2) }}</td>
                         <td class="py-3 text-right text-[#94A3B8]">৳{{ number_format($p->delivery_charge, 2) }}</td>
                         <td class="py-3 text-right text-[#22C55E] font-medium">৳{{ number_format($p->product_sales_amount, 2) }}</td>
                         <td class="py-3 text-right {{ $p->dtf_sales_amount > 0 ? 'text-[#A855F7]' : 'text-[#6B7280]' }} font-medium">
@@ -38,7 +49,7 @@
                         <td class="py-3 text-right {{ $p->patch_sales_amount > 0 ? 'text-[#F59E0B]' : 'text-[#6B7280]' }} font-medium">
                             {{ $p->patch_sales_amount > 0 ? '৳' . number_format($p->patch_sales_amount, 2) : '—' }}
                         </td>
-                        <td class="py-3 text-right text-[#E6EDF3] font-semibold">৳{{ number_format($p->total_amount, 2) }}</td>
+                        <td class="py-3 text-right text-[#E6EDF3] font-semibold">৳{{ number_format($remaining, 2) }}</td>
                         <td class="py-3 text-right text-[#94A3B8] text-xs whitespace-nowrap">{{ $p->created_at->format('d M, h:i A') }}</td>
                         <td class="py-3 text-center">
                             <div class="flex items-center justify-center gap-2">
@@ -57,7 +68,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="py-12 text-center text-[#94A3B8]">
+                        <td colspan="10" class="py-12 text-center text-[#94A3B8]">
                             <i class="fas fa-inbox mb-2 text-lg"></i><br>
                             No pending order transactions.
                         </td>

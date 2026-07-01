@@ -20,6 +20,9 @@
         <x-nav-link href="{{ admin_route('workers.index') }}" :active="request()->routeIs('workers.*')" icon="users">
             Users
         </x-nav-link>
+        <x-nav-link href="{{ admin_route('system-controller.index') }}" :active="request()->routeIs('system-controller.*')" icon="cog">
+            System Controller
+        </x-nav-link>
         <x-nav-link href="{{ admin_route('monitoring.index') }}" :active="request()->routeIs('monitoring.index')" icon="activity">
             Monitoring
         </x-nav-link>
