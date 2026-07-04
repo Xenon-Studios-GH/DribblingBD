@@ -272,6 +272,7 @@
     </script>
     <x-tracking.body />
     @stack('scripts')
+    <x-social-card />
 </body>
 
 </html>
