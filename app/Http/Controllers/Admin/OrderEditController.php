@@ -45,6 +45,8 @@ class OrderEditController extends BaseOrderController
             }
         }
 
+        $oldStatus = $order->status;
+
         try {
             DB::transaction(function () use ($products, $order, $request, $validated, $status) {
                 $hasOutOfStock = false;
@@ -235,7 +237,7 @@ class OrderEditController extends BaseOrderController
             $this->recordAdvancePayment($freshOrder);
         }
 
-        $this->workLogService->log('Order Updated', 'order', $order->id, "Order #{$order->order_no} updated — status: {$order->status}");
+        $this->workLogService->log('Order Updated', 'order', $order->id, "Order #{$order->order_no} updated — {$oldStatus} → {$order->status}");
 
         return redirect(admin_route('orders.show', $order->order_no))->with('success', "Order {$order->order_no} updated.");
     }

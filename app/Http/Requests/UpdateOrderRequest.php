@@ -26,7 +26,7 @@ class UpdateOrderRequest extends FormRequest
             'advanced_payment' => 'nullable|numeric|min:0',
             'payment_method' => 'required|in:bkash,nagad,rocket,cod,cash',
             'delivery_charge' => 'nullable|numeric|min:0',
-            'status' => 'required|in:on_hold,packed,picked,delivered,out_of_stock,return,refund',
+            'status' => 'required|in:on_hold,packed,picked,delivered,out_of_stock,return,refund,cancelled',
             'notes' => 'nullable|string|max:5000',
         ];
     }

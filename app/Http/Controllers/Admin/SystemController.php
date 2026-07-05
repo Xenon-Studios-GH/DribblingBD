@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\FinanceCategory;
-use App\Models\FinanceTransaction;
 use App\Models\Order;
 use App\Models\PendingOrderTransaction;
 use App\Models\SiteSetting;

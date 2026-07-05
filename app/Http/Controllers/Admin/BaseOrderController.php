@@ -19,7 +19,7 @@ abstract class BaseOrderController extends Controller
     protected WorkLogService $workLogService;
 
     protected const VALID_TRANSITIONS = [
-        'pending'     => ['on_hold'],
+        'pending'     => ['on_hold', 'cancelled'],
         'on_hold'     => ['packed', 'cancelled'],
         'packed'      => ['picked'],
         'picked'      => ['delivered'],

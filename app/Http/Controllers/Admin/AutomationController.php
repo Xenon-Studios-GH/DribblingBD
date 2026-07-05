@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\PendingOrderTransaction;
 use App\Models\Product;
 use App\Models\SeoMeta;
-use App\Models\StockTransaction;
 use App\Models\WorkLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

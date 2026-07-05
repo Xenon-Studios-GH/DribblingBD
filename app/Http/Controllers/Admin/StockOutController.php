@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\StockService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class StockOutController extends Controller
@@ -60,8 +61,11 @@ class StockOutController extends Controller
         ]);
 
         try {
-            $product = Product::findOrFail($validated['product_id']);
-            $this->stockService->stockOut($product, $validated['size'], $validated['quantity'], $validated['note'] ?? null);
+            $product = DB::transaction(function () use ($validated) {
+                $product = Product::findOrFail($validated['product_id']);
+                $this->stockService->stockOut($product, $validated['size'], $validated['quantity'], $validated['note'] ?? null);
+                return $product;
+            });
             return response()->json(['success' => true, 'message' => 'Stock removed successfully.', 'product_id' => $product->id]);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);

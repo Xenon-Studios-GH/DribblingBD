@@ -23,7 +23,7 @@ class OrderStatusController extends BaseOrderController
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:on_hold,packed,picked,delivered,return,refund',
+            'status' => 'required|in:on_hold,packed,picked,delivered,return,refund,cancelled',
         ]);
 
         $newStatus = $request->status;
