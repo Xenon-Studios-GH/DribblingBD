@@ -111,12 +111,7 @@ $shipping = $client && $client->shipping_address ? $client->shipping_address : n
                                     </div>
                                 </template>
                                 <div class="flex-1 min-w-0">
-                                    <template x-if="item.code">
-                                        <a :href="'/shop/' + item.code + '/' + (item.slug ?? '')" class="text-sm font-semibold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug" x-text="item.name"></a>
-                                    </template>
-                                    <template x-if="!item.code">
-                                        <a :href="'/shop/id/' + item.id" class="text-sm font-semibold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug" x-text="item.name"></a>
-                                    </template>
+                                    <a :href="item.slug ? '/shop/' + item.slug : '#'" class="text-sm font-semibold text-gray-900 hover:text-[#E85D2C] transition-colors leading-snug" x-text="item.name"></a>
                                     <div class="flex items-center gap-3 mt-1.5">
                                         <span class="text-xs text-gray-400 bg-gray-50 px-2.5 py-0.5 rounded-full">Size <span class="font-medium text-gray-600" x-text="item.size"></span></span>
                                         <span class="text-xs text-gray-400">× <span x-text="item.quantity"></span></span>

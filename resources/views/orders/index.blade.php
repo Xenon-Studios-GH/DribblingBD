@@ -54,6 +54,7 @@
                             <option value="refund">Refund</option>
                             <option value="return">Return</option>
                             <option value="out_of_stock">Out of Stock</option>
+                            <option value="cancelled">Cancelled</option>
                             <option value="draft">Draft</option>
                         </select>
                         <select x-model="filterPayment"

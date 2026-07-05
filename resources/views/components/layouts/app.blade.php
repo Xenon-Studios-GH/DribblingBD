@@ -273,13 +273,13 @@
                     PollingManager.add('notification-bell', () => this.fetchUnreadCount(), { page: 'admin-layout' });
                 },
                 fetchUnreadCount() {
-                    fetch('{{ route('finance.notifications.unread', ['role' => Auth::user()->role]) }}')
+                    fetch('{{ route('finance.notifications.unread') }}')
                         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
                         .then(d => { this.unreadCount = d.count; })
                         .catch(e => console.error('Failed to fetch unread count:', e));
                 },
                 fetchNotifications() {
-                    fetch('{{ route('finance.notifications.unread', ['role' => Auth::user()->role]) }}?limit=5')
+                    fetch('{{ route('finance.notifications.unread') }}?limit=5')
                         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
                         .then(d => { this.notifications = d.notifications || []; })
                         .catch(e => console.error('Failed to fetch notifications:', e));
