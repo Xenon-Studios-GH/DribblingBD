@@ -283,7 +283,6 @@ class DashboardService
     {
         return [
             'recentLogs' => WorkLog::latest()->take(6)->get(),
-            'recentOrders' => Order::latest()->take(6)->get(),
         ];
     }
 }

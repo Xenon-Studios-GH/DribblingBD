@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
-
 if (!function_exists('shop_project_url')) {
     function shop_project_url($project)
     {

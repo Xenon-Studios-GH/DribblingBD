@@ -1,8 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
-
 use App\Console\Commands\CleanOldDrafts;
 use App\Console\Commands\PurgeOldFinanceData;
 use App\Console\Commands\CleanOldData;
@@ -24,6 +21,3 @@ Schedule::command(AuditSystemConsistency::class)->everyFiveMinutes()->withoutOve
 Schedule::command('kronx:sync-products')->everyFiveMinutes()->withoutOverlapping()->appendOutputTo(storage_path('logs/kronx-sync.log'));
 Schedule::command('kronx:sync-stock')->everyFiveMinutes()->withoutOverlapping()->appendOutputTo(storage_path('logs/kronx-sync.log'));
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');

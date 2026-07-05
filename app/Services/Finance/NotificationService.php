@@ -5,7 +5,6 @@ namespace App\Services\Finance;
 use App\Enums\UserRole;
 use App\Models\Notification;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class NotificationService
 {

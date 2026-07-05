@@ -6,7 +6,6 @@ use App\Models\FinanceCategory;
 use App\Models\FinanceTransaction;
 use App\Models\Order;
 use App\Models\PendingOrderTransaction;
-use App\Models\Product;
 use App\Models\Stock;
 use App\Models\StockTransaction;
 use App\Models\User;

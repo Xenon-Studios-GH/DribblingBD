@@ -79,11 +79,4 @@ class User extends Authenticatable
         return $this->hasMany(PdfDownload::class);
     }
 
-    public static function getUniqueClients($perPage = 20)
-    {
-        return static::where('role', 'customer')
-            ->select('id', 'name', 'email', 'phone')
-            ->distinct()
-            ->paginate($perPage);
-    }
 }

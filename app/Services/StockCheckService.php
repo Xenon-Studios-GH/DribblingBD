@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Stock;
+use Illuminate\Support\Facades\DB;
 
 class StockCheckService
 {
@@ -16,18 +17,20 @@ class StockCheckService
 
     public function checkAllOrders(): array
     {
-        $updated = [];
-        $protectedStatuses = ['delivered', 'refund', 'return'];
-        $orders = Order::whereNotIn('status', $protectedStatuses)->lockForUpdate()->get();
+        return DB::transaction(function () {
+            $updated = [];
+            $protectedStatuses = ['delivered', 'refund', 'return'];
+            $orders = Order::whereNotIn('status', $protectedStatuses)->lockForUpdate()->get();
 
-        foreach ($orders as $order) {
-            $result = $this->checkOrder($order);
-            if ($result) {
-                $updated[] = $result;
+            foreach ($orders as $order) {
+                $result = $this->checkOrder($order);
+                if ($result) {
+                    $updated[] = $result;
+                }
             }
-        }
 
-        return $updated;
+            return $updated;
+        });
     }
 
     public function checkOrder(Order $order): ?array
